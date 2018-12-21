@@ -4,3 +4,6 @@
 /plugin.dll
 /plugin.so
 .DS_Store
+
+**.swp
+**.swo

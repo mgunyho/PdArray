@@ -1,13 +1,9 @@
 #include "LittleUtils.hpp"
 #include "dsp/digital.hpp"
-//#include "app.hpp"
-//#include "helpers.hpp"
-
 
 struct ButtonModule : Module {
 	enum ParamIds {
 		BUTTON_PARAM,
-		//TOGGLE_PARAM,
 		NUM_PARAMS
 	};
 	enum InputIds {
@@ -27,14 +23,11 @@ struct ButtonModule : Module {
 		NUM_LIGHTS
 	};
 
-	//bool gate = false;
 	bool toggle = false; // TODO: serialize to json
 	SchmittTrigger inputTrigger;
 	PulseGenerator triggerGenerator;
 
-	ButtonModule() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
-		//params[TOGGLE_PARAM].value = 0.f;
-	}
+	ButtonModule() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
 	void step() override;
 
 
@@ -46,7 +39,6 @@ struct ButtonModule : Module {
 
 
 void ButtonModule::step() {
-	// Implement a simple sine oscillator
 	float deltaTime = engineGetSampleTime();
 
 	float gateVoltage = rescale(inputs[TRIG_INPUT].value, 0.1f, 2.f, 0.f, 1.f);
@@ -126,15 +118,15 @@ struct ButtonModuleWidget : ModuleWidget {
 
 		//addOutput(Port::create<PJ301MPort>(Vec(33, 275), Port::OUTPUT, module, ButtonModule::SINE_OUTPUT));
 		//addOutput(Port::create<PJ301MPort>(Vec(18, 217), Port::OUTPUT, module, ButtonModule::TRIG_OUTPUT));
-		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 135), module, ButtonModule::TRIG_INPUT));
-		addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 195), module, ButtonModule::TRIG_OUTPUT));
-		addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 255), module, ButtonModule::GATE_OUTPUT));
+		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 165), module, ButtonModule::TRIG_INPUT));
+		addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 215), module, ButtonModule::TRIG_OUTPUT));
+		addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 265), module, ButtonModule::GATE_OUTPUT));
 		addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 315), module, ButtonModule::TOGGLE_OUTPUT));
 
 		//addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(41, 59), module, ButtonModule::TRIG_LIGHT));
 		double offset = 3.6;
-		addChild(createLightCentered<TinyLight<GreenLight>>(Vec(37.5 - offset, 180 + offset), module, ButtonModule::TRIG_LIGHT));
-		addChild(createLightCentered<TinyLight<GreenLight>>(Vec(37.5 - offset, 240 + offset), module, ButtonModule::GATE_LIGHT));
+		addChild(createLightCentered<TinyLight<GreenLight>>(Vec(37.5 - offset, 200 + offset), module, ButtonModule::TRIG_LIGHT));
+		addChild(createLightCentered<TinyLight<GreenLight>>(Vec(37.5 - offset, 250 + offset), module, ButtonModule::GATE_LIGHT));
 		addChild(createLightCentered<TinyLight<GreenLight>>(Vec(37.5 - offset, 300 + offset), module, ButtonModule::TOGGLE_LIGHT));
 	}
 };
