@@ -1,6 +1,8 @@
 #include "LittleUtils.hpp"
 #include "dsp/digital.hpp"
 
+//TODO: serialize toggle state + const state in json
+//TODO: right-click / reset - reset toggle state + const state
 struct ButtonModule : Module {
 	enum ParamIds {
 		BUTTON_PARAM,
@@ -14,16 +16,26 @@ struct ButtonModule : Module {
 		TRIG_OUTPUT,
 		GATE_OUTPUT,
 		TOGGLE_OUTPUT,
+		CONST_OUTPUT,
 		NUM_OUTPUTS
 	};
 	enum LightIds {
 		TRIG_LIGHT,
 		GATE_LIGHT,
 		TOGGLE_LIGHT,
+		CONST_1_LIGHTP,
+		CONST_1_LIGHTM,
+		CONST_5_LIGHTP,
+		CONST_5_LIGHTM,
+		CONST_10_LIGHTP,
+		CONST_10_LIGHTM,
+		//CONST_SIGN_LIGHTP,
+		//CONST_SIGN_LIGHTM,
 		NUM_LIGHTS
 	};
 
 	bool toggle = false; // TODO: serialize to json
+	int const_choice = 0;
 	SchmittTrigger inputTrigger;
 	PulseGenerator triggerGenerator;
 
@@ -53,6 +65,8 @@ void ButtonModule::step() {
 	if(triggered) {
 		triggerGenerator.trigger(1e-3f);
 		toggle = !toggle;
+		const_choice += 1;
+		const_choice %= 6;
 	}
 
 	outputs[TRIG_OUTPUT].value = trigger ? 10.0f : 0.0f;
@@ -63,6 +77,38 @@ void ButtonModule::step() {
 
 	outputs[TOGGLE_OUTPUT].value = toggle ? 10.0f : 0.0f;
 	lights[TOGGLE_LIGHT].setBrightnessSmooth(toggle);
+
+	bool sign = const_choice >= 3;
+	switch(const_choice % 3) {
+		case 0: {
+			lights[CONST_10_LIGHTP + !sign].setBrightnessSmooth(0.0f);
+			lights[CONST_1_LIGHTP + sign].setBrightnessSmooth(1.0f);
+			outputs[CONST_OUTPUT].value = 1.f;
+			break;
+		};
+		case 1: {
+			lights[CONST_1_LIGHTP + sign].setBrightnessSmooth(0.f);
+			lights[CONST_5_LIGHTP + sign].setBrightnessSmooth(1.f);
+			outputs[CONST_OUTPUT].value = 5.f;
+			break;
+		};
+		case 2:
+		default: {
+			lights[CONST_5_LIGHTP + sign].setBrightnessSmooth(0.f);
+			lights[CONST_10_LIGHTP + sign].setBrightnessSmooth(1.f);
+			outputs[CONST_OUTPUT].value = 10.f;
+			break;
+		}
+	}
+
+	if(const_choice < 3) {
+		//lights[CONST_SIGN_LIGHTP].setBrightnessSmooth(1.f);
+		//lights[CONST_SIGN_LIGHTM].setBrightnessSmooth(0.f);
+	} else {
+		outputs[CONST_OUTPUT].value *= -1;
+		//lights[CONST_SIGN_LIGHTP].setBrightnessSmooth(0.f);
+		//lights[CONST_SIGN_LIGHTM].setBrightnessSmooth(1.f);
+	}
 }
 
 
@@ -128,6 +174,20 @@ struct ButtonModuleWidget : ModuleWidget {
 		addChild(createLightCentered<TinyLight<GreenLight>>(Vec(37.5 - offset, 200 + offset), module, ButtonModule::TRIG_LIGHT));
 		addChild(createLightCentered<TinyLight<GreenLight>>(Vec(37.5 - offset, 250 + offset), module, ButtonModule::GATE_LIGHT));
 		addChild(createLightCentered<TinyLight<GreenLight>>(Vec(37.5 - offset, 300 + offset), module, ButtonModule::TOGGLE_LIGHT));
+
+		addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 115), module, ButtonModule::CONST_OUTPUT));
+
+		//addChild(createLight<SmallLight<GreenLight>>(Vec(10.5, 78), module, ButtonModule::CONST_1_LIGHT));
+		addChild(createLightCentered<SmallLight<GreenRedLight>>(Vec(15, 76), module, ButtonModule::CONST_1_LIGHTP));
+		addChild(createLightCentered<SmallLight<GreenRedLight>>(Vec(15, 86), module, ButtonModule::CONST_5_LIGHTP));
+		addChild(createLightCentered<SmallLight<GreenRedLight>>(Vec(15, 96), module, ButtonModule::CONST_10_LIGHTP));
+		//addChild(ModuleLightWidget::create<TinyLight<GreenRedLight>>(Vec(23.5, 89), module,
+		//			ButtonModule::CONST_SIGN_LIGHTP
+		//			//ButtonModule::CONST_SIGN_LIGHTM
+		//			));
+
+		//addParam(
+
 	}
 };
 
