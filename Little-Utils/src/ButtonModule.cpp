@@ -1,7 +1,6 @@
 #include "LittleUtils.hpp"
 #include "dsp/digital.hpp"
 
-//TODO: serialize toggle state + const state in json
 //TODO: right-click / reset - reset toggle state + const state
 struct ButtonModule : Module {
 	enum ParamIds {
@@ -32,12 +31,16 @@ struct ButtonModule : Module {
 		NUM_LIGHTS
 	};
 
-	bool toggle = false; // TODO: serialize to json
+	bool toggle = false;
 	int const_choice = 0;
 	SchmittTrigger inputTrigger;
 	PulseGenerator triggerGenerator;
 
-	ButtonModule() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
+	ButtonModule() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
+		for(int i = 0; i < NUM_LIGHTS; i++) {
+			lights[i].setBrightness(0.f);
+		}
+	}
 	void step() override;
 
 
@@ -45,6 +48,35 @@ struct ButtonModule : Module {
 	// - toJson, fromJson: serialization of internal data
 	// - onSampleRateChange: event triggered by a change of sample rate
 	// - onReset, onRandomize, onCreate, onDelete: implements special behavior when user clicks these from the context menu
+	json_t* toJson() override {
+		json_t *data, *toggle_value, *const_choice_value;
+		data = json_object();
+		toggle_value = json_boolean(toggle);
+		const_choice_value = json_integer(const_choice);
+
+		json_object_set(data, "toggle", toggle_value);
+		json_object_set(data, "const_choice", const_choice_value);
+
+		json_decref(toggle_value);
+		json_decref(const_choice_value);
+		return data;
+	}
+
+	void fromJson(json_t* root) override {
+		json_t *toggle_value, *const_choice_value;
+		toggle_value = json_object_get(root, "toggle");
+		if(json_is_boolean(toggle_value)) {
+			toggle = json_boolean_value(toggle_value);
+		}
+		const_choice_value = json_object_get(root, "const_choice");
+		if(json_is_integer(const_choice_value)) {
+			const_choice = int(json_integer_value(const_choice_value));
+		}
+
+		json_decref(toggle_value);
+		json_decref(const_choice_value);
+	}
+
 };
 
 
