@@ -72,9 +72,6 @@ struct ButtonModule : Module {
 		if(json_is_integer(const_choice_value)) {
 			const_choice = int(json_integer_value(const_choice_value));
 		}
-
-		json_decref(toggle_value);
-		json_decref(const_choice_value);
 	}
 
 };
