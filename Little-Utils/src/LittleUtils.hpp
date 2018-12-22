@@ -3,8 +3,9 @@
 
 using namespace rack;
 
-// Forward-declare the Plugin, defined in Template.cpp
+// Forward-declare the Plugin, defined in LittleUtils.cpp
 extern Plugin *plugin;
 
 // Forward-declare each Model, defined in each module source file
 extern Model *modelButtonModule;
+extern Model *modelPulseGenerator;
