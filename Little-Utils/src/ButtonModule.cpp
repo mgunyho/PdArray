@@ -1,7 +1,6 @@
 #include "LittleUtils.hpp"
 #include "dsp/digital.hpp"
 
-//TODO: right-click / reset - reset toggle state + const state
 struct ButtonModule : Module {
 	enum ParamIds {
 		BUTTON_PARAM,
@@ -37,10 +36,18 @@ struct ButtonModule : Module {
 	PulseGenerator triggerGenerator;
 
 	ButtonModule() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
+		onReset();
+	}
+
+	void onReset() override {
+		// turn off all lights
 		for(int i = 0; i < NUM_LIGHTS; i++) {
 			lights[i].setBrightness(0.f);
 		}
+		toggle = false;
+		const_choice = 0;
 	}
+
 	void step() override;
 
 
