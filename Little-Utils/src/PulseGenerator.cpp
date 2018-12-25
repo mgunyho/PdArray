@@ -1,5 +1,6 @@
 #include "LittleUtils.hpp"
 #include "dsp/digital.hpp"
+#include "Widgets.hpp"
 
 #include <algorithm> // std::replace
 
@@ -103,20 +104,12 @@ void PulseGenModule::step() {
 
 }
 
-struct MsDisplayWidget : TransparentWidget {
-	// based on LedDisplayChoice
-	std::string text;
+// TextBox defined in ./Widgets.hpp
+struct MsDisplayWidget : TextBox {
 	bool msLabelStatus = false; // 0 = 'ms', 1 = 's'
-	std::shared_ptr<Font> font;
-	Vec textOffset;
-	NVGcolor color;
 
-	//TODO: create<...>() thing with position as argument?
-	MsDisplayWidget() {
-		font = Font::load(assetPlugin(plugin, "res/RobotoMono-Bold.ttf"));
-		color = nvgRGB(0x23, 0x23, 0x23);
+	MsDisplayWidget() : TextBox() {
 		box.size = Vec(30, 35);
-		textOffset = Vec(box.size.x * 0.5f, 0.f);
 	}
 
 	void updateDisplayValue(float v) {
@@ -132,27 +125,18 @@ struct MsDisplayWidget : TransparentWidget {
 		}
 		// hacky way to make monospace fonts prettier
 		std::replace(s.begin(), s.end(), '0', 'O');
-		text = s;
+		setText(s);
 	}
 
 	void draw(NVGcontext *vg) override {
-		// based on LedDisplayChoice::draw() in Rack/src/app/LedDisplay.cpp
+		TextBox::draw(vg);
 		nvgScissor(vg, 0, 0, box.size.x, box.size.y);
-
-		nvgBeginPath(vg);
-		nvgRoundedRect(vg, 0, 0, box.size.x, box.size.y, 3.0);
-		nvgFillColor(vg, nvgRGB(0xc8, 0xc8, 0xc8));
-		nvgFill(vg);
 
 		if (font->handle >= 0) {
 			nvgFillColor(vg, color);
 			nvgFontFaceId(vg, font->handle);
 
-			nvgFontSize(vg, 20);
-			nvgTextLetterSpacing(vg, -2.0);
-			nvgTextAlign(vg, NVG_ALIGN_CENTER | NVG_ALIGN_TOP);
-			nvgText(vg, textOffset.x, textOffset.y, text.c_str(), NULL);
-
+			// draw 'ms' or 's' on bottom, depending on msLabelStatus
 			nvgFontSize(vg, 20);
 			nvgTextLetterSpacing(vg, 0.f);
 			nvgTextAlign(vg, NVG_ALIGN_CENTER | NVG_ALIGN_TOP);
