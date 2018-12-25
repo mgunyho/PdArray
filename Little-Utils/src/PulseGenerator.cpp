@@ -110,6 +110,7 @@ struct MsDisplayWidget : TextBox {
 
 	MsDisplayWidget() : TextBox() {
 		box.size = Vec(30, 35);
+		letter_spacing = -2.0f;
 	}
 
 	void updateDisplayValue(float v) {

@@ -6,6 +6,8 @@ struct TextBox : TransparentWidget {
 	// based on LedDisplayChoice
 	std::string text;
 	std::shared_ptr<Font> font;
+	float font_size;
+	float letter_spacing;
 	Vec textOffset;
 	NVGcolor color;
 
@@ -14,6 +16,9 @@ struct TextBox : TransparentWidget {
 		font = Font::load(assetPlugin(plugin, "res/RobotoMono-Bold.ttf"));
 		color = nvgRGB(0x23, 0x23, 0x23);
 		box.size = Vec(30, 18);
+		// size 20 with spacing -2 will fit 3 characters on a 30px box with Roboto mono
+		font_size = 20;
+		letter_spacing = 0.f;
 		textOffset = Vec(box.size.x * 0.5f, 0.f);
 	}
 
@@ -32,8 +37,8 @@ struct TextBox : TransparentWidget {
 			nvgFillColor(vg, color);
 			nvgFontFaceId(vg, font->handle);
 
-			nvgFontSize(vg, 20);
-			nvgTextLetterSpacing(vg, -2.0);
+			nvgFontSize(vg, font_size);
+			nvgTextLetterSpacing(vg, letter_spacing);
 			nvgTextAlign(vg, NVG_ALIGN_CENTER | NVG_ALIGN_TOP);
 			nvgText(vg, textOffset.x, textOffset.y, text.c_str(), NULL);
 		}
