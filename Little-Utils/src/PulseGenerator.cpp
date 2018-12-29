@@ -1,11 +1,43 @@
 #include "LittleUtils.hpp"
 #include "dsp/digital.hpp"
 #include "Widgets.hpp"
+#include "Util.hpp"
 
 #include <algorithm> // std::replace
 
 const float MIN_EXPONENT = -3.0f;
 const float MAX_EXPONENT = 1.0f;
+
+// based on PulseGeneraotr in include/util/digital.hpp
+struct CustomPulseGenerator {
+	float time;
+	float triggerDuration;
+	bool finished; // the output is the inverse of this
+
+	CustomPulseGenerator() {
+		reset();
+	}
+	/** Immediately resets the state to LOW */
+	void reset() {
+		time = 0.f;
+		triggerDuration = 0.f;
+		finished = true;
+	}
+	/** Advances the state by `deltaTime`. Returns whether the pulse is in the HIGH state. */
+	bool process(float deltaTime) {
+		time += deltaTime;
+		if(!finished) finished = time >= triggerDuration;
+		return !finished;
+	}
+	/** Begins a trigger with the given `triggerDuration`. */
+	void trigger(float triggerDuration) {
+		// retrigger even with a shorter duration
+		time = 0.f;
+		finished = false;
+		this->triggerDuration = triggerDuration;
+	}
+};
+
 
 // the module is called PulseGenModule because PulseGenerator is already taken
 // in dsp/digital.hpp
@@ -31,7 +63,7 @@ struct PulseGenModule : Module {
 	};
 
 	SchmittTrigger inputTrigger;
-	PulseGenerator gateGenerator;
+	CustomPulseGenerator gateGenerator;
 	float gate_duration = 0.5f;
 
 	PulseGenModule() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
@@ -53,13 +85,6 @@ struct PulseGenModule : Module {
 	}
 
 };
-
-//TODO: consider moving to utils.hpp or something
-//sgn() function based on https://stackoverflow.com/questions/1903954/is-there-a-standard-sign-function-signum-sgn-in-c-c
-inline constexpr
-int signum(float val) {
-	return (0.f < val) - (val < 0.f);
-}
 
 void PulseGenModule::step() {
 	float deltaTime = engineGetSampleTime();
@@ -95,8 +120,8 @@ void PulseGenModule::step() {
 	if(triggered) {
 		gateGenerator.trigger(gate_duration);
 	}
-	//TODO: adjusting trigger time once triggered has no effect
-	//gateGenerator.setDuration(gate_duration) ???
+	// update trigger duration even in the middle of a trigger
+	gateGenerator.triggerDuration = gate_duration;
 
 	outputs[GATE_OUTPUT].value = gateGenerator.process(deltaTime) ? 10.0f : 0.0f;
 
