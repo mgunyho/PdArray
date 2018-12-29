@@ -10,3 +10,4 @@ extern Plugin *plugin;
 extern Model *modelButtonModule;
 extern Model *modelPulseGenerator;
 extern Model *modelBiasKnobs;
+extern Model *modelArithmetic;

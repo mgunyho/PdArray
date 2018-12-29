@@ -46,3 +46,9 @@ struct TextBox : TransparentWidget {
 		nvgResetScissor(vg);
 	}
 };
+
+struct ToggleLEDButton : SVGSwitch, ToggleSwitch {
+	ToggleLEDButton() {
+		addFrame(SVG::load(assetGlobal("res/ComponentLibrary/LEDButton.svg")));
+	}
+};
