@@ -108,6 +108,7 @@ void PulseGenModule::step() {
 			float cv_exponent = rescale(fabs(cv_amt), 0.f, 1.f,
 					MIN_EXPONENT, MAX_EXPONENT);
 			// decrease exponent by one so that 10V maps to 1.0 (100%) CV.
+			//TODO: how to make pow more efficient?
 			float cv_scale = powf(10.0f, cv_exponent - 1.f);
 			gate_duration = clamp(
 					powf(10.0f, exponent) + cv_scale * cv_voltage * signum(cv_amt),
@@ -132,6 +133,7 @@ void PulseGenModule::step() {
 // TextBox defined in ./Widgets.hpp
 struct MsDisplayWidget : TextBox {
 	bool msLabelStatus = false; // 0 = 'ms', 1 = 's'
+	float previous_displayed_value = 0.f;
 
 	MsDisplayWidget() : TextBox() {
 		box.size = Vec(30, 35);
@@ -140,18 +142,22 @@ struct MsDisplayWidget : TextBox {
 
 	void updateDisplayValue(float v) {
 		std::string s;
-		if(v <= 0.0995) {
-			v *= 1e3f;
-			s = stringf("%#.2g", v < 1.f ? 0.f : v);
-			msLabelStatus = false;
-		} else {
-			s = stringf("%#.2g", v);
-			msLabelStatus = true;
-			if(s.at(0) == '0') s.erase(0, 1);
+		// only update/do stringf if value is changed
+		if(v != previous_displayed_value) {
+			previous_displayed_value = v;
+			if(v <= 0.0995) {
+				v *= 1e3f;
+				s = stringf("%#.2g", v < 1.f ? 0.f : v);
+				msLabelStatus = false;
+			} else {
+				s = stringf("%#.2g", v);
+				msLabelStatus = true;
+				if(s.at(0) == '0') s.erase(0, 1);
+			}
+			// hacky way to make monospace fonts prettier
+			std::replace(s.begin(), s.end(), '0', 'O');
+			setText(s);
 		}
-		// hacky way to make monospace fonts prettier
-		std::replace(s.begin(), s.end(), '0', 'O');
-		setText(s);
 	}
 
 	void draw(NVGcontext *vg) override {
@@ -200,8 +206,7 @@ struct PulseGeneratorWidget : ModuleWidget {
 		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 228), module, PulseGenModule::TRIG_INPUT));
 		addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 278), module, PulseGenModule::GATE_OUTPUT));
 
-		double offset = 3.6;
-		addChild(createLightCentered<TinyLight<GreenLight>>(Vec(37.5 - offset, 263 + offset), module, PulseGenModule::GATE_LIGHT));
+		addChild(createTinyLightForPort<GreenLight>(Vec(22.5, 278), module, PulseGenModule::GATE_LIGHT));
 
 		//TODO: is 'new' good? does it get freed somewhere?
 		msDisplay = new MsDisplayWidget();

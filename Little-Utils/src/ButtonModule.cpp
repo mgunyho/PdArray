@@ -1,5 +1,6 @@
 #include "LittleUtils.hpp"
 #include "dsp/digital.hpp"
+#include "Util.hpp"
 
 struct ButtonModule : Module {
 	enum ParamIds {
@@ -163,10 +164,9 @@ struct ButtonModuleWidget : ModuleWidget {
 		addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 192), module, ButtonModule::GATE_OUTPUT));
 		addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 242), module, ButtonModule::TOGGLE_OUTPUT));
 
-		double offset = 3.6;
-		addChild(createLightCentered<TinyLight<GreenLight>>(Vec(37.5 - offset, 127 + offset), module, ButtonModule::TRIG_LIGHT));
-		addChild(createLightCentered<TinyLight<GreenLight>>(Vec(37.5 - offset, 177 + offset), module, ButtonModule::GATE_LIGHT));
-		addChild(createLightCentered<TinyLight<GreenLight>>(Vec(37.5 - offset, 227 + offset), module, ButtonModule::TOGGLE_LIGHT));
+		addChild(createTinyLightForPort<GreenLight>(Vec(22.5, 142), module, ButtonModule::TRIG_LIGHT));
+		addChild(createTinyLightForPort<GreenLight>(Vec(22.5, 192), module, ButtonModule::GATE_LIGHT));
+		addChild(createTinyLightForPort<GreenLight>(Vec(22.5, 242), module, ButtonModule::TOGGLE_LIGHT));
 
 		addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 320), module, ButtonModule::CONST_OUTPUT));
 
