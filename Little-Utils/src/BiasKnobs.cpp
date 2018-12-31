@@ -5,14 +5,13 @@
 
 #include <algorithm> // std::replace
 
-//TODO: consider 4 instead of 5.
 const int N_KNOBS = 5;
 constexpr float KNOB_COLORS[N_KNOBS][3] = {
 	{0.0f, 1.0f, 0.0f},
 	{1.0f, 0.5f, 0.0f},
 	{1.0f, 0.0f, 0.0f},
 	{1.0f, 0.0f, 1.0f},
-	{0.0f, 0.0f, 1.0f} //TODO: not very visible on black
+	{0.0f, 0.5f, 1.0f}
 };
 
 const int MAX_SEMITONES = 36;
@@ -26,7 +25,6 @@ struct BiasKnobs : Module {
 		BIAS_3_PARAM,
 		BIAS_4_PARAM,
 		BIAS_5_PARAM,
-		//BIAS_6_PARAM,
 		MODE_PARAM,
 		//ONE_TO_MANY_PARAM,
 		NUM_PARAMS
@@ -37,7 +35,6 @@ struct BiasKnobs : Module {
 		INPUT_3,
 		INPUT_4,
 		INPUT_5,
-		//INPUT_6,
 		NUM_INPUTS
 	};
 	enum OutputIds {
@@ -46,7 +43,6 @@ struct BiasKnobs : Module {
 		OUTPUT_3,
 		OUTPUT_4,
 		OUTPUT_5,
-		//OUTPUT_6,
 		NUM_OUTPUTS
 	};
 	enum LightIds {
@@ -65,9 +61,6 @@ struct BiasKnobs : Module {
 		INPUT_5_LIGHTR,
 		INPUT_5_LIGHTG,
 		INPUT_5_LIGHTB,
-		//INPUT_6_LIGHTR,
-		//INPUT_6_LIGHTG,
-		//INPUT_6_LIGHTB,
 
 		OUTPUT_1_LIGHTR,
 		OUTPUT_1_LIGHTG,
@@ -84,10 +77,6 @@ struct BiasKnobs : Module {
 		OUTPUT_5_LIGHTR,
 		OUTPUT_5_LIGHTG,
 		OUTPUT_5_LIGHTB,
-		//OUTPUT_6_LIGHTR,
-		//OUTPUT_6_LIGHTG,
-		//OUTPUT_6_LIGHTB,
-		//ONE_TO_MANY_LIGHT,
 		NUM_LIGHTS
 	};
 
@@ -138,12 +127,6 @@ void BiasKnobs::step() {
 		lights[OUTPUT_1_LIGHTG + 3*i].setBrightness(KNOB_COLORS[li][1]);
 		lights[OUTPUT_1_LIGHTB + 3*i].setBrightness(KNOB_COLORS[li][2]);
 	}
-
-	//lights[GATE_LIGHT].setBrightnessSmooth(outputs[GATE_OUTPUT].value);
-
-	//oneToManyTrigger.process(deltaTime);
-	//lights[ONE_TO_MANY_LIGHT].setBrightnessSmooth(params[ONE_TO_MANY_PARAM].value);
-
 }
 
 struct BiasKnobsWidget : ModuleWidget {
@@ -165,16 +148,16 @@ struct BiasKnobsWidget : ModuleWidget {
 			float bot_items_center_y = 55.f + i * elem_height;
 			addParam(createParamCentered<Trimpot>(Vec(20., top_items_center_y),
 						module, BiasKnobs::BIAS_1_PARAM + i, -1.f, 1.f, 0.f));
+
 			Vec input_pos = Vec(20., bot_items_center_y);
 			addInput(createInputCentered<PJ301MPort>(input_pos,
 						module, BiasKnobs::INPUT_1 + i));
-			//addOutput(createOutputCentered<PJ301MPort>(Vec(120 - 22.5, bot_items_center_y),
-			//			module, BiasKnobs::OUTPUT_1 + i));
+
 			Vec output_pos = Vec(75 - 20., bot_items_center_y);
 			addOutput(createOutputCentered<PJ301MPort>(output_pos,
 						module, BiasKnobs::OUTPUT_1 + i));
 
-			addChild(createTinyLightForPort<RGBLight>(input_pos, module, BiasKnobs::INPUT_1_LIGHTR + 3*i));
+			addChild(createTinyLightForPort<RGBLight>(input_pos,  module, BiasKnobs::INPUT_1_LIGHTR  + 3*i));
 			addChild(createTinyLightForPort<RGBLight>(output_pos, module, BiasKnobs::OUTPUT_1_LIGHTR + 3*i));
 
 			//TODO: is 'new' good? does it get freed somewhere?
@@ -193,14 +176,6 @@ struct BiasKnobsWidget : ModuleWidget {
 		addParam(createParam<CKSS>(Vec(15, 311), module, BiasKnobs::MODE_PARAM,
 				0.f, 1.f, 1.f
 				));
-		//addParam(createParam<CKSS>(Vec(40, 315), module, BiasKnobs::ONE_TO_MANY_PARAM,
-		//		0.f, 1.f, 1.f
-		//		));
-		//addParam(createParam<ToggleLEDButton>(Vec(40, 315), module, BiasKnobs::ONE_TO_MANY_PARAM,
-		//		0.f, 1.f, 0.f
-		//		));
-		//addChild(ModuleLightWidget::create<MediumLight<GreenLight>>(Vec(37.5f + 7.f, 315+4.4f), module, BiasKnobs::ONE_TO_MANY_LIGHT));
-
 	}
 
 	void step() override {
@@ -214,7 +189,6 @@ struct BiasKnobsWidget : ModuleWidget {
 			} else {
 				s = stringf(fabs(bias) < 0.995f ? "%+.1fV" : "%+.0f.V", bias * 10.f);
 			}
-			//std::string s = stringf(fabs(bias) < 9.95f ? "%+.1f" : "%+.0f.", bias);
 			std::replace(s.begin(), s.end(), '0', 'O');
 			displays[i]->setText(s);
 		}
