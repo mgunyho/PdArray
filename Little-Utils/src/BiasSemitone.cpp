@@ -18,7 +18,7 @@ const int MAX_SEMITONES = 36;
 
 //TODO: good name?
 //alternatives: offset/semitone, bias/semitone
-struct BiasKnobs : Module {
+struct Bias_Semitone : Module {
 	enum ParamIds {
 		BIAS_1_PARAM,
 		BIAS_2_PARAM,
@@ -26,7 +26,6 @@ struct BiasKnobs : Module {
 		BIAS_4_PARAM,
 		BIAS_5_PARAM,
 		MODE_PARAM,
-		//ONE_TO_MANY_PARAM,
 		NUM_PARAMS
 	};
 	enum InputIds {
@@ -82,7 +81,7 @@ struct BiasKnobs : Module {
 
 	//SchmittTrigger oneToManyTrigger;
 	//bool oneToManyState;
-	BiasKnobs() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
+	Bias_Semitone() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
 
 	void step() override;
 
@@ -102,7 +101,7 @@ struct BiasKnobs : Module {
 
 };
 
-void BiasKnobs::step() {
+void Bias_Semitone::step() {
 	//float deltaTime = engineGetSampleTime();
 
 	int li = 0; // index of the latest encountered active input
@@ -129,13 +128,13 @@ void BiasKnobs::step() {
 	}
 }
 
-struct BiasKnobsWidget : ModuleWidget {
-	BiasKnobs *module;
+struct Bias_SemitoneWidget : ModuleWidget {
+	Bias_Semitone *module;
 	TextBox *displays[N_KNOBS];
 
-	BiasKnobsWidget(BiasKnobs *module) : ModuleWidget(module) {
+	Bias_SemitoneWidget(Bias_Semitone *module) : ModuleWidget(module) {
 		this->module = module;
-		setPanel(SVG::load(assetPlugin(plugin, "res/BiasKnobs.svg")));
+		setPanel(SVG::load(assetPlugin(plugin, "res/Bias_Semitone.svg")));
 
 		addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
 		addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
@@ -147,18 +146,18 @@ struct BiasKnobsWidget : ModuleWidget {
 			float top_items_center_y = 30.f + i * elem_height;
 			float bot_items_center_y = 55.f + i * elem_height;
 			addParam(createParamCentered<Trimpot>(Vec(20., top_items_center_y),
-						module, BiasKnobs::BIAS_1_PARAM + i, -1.f, 1.f, 0.f));
+						module, Bias_Semitone::BIAS_1_PARAM + i, -1.f, 1.f, 0.f));
 
 			Vec input_pos = Vec(20., bot_items_center_y);
 			addInput(createInputCentered<PJ301MPort>(input_pos,
-						module, BiasKnobs::INPUT_1 + i));
+						module, Bias_Semitone::INPUT_1 + i));
 
 			Vec output_pos = Vec(75 - 20., bot_items_center_y);
 			addOutput(createOutputCentered<PJ301MPort>(output_pos,
-						module, BiasKnobs::OUTPUT_1 + i));
+						module, Bias_Semitone::OUTPUT_1 + i));
 
-			addChild(createTinyLightForPort<RGBLight>(input_pos,  module, BiasKnobs::INPUT_1_LIGHTR  + 3*i));
-			addChild(createTinyLightForPort<RGBLight>(output_pos, module, BiasKnobs::OUTPUT_1_LIGHTR + 3*i));
+			addChild(createTinyLightForPort<RGBLight>(input_pos,  module, Bias_Semitone::INPUT_1_LIGHTR  + 3*i));
+			addChild(createTinyLightForPort<RGBLight>(output_pos, module, Bias_Semitone::OUTPUT_1_LIGHTR + 3*i));
 
 			//TODO: is 'new' good? does it get freed somewhere?
 			TextBox *display = new TextBox();
@@ -173,7 +172,7 @@ struct BiasKnobsWidget : ModuleWidget {
 			addChild(displays[i]);
 		}
 
-		addParam(createParam<CKSS>(Vec(15, 311), module, BiasKnobs::MODE_PARAM,
+		addParam(createParam<CKSS>(Vec(15, 311), module, Bias_Semitone::MODE_PARAM,
 				0.f, 1.f, 1.f
 				));
 	}
@@ -181,9 +180,9 @@ struct BiasKnobsWidget : ModuleWidget {
 	void step() override {
 		ModuleWidget::step();
 		for(int i = 0; i < N_KNOBS; i++) {
-			float bias = module->params[BiasKnobs::BIAS_1_PARAM + i].value;
+			float bias = module->params[Bias_Semitone::BIAS_1_PARAM + i].value;
 			std::string s;
-			if(module->params[BiasKnobs::MODE_PARAM].value < 0.5f) {
+			if(module->params[Bias_Semitone::MODE_PARAM].value < 0.5f) {
 				int st = bias * MAX_SEMITONES;
 				s = stringf("%+3dst", st);
 			} else {
@@ -200,4 +199,4 @@ struct BiasKnobsWidget : ModuleWidget {
 // author name for categorization per plugin, module slug (should never
 // change), human-readable module name, and any number of tags
 // (found in `include/tags.hpp`) separated by commas.
-Model *modelBiasKnobs = Model::create<BiasKnobs, BiasKnobsWidget>("Little Utils", "BiasKnobs", "Bias Knobs", UTILITY_TAG);
+Model *modelBias_Semitone = Model::create<Bias_Semitone, Bias_SemitoneWidget>("Little Utils", "BiasSemitone", "Bias/Semitone", UTILITY_TAG);

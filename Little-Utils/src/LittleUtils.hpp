@@ -9,5 +9,5 @@ extern Plugin *plugin;
 // Forward-declare each Model, defined in each module source file
 extern Model *modelButtonModule;
 extern Model *modelPulseGenerator;
-extern Model *modelBiasKnobs;
+extern Model *modelBias_Semitone;
 extern Model *modelArithmetic;

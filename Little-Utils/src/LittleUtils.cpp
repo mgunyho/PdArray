@@ -12,7 +12,7 @@ void init(Plugin *p) {
 	// Add all Models defined throughout the plugin
 	p->addModel(modelButtonModule);
 	p->addModel(modelPulseGenerator);
-	p->addModel(modelBiasKnobs);
+	p->addModel(modelBias_Semitone);
 	p->addModel(modelArithmetic);
 
 	// Any other plugin initialization may go here.
