@@ -11,3 +11,5 @@ extern Model *modelButtonModule;
 extern Model *modelPulseGenerator;
 extern Model *modelBias_Semitone;
 extern Model *modelArithmetic;
+extern Model *modelTeleportInModule;
+extern Model *modelTeleportOutModule;
