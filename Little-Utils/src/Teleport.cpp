@@ -1,5 +1,9 @@
 #include "LittleUtils.hpp"
 #include "Teleport.hpp"
+#include "Widgets.hpp"
+#include "Util.hpp"
+
+//TODO: why don't LED's on wires get updated?
 
 struct TeleportInModule : Teleport {
 	enum ParamIds {
@@ -17,30 +21,97 @@ struct TeleportInModule : Teleport {
 		NUM_LIGHTS
 	};
 
-	TeleportInModule() : Teleport(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
-	void step() override;
+	// Generate random, unique label for this teleport endpoint. Don't modify the buffer.
+	std::string getLabel() {
+		std::string l;
+		do {
+			l = randomString(LABEL_LENGTH);
+		} while(buffer.find(l) != buffer.end()); // if the label exists, regenerate
+		return l;
+	}
 
+	TeleportInModule() : Teleport(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
+		label = getLabel();
+		buffer[label] = 0.f;
+	}
+
+	~TeleportInModule() {
+		//std::cout << "~TeleportInModule(): " << label << std::endl;
+		buffer.erase(label);
+	}
+
+
+	void step() override;
 
 	// For more advanced Module features, read Rack's engine.hpp header file
 	// - toJson, fromJson: serialization of internal data
 	// - onSampleRateChange: event triggered by a change of sample rate
 	// - onReset, onRandomize, onCreate, onDelete: implements special behavior when user clicks these from the context menu
+	json_t* toJson() override {
+		json_t *data = json_object();
+		json_object_set_new(data, "label", json_string(label.c_str()));
+		return data;
+	}
+
+	void fromJson(json_t* root) override {
+		json_t *label_json = json_object_get(root, "label");
+		if(json_is_string(label_json)) {
+			// remove previous label randomly generated in constructor
+			buffer.erase(label);
+			label = std::string(json_string_value(label_json));
+			if(buffer.find(label) != buffer.end()) {
+				// Label already exists in buffer, this means that fromJson()
+				// was called due to duplication instead of loading from file.
+				// Generate new label.
+				label = getLabel();
+			}
+			buffer[label] = 0.f;
+		} else {
+			//std::cout << "error reading label" << std::endl;
+			label = getLabel();
+			buffer[label] = 0.f;
+		}
+		//std::cout << "fromJson(): keys (" << buffer.size() << "):" << std::endl;
+		//for(auto it = buffer.begin(); it != buffer.end(); it++) {
+		//	std::cout << it->first << std::endl;
+		//}
+	}
+
 };
 
 
 void TeleportInModule::step() {
 	//float deltaTime = engineGetSampleTime();
-	buffer[0] = inputs[INPUT_1].value;
+	buffer[label] = inputs[INPUT_1].value;
 }
 
 struct TeleportInModuleWidget : ModuleWidget {
+
+	//TODO: replace with editable text box
+	TextBox *labelDisplay;
+	TeleportInModule *module;
+
 	TeleportInModuleWidget(TeleportInModule *module) : ModuleWidget(module) {
-		setPanel(SVG::load(assetPlugin(plugin, "res/ButtonModule.svg")));
+		this->module = module;
+		setPanel(SVG::load(assetPlugin(plugin, "res/TeleportIn.svg")));
 
 		addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
 		addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
+		labelDisplay = new TextBox();
+		labelDisplay->font_size = 14;
+		labelDisplay->box.size = Vec(30, 14);
+		labelDisplay->textOffset.x = labelDisplay->box.size.x * 0.5f;
+		labelDisplay->box.pos = Vec(7.5f, RACK_GRID_WIDTH + 7.5f);
+		labelDisplay->setText(module->label);
+		addChild(labelDisplay);
+
 		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 135), module, TeleportInModule::INPUT_1));
+	}
+
+	void step() override {
+		//TODO: just for debugging, don't do this on every step
+		labelDisplay->setText(module->label);
 	}
 };
 
@@ -67,26 +138,71 @@ struct TeleportOutModule : Teleport {
 		NUM_LIGHTS
 	};
 
-	TeleportOutModule() : Teleport(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
+	TeleportOutModule() : Teleport(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
+		label = buffer.begin()->first;
+	}
+
 	void step() override {
-		outputs[OUTPUT_1].value = buffer[0];
+		//TODO: pick label from dropdown menu (done in widget?)
+
+		if(buffer.find(label) != buffer.end()) {
+			//outputs[OUTPUT_1].value = buffer[label];
+		} else {
+			//outputs[OUTPUT_1].value = 0.f;
+			if(buffer.size() > 0) {
+				//TODO: set label to empty, don't do this
+				label = buffer.begin()->first;
+			} else {
+				label = "";
+			}
+		}
+		outputs[OUTPUT_1].value = label.empty() ? 0.f : buffer[label];
 	};
 
 
 	// For more advanced Module features, read Rack's engine.hpp header file
 	// - toJson, fromJson: serialization of internal data
 	// - onSampleRateChange: event triggered by a change of sample rate
-	// - onReset, onRandomize, onCreate, onDelete: implements special behavior when user clicks these from the context menu
+	json_t* toJson() override {
+		json_t *data = json_object();
+		json_object_set_new(data, "label", json_string(label.c_str()));
+		return data;
+	}
+
+	void fromJson(json_t* root) override {
+		json_t *label_json = json_object_get(root, "label");
+		if(json_is_string(label_json)) {
+			label = json_string_value(label_json);
+		}
+	}
 };
 
 struct TeleportOutModuleWidget : ModuleWidget {
+	TextBox *labelDisplay;
+	TeleportOutModule *module;
+
 	TeleportOutModuleWidget(TeleportOutModule *module) : ModuleWidget(module) {
-		setPanel(SVG::load(assetPlugin(plugin, "res/ButtonModule.svg")));
+		this->module = module;
+		setPanel(SVG::load(assetPlugin(plugin, "res/TeleportIn.svg"))); //TODO
 
 		addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
 		addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
+		//TODO: unify module widgets in one superclass to prevent repetition
+		labelDisplay = new TextBox();
+		labelDisplay->font_size = 14;
+		labelDisplay->box.size = Vec(30, 14);
+		labelDisplay->textOffset.x = labelDisplay->box.size.x * 0.5f;
+		labelDisplay->box.pos = Vec(7.5f, RACK_GRID_WIDTH + 7.5f);
+		labelDisplay->setText(module->label);
+		addChild(labelDisplay);
+
+		//TODO: add LED which indicates active outputs
 		addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 135), module, TeleportOutModule::OUTPUT_1));
+	}
+	void step() override {
+		//TODO: just for debugging, don't do this on every step
+		labelDisplay->setText(module->label);
 	}
 };
 

@@ -57,6 +57,7 @@ struct ButtonModule : Module {
 	// - onSampleRateChange: event triggered by a change of sample rate
 	// - onReset, onRandomize, onCreate, onDelete: implements special behavior when user clicks these from the context menu
 	json_t* toJson() override {
+		//TODO: this or fromJson causes segfault sometimes (I think), consider using json_object_set_new instead of decref (or should reference even be decremented?)
 		json_t *data, *toggle_value, *const_choice_value;
 		data = json_object();
 		toggle_value = json_boolean(toggle);

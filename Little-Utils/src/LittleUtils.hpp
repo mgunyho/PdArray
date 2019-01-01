@@ -3,6 +3,8 @@
 
 using namespace rack;
 
+//TODO: createParamCentered() etc are deprecated (I think)...
+
 // Forward-declare the Plugin, defined in LittleUtils.cpp
 extern Plugin *plugin;
 

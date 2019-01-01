@@ -1,6 +1,9 @@
 // some utility functions
 
 #include "rack.hpp"
+#include <algorithm> // std::generate_n
+
+using namespace rack;
 
 //sgn() function based on https://stackoverflow.com/questions/1903954/is-there-a-standard-sign-function-signum-sgn-in-c-c
 inline constexpr
@@ -18,3 +21,6 @@ TinyLight<TLightColor> *createTinyLightForPort(Vec portCenterPos, Module *module
 			portCenterPos.plus(Vec(15 - offset, offset - 15)),
 			module, firstLightId);
 }
+
+// generate random alphanumeric string
+std::string randomString(size_t len);
