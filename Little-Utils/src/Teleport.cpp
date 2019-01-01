@@ -32,7 +32,8 @@ struct TeleportInModule : Teleport {
 
 	TeleportInModule() : Teleport(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
 		label = getLabel();
-		buffer[label] = 0.f;
+		//buffer.insert(std::pair<std::string, float>(label, 0.f));
+		addToBuffer(label, 0.f);
 	}
 
 	~TeleportInModule() {
@@ -65,12 +66,17 @@ struct TeleportInModule : Teleport {
 				// Generate new label.
 				label = getLabel();
 			}
-			buffer[label] = 0.f;
+			//buffer[label] = 0.f;
 		} else {
 			//std::cout << "error reading label" << std::endl;
+			// label couldn't be read from json for some reason, generate new one
 			label = getLabel();
-			buffer[label] = 0.f;
+			//buffer[label] = 0.f;
 		}
+
+		//buffer.insert(std::pair<std::string, float>(label, 0.f));
+		addToBuffer(label, 0.f);
+
 		//std::cout << "fromJson(): keys (" << buffer.size() << "):" << std::endl;
 		//for(auto it = buffer.begin(); it != buffer.end(); it++) {
 		//	std::cout << it->first << std::endl;
@@ -82,6 +88,7 @@ struct TeleportInModule : Teleport {
 
 void TeleportInModule::step() {
 	//float deltaTime = engineGetSampleTime();
+	// buffer[label] should exist
 	buffer[label] = inputs[INPUT_1].value;
 }
 
@@ -103,7 +110,8 @@ struct TeleportOutModule : Teleport {
 	};
 
 	TeleportOutModule() : Teleport(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
-		label = buffer.begin()->first;
+		//label = buffer.size() > 0 ? (--buffer.end())->first : "";
+		label = buffer.size() > 0 ? lastInsertedKey : "";
 	}
 
 	void step() override {
@@ -113,12 +121,14 @@ struct TeleportOutModule : Teleport {
 			//outputs[OUTPUT_1].value = buffer[label];
 		} else {
 			//outputs[OUTPUT_1].value = 0.f;
-			if(buffer.size() > 0) {
-				//TODO: set label to empty, don't do this
-				label = buffer.begin()->first;
-			} else {
-				label = "";
-			}
+			//if(buffer.size() > 0) {
+			//	//TODO: set label to empty, don't do this
+			//	label = buffer.begin()->first;
+			//} else {
+			//	label = "";
+			//}
+			//TODO: don't set label to empty, but indicate somehow that no input exists (gray out text? make text red?)
+			label = "";
 		}
 		outputs[OUTPUT_1].value = label.empty() ? 0.f : buffer[label];
 	};
