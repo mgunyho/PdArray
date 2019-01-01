@@ -66,15 +66,12 @@ struct TeleportInModule : Teleport {
 				// Generate new label.
 				label = getLabel();
 			}
-			//buffer[label] = 0.f;
 		} else {
 			//std::cout << "error reading label" << std::endl;
 			// label couldn't be read from json for some reason, generate new one
 			label = getLabel();
-			//buffer[label] = 0.f;
 		}
 
-		//buffer.insert(std::pair<std::string, float>(label, 0.f));
 		addToBuffer(label, 0.f);
 
 		//std::cout << "fromJson(): keys (" << buffer.size() << "):" << std::endl;
@@ -110,8 +107,17 @@ struct TeleportOutModule : Teleport {
 	};
 
 	TeleportOutModule() : Teleport(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
-		//label = buffer.size() > 0 ? (--buffer.end())->first : "";
-		label = buffer.size() > 0 ? lastInsertedKey : "";
+		if(buffer.size() > 0) {
+			if(buffer.find(lastInsertedKey) != buffer.end()) {
+				label = lastInsertedKey;
+			} else {
+				// the lastly added input doesn't exist anymore,
+				// pick first input in alphabetical order
+				label = buffer.begin()->first;
+			}
+		} else {
+			label = "";
+		}
 	}
 
 	void step() override {
@@ -120,13 +126,6 @@ struct TeleportOutModule : Teleport {
 		if(buffer.find(label) != buffer.end()) {
 			//outputs[OUTPUT_1].value = buffer[label];
 		} else {
-			//outputs[OUTPUT_1].value = 0.f;
-			//if(buffer.size() > 0) {
-			//	//TODO: set label to empty, don't do this
-			//	label = buffer.begin()->first;
-			//} else {
-			//	label = "";
-			//}
 			//TODO: don't set label to empty, but indicate somehow that no input exists (gray out text? make text red?)
 			label = "";
 		}
@@ -154,10 +153,6 @@ struct TeleportOutModule : Teleport {
 struct TeleportModuleWidget : ModuleWidget {
 	TextBox *labelDisplay;
 	Teleport *module;
-	//const std::string panelFile; // = "res/TeleportIn.svg";
-	//virtual std::string panelFilename() = 0; // { return "res/ButtonModule.svg"; }
-
-	std::string panelFilename;
 
 	TeleportModuleWidget(Teleport *module, std::string panelFilename) : ModuleWidget(module) {
 	//TeleportModuleWidget(Teleport *module) : ModuleWidget(module) {
@@ -184,19 +179,9 @@ struct TeleportModuleWidget : ModuleWidget {
 
 struct TeleportInModuleWidget : TeleportModuleWidget {
 
-	//TODO: replace with editable text box
-	//TextBox *labelDisplay;
-	//TeleportInModule *module;
-
-	//std::string panelFilename() override { return "res/TeleportIn.svg"; }
-	//std::string panelFilename = "res/TeleportIn.svg";
+	//TODO: editable text box ?
 
 	TeleportInModuleWidget(TeleportInModule *module) : TeleportModuleWidget(module, "res/TeleportIn.svg") {
-	//TeleportInModuleWidget(TeleportInModule *module) : TeleportModuleWidget(module) {
-		//setPanel(SVG::load(assetPlugin(plugin, "res/TeleportIn.svg")));
-		//panelFilename = "res/TeleportIn.svg";
-		//TeleportModuleWidget
-		//this->module = module;
 		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 135), module, TeleportInModule::INPUT_1));
 	}
 
@@ -206,27 +191,8 @@ struct TeleportInModuleWidget : TeleportModuleWidget {
 struct TeleportOutModuleWidget : TeleportModuleWidget {
 	//TextBox *labelDisplay;
 	//TeleportOutModule *module;
-	//std::string panelFilename() override { return "res/Gate.svg"; }
-	//std::string panelFilename = "res/Gate.svg";
 
 	TeleportOutModuleWidget(TeleportOutModule *module) : TeleportModuleWidget(module, "res/PulseGenerator.svg") {
-	//TeleportOutModuleWidget(TeleportOutModule *module) : TeleportModuleWidget(module) {
-		//setPanel(SVG::load(assetPlugin(plugin, "res/PulseGenerator.svg")));
-		//this->module = module;
-		//setPanel(SVG::load(assetPlugin(plugin, "res/TeleportIn.svg"))); //TODO
-
-		//addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
-		//addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
-
-		////TODO: unify module widgets in one superclass to prevent repetition
-		//labelDisplay = new TextBox();
-		//labelDisplay->font_size = 14;
-		//labelDisplay->box.size = Vec(30, 14);
-		//labelDisplay->textOffset.x = labelDisplay->box.size.x * 0.5f;
-		//labelDisplay->box.pos = Vec(7.5f, RACK_GRID_WIDTH + 7.5f);
-		//labelDisplay->setText(module->label);
-		//addChild(labelDisplay);
-
 		//TODO: add LED which indicates active inputs on the other end
 		addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 135), module, TeleportOutModule::OUTPUT_1));
 	}
