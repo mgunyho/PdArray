@@ -85,42 +85,6 @@ void TeleportInModule::step() {
 	buffer[label] = inputs[INPUT_1].value;
 }
 
-struct TeleportInModuleWidget : ModuleWidget {
-
-	//TODO: replace with editable text box
-	TextBox *labelDisplay;
-	TeleportInModule *module;
-
-	TeleportInModuleWidget(TeleportInModule *module) : ModuleWidget(module) {
-		this->module = module;
-		setPanel(SVG::load(assetPlugin(plugin, "res/TeleportIn.svg")));
-
-		addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
-		addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
-
-		labelDisplay = new TextBox();
-		labelDisplay->font_size = 14;
-		labelDisplay->box.size = Vec(30, 14);
-		labelDisplay->textOffset.x = labelDisplay->box.size.x * 0.5f;
-		labelDisplay->box.pos = Vec(7.5f, RACK_GRID_WIDTH + 7.5f);
-		labelDisplay->setText(module->label);
-		addChild(labelDisplay);
-
-		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 135), module, TeleportInModule::INPUT_1));
-	}
-
-	void step() override {
-		//TODO: just for debugging, don't do this on every step
-		labelDisplay->setText(module->label);
-	}
-};
-
-
-// Specify the Module and ModuleWidget subclass, human-readable
-// author name for categorization per plugin, module slug (should never
-// change), human-readable module name, and any number of tags
-// (found in `include/tags.hpp`) separated by commas.
-Model *modelTeleportInModule = Model::create<TeleportInModule, TeleportInModuleWidget>("Little Utils", "TeleportIn", "Teleport In", UTILITY_TAG);
 
 struct TeleportOutModule : Teleport {
 	enum ParamIds {
@@ -177,18 +141,22 @@ struct TeleportOutModule : Teleport {
 	}
 };
 
-struct TeleportOutModuleWidget : ModuleWidget {
+struct TeleportModuleWidget : ModuleWidget {
 	TextBox *labelDisplay;
-	TeleportOutModule *module;
+	Teleport *module;
+	//const std::string panelFile; // = "res/TeleportIn.svg";
+	//virtual std::string panelFilename() = 0; // { return "res/ButtonModule.svg"; }
 
-	TeleportOutModuleWidget(TeleportOutModule *module) : ModuleWidget(module) {
+	std::string panelFilename;
+
+	TeleportModuleWidget(Teleport *module, std::string panelFilename) : ModuleWidget(module) {
+	//TeleportModuleWidget(Teleport *module) : ModuleWidget(module) {
 		this->module = module;
-		setPanel(SVG::load(assetPlugin(plugin, "res/TeleportIn.svg"))); //TODO
+		setPanel(SVG::load(assetPlugin(plugin, panelFilename)));
 
 		addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
 		addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-		//TODO: unify module widgets in one superclass to prevent repetition
 		labelDisplay = new TextBox();
 		labelDisplay->font_size = 14;
 		labelDisplay->box.size = Vec(30, 14);
@@ -197,13 +165,67 @@ struct TeleportOutModuleWidget : ModuleWidget {
 		labelDisplay->setText(module->label);
 		addChild(labelDisplay);
 
-		//TODO: add LED which indicates active outputs
-		addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 135), module, TeleportOutModule::OUTPUT_1));
 	}
 	void step() override {
-		//TODO: just for debugging, don't do this on every step
+		//TODO: just for debugging, don't do this on every step (?)
 		labelDisplay->setText(module->label);
 	}
 };
+
+struct TeleportInModuleWidget : TeleportModuleWidget {
+
+	//TODO: replace with editable text box
+	//TextBox *labelDisplay;
+	//TeleportInModule *module;
+
+	//std::string panelFilename() override { return "res/TeleportIn.svg"; }
+	//std::string panelFilename = "res/TeleportIn.svg";
+
+	TeleportInModuleWidget(TeleportInModule *module) : TeleportModuleWidget(module, "res/TeleportIn.svg") {
+	//TeleportInModuleWidget(TeleportInModule *module) : TeleportModuleWidget(module) {
+		//setPanel(SVG::load(assetPlugin(plugin, "res/TeleportIn.svg")));
+		//panelFilename = "res/TeleportIn.svg";
+		//TeleportModuleWidget
+		//this->module = module;
+		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 135), module, TeleportInModule::INPUT_1));
+	}
+
+};
+
+
+struct TeleportOutModuleWidget : TeleportModuleWidget {
+	//TextBox *labelDisplay;
+	//TeleportOutModule *module;
+	//std::string panelFilename() override { return "res/Gate.svg"; }
+	//std::string panelFilename = "res/Gate.svg";
+
+	TeleportOutModuleWidget(TeleportOutModule *module) : TeleportModuleWidget(module, "res/PulseGenerator.svg") {
+	//TeleportOutModuleWidget(TeleportOutModule *module) : TeleportModuleWidget(module) {
+		//setPanel(SVG::load(assetPlugin(plugin, "res/PulseGenerator.svg")));
+		//this->module = module;
+		//setPanel(SVG::load(assetPlugin(plugin, "res/TeleportIn.svg"))); //TODO
+
+		//addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
+		//addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+
+		////TODO: unify module widgets in one superclass to prevent repetition
+		//labelDisplay = new TextBox();
+		//labelDisplay->font_size = 14;
+		//labelDisplay->box.size = Vec(30, 14);
+		//labelDisplay->textOffset.x = labelDisplay->box.size.x * 0.5f;
+		//labelDisplay->box.pos = Vec(7.5f, RACK_GRID_WIDTH + 7.5f);
+		//labelDisplay->setText(module->label);
+		//addChild(labelDisplay);
+
+		//TODO: add LED which indicates active inputs on the other end
+		addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 135), module, TeleportOutModule::OUTPUT_1));
+	}
+};
+
+// Specify the Module and ModuleWidget subclass, human-readable
+// author name for categorization per plugin, module slug (should never
+// change), human-readable module name, and any number of tags
+// (found in `include/tags.hpp`) separated by commas.
+Model *modelTeleportInModule = Model::create<TeleportInModule, TeleportInModuleWidget>("Little Utils", "TeleportIn", "Teleport In", UTILITY_TAG);
 
 Model *modelTeleportOutModule = Model::create<TeleportOutModule, TeleportOutModuleWidget>("Little Utils", "TeleportOut", "Teleport Out", UTILITY_TAG);
