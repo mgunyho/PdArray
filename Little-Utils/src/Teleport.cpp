@@ -3,6 +3,8 @@
 #include "Widgets.hpp"
 #include "Util.hpp"
 
+#include <iostream>
+
 //TODO: why don't LED's on wires get updated?
 
 struct TeleportInModule : Teleport {
@@ -150,6 +152,7 @@ struct TeleportOutModule : Teleport {
 	}
 };
 
+template <typename LabelDisplayType = TextBox>
 struct TeleportModuleWidget : ModuleWidget {
 	TextBox *labelDisplay;
 	Teleport *module;
@@ -162,7 +165,7 @@ struct TeleportModuleWidget : ModuleWidget {
 		addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
 		addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-		labelDisplay = new TextBox();
+		labelDisplay = new LabelDisplayType();
 		labelDisplay->font_size = 14;
 		labelDisplay->box.size = Vec(30, 14);
 		labelDisplay->textOffset.x = labelDisplay->box.size.x * 0.5f;
@@ -171,13 +174,13 @@ struct TeleportModuleWidget : ModuleWidget {
 		addChild(labelDisplay);
 
 	}
-	void step() override {
+	virtual void step() override {
 		//TODO: just for debugging, don't do this on every step (?)
 		labelDisplay->setText(module->label);
 	}
 };
 
-struct TeleportInModuleWidget : TeleportModuleWidget {
+struct TeleportInModuleWidget : TeleportModuleWidget<> {
 
 	//TODO: editable text box ?
 
@@ -187,15 +190,66 @@ struct TeleportInModuleWidget : TeleportModuleWidget {
 
 };
 
+struct TeleportLabelMenuItem : MenuItem {
+	TeleportOutModule *module;
+	std::string label;
+	void onAction(EventAction &e) override {
+		module->label = label;
+	}
+};
 
-struct TeleportOutModuleWidget : TeleportModuleWidget {
+struct TeleportLabelSelectorTextBox : TextBox {
+	TeleportOutModule *module;
+
+	TeleportLabelSelectorTextBox() : TextBox() {}
+
+	//TODO: SEGFAULTS
+	void onAction(EventAction &e) override {
+		// based on AudioDeviceChoice::onAction in src/app/AudioWidget.cpp
+		Menu *menu = gScene->createMenu();
+		menu->addChild(construct<MenuLabel>(&MenuLabel::text, "Select input"));
+
+		std::cout << module << std::endl;
+		auto buf = module->buffer;
+		for(auto it = buf.begin(); it != buf.end(); it++) {
+			TeleportLabelMenuItem *item = new TeleportLabelMenuItem();
+			item->module = module;
+			item->label = it->first;
+			item->text = it->first;
+			item->rightText = CHECKMARK(item->label == module->label);
+			menu->addChild(item);
+		}
+	}
+	void onMouseDown(EventMouseDown &e) override {
+		if(e.button == 0 || e.button == 1) {
+			EventAction eAction;
+			onAction(eAction);
+			e.consumed = true;
+			e.target = this;
+		}
+	}
+
+};
+
+struct TeleportOutModuleWidget : TeleportModuleWidget<TeleportLabelSelectorTextBox> {
 	//TextBox *labelDisplay;
+	TeleportLabelSelectorTextBox *labelDisplay;
 	//TeleportOutModule *module;
 
-	TeleportOutModuleWidget(TeleportOutModule *module) : TeleportModuleWidget(module, "res/PulseGenerator.svg") {
+	//TODO: svg file
+	TeleportOutModuleWidget(TeleportOutModule *module) : TeleportModuleWidget(module, "res/TeleportIn.svg") {
+		// TODO: is this hacky?
+		// if not casting like this, labelDisplay will not have ->module for some reason
+		this->labelDisplay = (TeleportLabelSelectorTextBox *) TeleportModuleWidget::labelDisplay;
+		this->labelDisplay->module = module;
+
 		//TODO: add LED which indicates active inputs on the other end
 		addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 135), module, TeleportOutModule::OUTPUT_1));
 	}
+
+	//void step() override {
+	//	labelDisplay->setText(module->label);
+	//}
 };
 
 // Specify the Module and ModuleWidget subclass, human-readable
