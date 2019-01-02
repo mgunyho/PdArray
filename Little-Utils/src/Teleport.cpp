@@ -5,6 +5,8 @@
 
 #include <iostream>
 
+//TODO: replace buffer with reference to source teleport module in output
+
 struct TeleportInModule : Teleport {
 	enum ParamIds {
 		NUM_PARAMS
@@ -40,7 +42,8 @@ struct TeleportInModule : Teleport {
 	TeleportInModule() : Teleport(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
 		assert(NUM_INPUTS == NUM_TELEPORT_INPUTS);
 		label = getLabel();
-		addKeyToBuffer(label);
+		//addKeyToBuffer(label);
+		addInputsToBuffer(this);
 	}
 
 	~TeleportInModule() {
@@ -49,7 +52,15 @@ struct TeleportInModule : Teleport {
 	}
 
 
-	void step() override;
+	//void step() override {
+	//	//float deltaTime = engineGetSampleTime();
+
+	//	for(int i = 0; i < NUM_TELEPORT_INPUTS; i++) {
+	//		// buffer[label] should exist
+	//		buffer[label][i] = inputs[INPUT_1 + i].value;
+	//		//buffer[label][i] = status ? inputs[INPUT_1 + i].value : 0.f;
+	//	}
+	//}
 
 	// For more advanced Module features, read Rack's engine.hpp header file
 	// - toJson, fromJson: serialization of internal data
@@ -79,21 +90,12 @@ struct TeleportInModule : Teleport {
 			label = getLabel();
 		}
 
-		addKeyToBuffer(label);
+		//addKeyToBuffer(label);
+		addInputsToBuffer(this);
 
 	}
 
 };
-
-
-void TeleportInModule::step() {
-	//float deltaTime = engineGetSampleTime();
-	// buffer[label] should exist
-	for(int i = 0; i < NUM_TELEPORT_INPUTS; i++) {
-		buffer[label][i] = inputs[INPUT_1 + i].value;
-	}
-}
-
 
 struct TeleportOutModule : Teleport {
 	enum ParamIds {
@@ -114,7 +116,26 @@ struct TeleportOutModule : Teleport {
 		NUM_OUTPUTS
 	};
 	enum LightIds {
-		//OUTPUT_1_LIGHT,
+		//STATUS_LIGHTG,
+		//STATUS_LIGHTR,
+
+		OUTPUT_1_LIGHTG,
+		OUTPUT_1_LIGHTR,
+		OUTPUT_2_LIGHTG,
+		OUTPUT_2_LIGHTR,
+		OUTPUT_3_LIGHTG,
+		OUTPUT_3_LIGHTR,
+		OUTPUT_4_LIGHTG,
+		OUTPUT_4_LIGHTR,
+		OUTPUT_5_LIGHTG,
+		OUTPUT_5_LIGHTR,
+		OUTPUT_6_LIGHTG,
+		OUTPUT_6_LIGHTR,
+		OUTPUT_7_LIGHTG,
+		OUTPUT_7_LIGHTR,
+		OUTPUT_8_LIGHTG,
+		OUTPUT_8_LIGHTR,
+
 		NUM_LIGHTS
 	};
 
@@ -134,16 +155,30 @@ struct TeleportOutModule : Teleport {
 	}
 
 	void step() override {
-		//TODO: pick label from dropdown menu (done in widget?)
 
-		if(buffer.find(label) != buffer.end()) {
-			//outputs[OUTPUT_1].value = buffer[label];
+		bool sourceExists = buffer.find(label) != buffer.end();
+		//if() {
+		//	//outputs[OUTPUT_1].value = buffer[label];
+		//} else {
+		//	//TODO: don't set label to empty, but indicate somehow that no input exists (gray out text? make text red? status LED?)
+		//	label = "";
+		//}
+		if(sourceExists){
+			for(int i = 0; i < NUM_TELEPORT_INPUTS; i++) {
+				Input src = buffer[label][i].get();
+				outputs[OUTPUT_1 + i].value = src.value;
+				lights[OUTPUT_1_LIGHTG + 2*i].setBrightness( src.active * 10.f);
+				lights[OUTPUT_1_LIGHTR + 2*i].setBrightness(!src.active * 10.f);
+			}
 		} else {
 			//TODO: don't set label to empty, but indicate somehow that no input exists (gray out text? make text red? status LED?)
 			label = "";
-		}
-		for(int i = 0; i < NUM_TELEPORT_INPUTS; i++) {
-			outputs[OUTPUT_1 + i].value = label.empty() ? 0.f : buffer[label][i];
+			for(int i = 0; i < NUM_TELEPORT_INPUTS; i++) {
+				outputs[OUTPUT_1 + i].value = 0.f;
+				lights[OUTPUT_1_LIGHTG + 2*i].setBrightness(0.f);
+				lights[OUTPUT_1_LIGHTR + 2*i].setBrightness(0.f);
+			}
+
 		}
 	};
 
@@ -165,10 +200,6 @@ struct TeleportModuleWidget : ModuleWidget {
 	TextBox *labelDisplay;
 	Teleport *module;
 
-	float getPortYCoord(int i) {
-		return 55.f + 35.f * i;
-	}
-
 	void addLabelDisplay(TextBox *disp) {
 		disp->font_size = 14;
 		disp->box.size = Vec(30, 14);
@@ -177,6 +208,10 @@ struct TeleportModuleWidget : ModuleWidget {
 		disp->setText(module->label);
 		labelDisplay = disp;
 		addChild(labelDisplay);
+	}
+
+	float getPortYCoord(int i) {
+		return 75.f + 35.f * i;
 	}
 
 	TeleportModuleWidget(Teleport *module, std::string panelFilename) : ModuleWidget(module) {
@@ -259,8 +294,9 @@ struct TeleportOutModuleWidget : TeleportModuleWidget {
 
 		//TODO: add LEDs which indicates active inputs in source
 		for(int i = 0; i < NUM_TELEPORT_INPUTS; i++) {
-			//float y = 25 + 50*i;
-			addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, getPortYCoord(i)), module, TeleportOutModule::OUTPUT_1 + i));
+			float y = getPortYCoord(i);
+			addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, y), module, TeleportOutModule::OUTPUT_1 + i));
+			addChild(createTinyLightForPort<GreenRedLight>(Vec(22.5, y), module, TeleportOutModule::OUTPUT_1_LIGHTG + 2*i));
 		}
 		//addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 135), module, TeleportOutModule::OUTPUT_1));
 	}
