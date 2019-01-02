@@ -20,14 +20,14 @@ struct Teleport : Module {
 	// this static map is used for keeping track of all existing Teleport instances
 	// TODO: rename
 	// TODO: static std::map<std::string, Input*> sources; <-- access inputs directly in map, good idea? does this prevent mixing? do we want multiple inputs with the same label?
-	static std::map<std::string, std::vector<std::reference_wrapper<Input>>> sources;
+	static std::map<std::string, TeleportInModule*> sources;
 	static std::string lastInsertedKey; // this is used to assign the label of an output initially
 
 	void addSource(TeleportInModule *t);
-	bool sourceExists(std::string lbl) {
+	inline bool sourceExists(std::string lbl) {
 		return sources.find(lbl) != sources.end();
 	}
 };
 
-std::map<std::string, std::vector<std::reference_wrapper<Input>>> Teleport::sources = {};
+std::map<std::string, TeleportInModule*> Teleport::sources = {};
 std::string Teleport::lastInsertedKey = "";

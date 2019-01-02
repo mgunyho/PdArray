@@ -147,11 +147,12 @@ struct TeleportOutModule : Teleport {
 	void step() override {
 
 		if(sourceExists(label)){
+			TeleportInModule *src = sources[label];
 			for(int i = 0; i < NUM_TELEPORT_INPUTS; i++) {
-				Input src = sources[label][i].get();
-				outputs[OUTPUT_1 + i].value = src.value;
-				lights[OUTPUT_1_LIGHTG + 2*i].setBrightness( src.active);
-				lights[OUTPUT_1_LIGHTR + 2*i].setBrightness(!src.active);
+				Input input = src->inputs[TeleportInModule::INPUT_1 + i];
+				outputs[OUTPUT_1 + i].value = input.value;
+				lights[OUTPUT_1_LIGHTG + 2*i].setBrightness( input.active);
+				lights[OUTPUT_1_LIGHTR + 2*i].setBrightness(!input.active);
 			}
 		} else {
 			//TODO: don't set label to empty, but indicate somehow that no input exists (gray out text? make text red? status LED?)
@@ -180,11 +181,8 @@ struct TeleportOutModule : Teleport {
 };
 
 void Teleport::addSource(TeleportInModule *t) {
-	//sources.insert(std::pair<std::string, float>(key, std::vector<float>()));
 	std::string key = t->label;
-	for(int i = 0; i < NUM_TELEPORT_INPUTS; i++) {
-		sources[key].push_back(t->inputs[i]);
-	}
+	sources[key] = t;
 	lastInsertedKey = key;
 }
 
