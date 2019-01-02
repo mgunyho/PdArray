@@ -197,21 +197,21 @@ struct TeleportLabelDisplay : TextBox {
 		hoverColor = nvgRGB(0xd8, 0xd8, 0xd8);
 	}
 
-	//void onMouseMove(EventMouseMove &e) override {
-	//	// onMouseMove from OpaqueWidget, needed to catch hover events
-	//	Widget::onMouseMove(e);
-	//	if(!e.target) {
-	//		e.target = this;
-	//	}
-	//	e.consumed = true;
-	//}
+	void onMouseMove(EventMouseMove &e) override {
+		// onMouseMove from OpaqueWidget, needed to catch hover events
+		Widget::onMouseMove(e);
+		if(!e.target) {
+			e.target = this;
+		}
+		e.consumed = true;
+	}
 
-	//void onMouseEnter(EventMouseEnter &e) override {
-	//	state = BND_HOVER;
-	//}
-	//void onMouseLeave(EventMouseLeave &e) override {
-	//	state = BND_DEFAULT;
-	//}
+	void onMouseEnter(EventMouseEnter &e) override {
+		state = BND_HOVER;
+	}
+	void onMouseLeave(EventMouseLeave &e) override {
+		state = BND_DEFAULT;
+	}
 
 	void draw(NVGcontext *vg) override {
 		backgroundColor = state == BND_HOVER ? hoverColor : defaultColor;
@@ -219,51 +219,9 @@ struct TeleportLabelDisplay : TextBox {
 	}
 };
 
-//TODO: make textbox opaque and restructure everything
-struct EditableTeleportLabelDisplay : TeleportLabelDisplay, TextField {
-	EditableTeleportLabelDisplay() : TeleportLabelDisplay(), TextField() {};
-
-	void draw(NVGcontext *vg) override {
-		TeleportLabelDisplay::draw(vg);
-
-		// copied from LedDisplayTextField
-		//TODO: set multiline = false
-		NVGcolor highlightColor = nvgRGB(0xd8, 0x0, 0x0);
-		highlightColor.a = 0.5;
-		int begin = min(cursor, selection);
-		int end = (this == gFocusedWidget) ? max(cursor, selection) : -1; //TODO: use this to figure out defocus
-		bndIconLabelCaret(vg, textOffset.x, textOffset.y,
-			box.size.x - 2*textOffset.x, box.size.y - 2*textOffset.y, //TODO: this incorrectly limits line
-			-1, textColor, 12, TextField::text.c_str(), highlightColor, begin, end);
-	}
-
-	void onMouseDown(EventMouseDown &e) override {
-		std::cout << "EditableTeleportLabelDisplay: onMouseDown()" << std::endl; //TODO: remove
-		TextField::onMouseDown(e);
-	}
-
-	void onMouseUp(EventMouseUp &e) override {
-		TextField::onMouseUp(e);
-	}
-
-	void onMouseMove(EventMouseMove &e) override {
-		TextField::onMouseMove(e);
-	}
-
-	void onScroll(EventScroll &e) override {
-		TextField::onScroll(e);
-	}
-
-	void onTextChange() override {
-		std::cout << "onTextChange() called implementation missing" << std::endl;
-	}
-
-	void onAction(EventAction &e) override {
-		std::cout << "onAction()" << std::endl;
-		TextField::onAction(e);
-	}
-
-};
+//TODO: possible to mix textfield (text entry functionality from there) and labeldisplay?
+//struct EditableTeleportLabelDisplay : TeleportLabelDisplay, TextField {
+//}
 
 struct TeleportModuleWidget : ModuleWidget {
 	TeleportLabelDisplay *labelDisplay;
@@ -303,8 +261,7 @@ struct TeleportInModuleWidget : TeleportModuleWidget {
 	//TODO: editable text box ?
 
 	TeleportInModuleWidget(TeleportInModule *module) : TeleportModuleWidget(module, "res/TeleportIn.svg") {
-		//addLabelDisplay(new TeleportLabelDisplay());
-		addLabelDisplay(new EditableTeleportLabelDisplay());
+		addLabelDisplay(new TeleportLabelDisplay());
 		//addInput(createInputCentered<PJ301MPort>(Vec(22.5, 135), module, TeleportInModule::INPUT_1));
 		for(int i = 0; i < NUM_TELEPORT_INPUTS; i++) {
 			addInput(createInputCentered<PJ301MPort>(Vec(22.5, getPortYCoord(i)), module, TeleportInModule::INPUT_1 + i));
