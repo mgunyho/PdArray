@@ -167,8 +167,8 @@ struct TeleportOutModule : Teleport {
 			for(int i = 0; i < NUM_TELEPORT_INPUTS; i++) {
 				Input src = buffer[label][i].get();
 				outputs[OUTPUT_1 + i].value = src.value;
-				lights[OUTPUT_1_LIGHTG + 2*i].setBrightness( src.active * 10.f);
-				lights[OUTPUT_1_LIGHTR + 2*i].setBrightness(!src.active * 10.f);
+				lights[OUTPUT_1_LIGHTG + 2*i].setBrightness( src.active);
+				lights[OUTPUT_1_LIGHTR + 2*i].setBrightness(!src.active);
 			}
 		} else {
 			//TODO: don't set label to empty, but indicate somehow that no input exists (gray out text? make text red? status LED?)
@@ -261,6 +261,15 @@ struct TeleportLabelSelectorTextBox : TextBox {
 		// based on AudioDeviceChoice::onAction in src/app/AudioWidget.cpp
 		Menu *menu = gScene->createMenu();
 		menu->addChild(construct<MenuLabel>(&MenuLabel::text, "Select source"));
+
+		{
+			TeleportLabelMenuItem *item = new TeleportLabelMenuItem();
+			item->module = module;
+			item->label = "";
+			item->text = "(none)";
+			item->rightText = CHECKMARK(module->label.empty());
+			menu->addChild(item);
+		}
 
 		auto buf = module->buffer;
 		for(auto it = buf.begin(); it != buf.end(); it++) {
