@@ -49,7 +49,44 @@ struct TextBox : TransparentWidget {
 	}
 };
 
+// a TextBox that changes its background color when hovered
+struct HoverableTextBox : TextBox {
+	BNDwidgetState state = BND_DEFAULT;
+	NVGcolor defaultColor;
+	NVGcolor hoverColor;
+
+	HoverableTextBox(): TextBox() {
+		defaultColor = backgroundColor;
+		hoverColor = nvgRGB(0xd8, 0xd8, 0xd8);
+	}
+
+	void onMouseMove(EventMouseMove &e) override {
+		// onMouseMove from OpaqueWidget, needed to catch hover events
+		Widget::onMouseMove(e);
+		if(!e.target) {
+			e.target = this;
+		}
+		e.consumed = true;
+	}
+
+	void onMouseEnter(EventMouseEnter &e) override {
+		state = BND_HOVER;
+	}
+	void onMouseLeave(EventMouseLeave &e) override {
+		state = BND_DEFAULT;
+	}
+
+	void draw(NVGcontext *vg) override {
+		backgroundColor = state == BND_HOVER ? hoverColor : defaultColor;
+		TextBox::draw(vg);
+	}
+};
+
 struct ToggleLEDButton : SVGSwitch, ToggleSwitch {
+	BNDwidgetState state = BND_DEFAULT;
+	NVGcolor defaultColor;
+	NVGcolor hoverColor;
+
 	ToggleLEDButton() {
 		addFrame(SVG::load(assetGlobal("res/ComponentLibrary/LEDButton.svg")));
 	}
