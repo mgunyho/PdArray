@@ -165,7 +165,7 @@ struct MsDisplayWidget : TextBox {
 		nvgScissor(vg, 0, 0, box.size.x, box.size.y);
 
 		if (font->handle >= 0) {
-			nvgFillColor(vg, color);
+			nvgFillColor(vg, textColor);
 			nvgFontFaceId(vg, font->handle);
 
 			// draw 'ms' or 's' on bottom, depending on msLabelStatus

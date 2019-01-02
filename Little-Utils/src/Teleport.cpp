@@ -187,11 +187,47 @@ void Teleport::addSource(TeleportInModule *t) {
 }
 
 
+struct TeleportLabelDisplay : TextBox {
+	BNDwidgetState state = BND_DEFAULT;
+	NVGcolor defaultColor;
+	NVGcolor hoverColor;
+
+	TeleportLabelDisplay(): TextBox() {
+		defaultColor = backgroundColor;
+		hoverColor = nvgRGB(0xd8, 0xd8, 0xd8);
+	}
+
+	void onMouseMove(EventMouseMove &e) override {
+		// onMouseMove from OpaqueWidget, needed to catch hover events
+		Widget::onMouseMove(e);
+		if(!e.target) {
+			e.target = this;
+		}
+		e.consumed = true;
+	}
+
+	void onMouseEnter(EventMouseEnter &e) override {
+		state = BND_HOVER;
+	}
+	void onMouseLeave(EventMouseLeave &e) override {
+		state = BND_DEFAULT;
+	}
+
+	void draw(NVGcontext *vg) override {
+		backgroundColor = state == BND_HOVER ? hoverColor : defaultColor;
+		TextBox::draw(vg);
+	}
+};
+
+//TODO: possible to mix textfield (text entry functionality from there) and labeldisplay?
+//struct EditableTeleportLabelDisplay : TeleportLabelDisplay, TextField {
+//}
+
 struct TeleportModuleWidget : ModuleWidget {
-	TextBox *labelDisplay;
+	TeleportLabelDisplay *labelDisplay;
 	Teleport *module;
 
-	void addLabelDisplay(TextBox *disp) {
+	void addLabelDisplay(TeleportLabelDisplay *disp) {
 		disp->font_size = 14;
 		disp->box.size = Vec(30, 14);
 		disp->textOffset.x = disp->box.size.x * 0.5f;
@@ -225,7 +261,7 @@ struct TeleportInModuleWidget : TeleportModuleWidget {
 	//TODO: editable text box ?
 
 	TeleportInModuleWidget(TeleportInModule *module) : TeleportModuleWidget(module, "res/TeleportIn.svg") {
-		addLabelDisplay(new TextBox());
+		addLabelDisplay(new TeleportLabelDisplay());
 		//addInput(createInputCentered<PJ301MPort>(Vec(22.5, 135), module, TeleportInModule::INPUT_1));
 		for(int i = 0; i < NUM_TELEPORT_INPUTS; i++) {
 			addInput(createInputCentered<PJ301MPort>(Vec(22.5, getPortYCoord(i)), module, TeleportInModule::INPUT_1 + i));
@@ -243,10 +279,10 @@ struct TeleportLabelMenuItem : MenuItem {
 	}
 };
 
-struct TeleportLabelSelectorTextBox : TextBox {
+struct TeleportLabelSelectorTextBox : TeleportLabelDisplay {
 	TeleportOutModule *module;
 
-	TeleportLabelSelectorTextBox() : TextBox() {}
+	TeleportLabelSelectorTextBox() : TeleportLabelDisplay() {}
 
 	void onAction(EventAction &e) override {
 		// based on AudioDeviceChoice::onAction in src/app/AudioWidget.cpp
@@ -272,6 +308,7 @@ struct TeleportLabelSelectorTextBox : TextBox {
 			menu->addChild(item);
 		}
 	}
+
 	void onMouseDown(EventMouseDown &e) override {
 		if(e.button == 0 || e.button == 1) {
 			EventAction eAction;

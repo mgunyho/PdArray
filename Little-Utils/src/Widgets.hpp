@@ -9,12 +9,14 @@ struct TextBox : TransparentWidget {
 	float font_size;
 	float letter_spacing;
 	Vec textOffset;
-	NVGcolor color;
+	NVGcolor textColor;
+	NVGcolor backgroundColor;
 
 	//TODO: create<...>() thing with position as argument?
 	TextBox() {
 		font = Font::load(assetPlugin(plugin, "res/RobotoMono-Bold.ttf"));
-		color = nvgRGB(0x23, 0x23, 0x23);
+		textColor = nvgRGB(0x23, 0x23, 0x23);
+		backgroundColor = nvgRGB(0xc8, 0xc8, 0xc8);
 		box.size = Vec(30, 18);
 		// size 20 with spacing -2 will fit 3 characters on a 30px box with Roboto mono
 		font_size = 20;
@@ -24,17 +26,17 @@ struct TextBox : TransparentWidget {
 
 	void setText(std::string s) { text = s; }
 
-	void draw(NVGcontext *vg) override {
+	virtual void draw(NVGcontext *vg) override {
 		// based on LedDisplayChoice::draw() in Rack/src/app/LedDisplay.cpp
 		nvgScissor(vg, 0, 0, box.size.x, box.size.y);
 
 		nvgBeginPath(vg);
 		nvgRoundedRect(vg, 0, 0, box.size.x, box.size.y, 3.0);
-		nvgFillColor(vg, nvgRGB(0xc8, 0xc8, 0xc8));
+		nvgFillColor(vg, backgroundColor);
 		nvgFill(vg);
 
 		if (font->handle >= 0) {
-			nvgFillColor(vg, color);
+			nvgFillColor(vg, textColor);
 			nvgFontFaceId(vg, font->handle);
 
 			nvgFontSize(vg, font_size);
