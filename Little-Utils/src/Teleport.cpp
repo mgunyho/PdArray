@@ -34,7 +34,6 @@ struct TeleportInModule : Teleport {
 
 	TeleportInModule() : Teleport(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
 		label = getLabel();
-		//buffer.insert(std::pair<std::string, float>(label, 0.f));
 		addToBuffer(label, 0.f);
 	}
 
@@ -76,10 +75,6 @@ struct TeleportInModule : Teleport {
 
 		addToBuffer(label, 0.f);
 
-		//std::cout << "fromJson(): keys (" << buffer.size() << "):" << std::endl;
-		//for(auto it = buffer.begin(); it != buffer.end(); it++) {
-		//	std::cout << it->first << std::endl;
-		//}
 	}
 
 };
@@ -104,7 +99,7 @@ struct TeleportOutModule : Teleport {
 		NUM_OUTPUTS
 	};
 	enum LightIds {
-		//INPUT_1_LIGHT,
+		//OUTPUT_1_LIGHT,
 		NUM_LIGHTS
 	};
 
@@ -128,16 +123,12 @@ struct TeleportOutModule : Teleport {
 		if(buffer.find(label) != buffer.end()) {
 			//outputs[OUTPUT_1].value = buffer[label];
 		} else {
-			//TODO: don't set label to empty, but indicate somehow that no input exists (gray out text? make text red?)
+			//TODO: don't set label to empty, but indicate somehow that no input exists (gray out text? make text red? status LED?)
 			label = "";
 		}
 		outputs[OUTPUT_1].value = label.empty() ? 0.f : buffer[label];
 	};
 
-
-	// For more advanced Module features, read Rack's engine.hpp header file
-	// - toJson, fromJson: serialization of internal data
-	// - onSampleRateChange: event triggered by a change of sample rate
 	json_t* toJson() override {
 		json_t *data = json_object();
 		json_object_set_new(data, "label", json_string(label.c_str()));
@@ -152,39 +143,40 @@ struct TeleportOutModule : Teleport {
 	}
 };
 
-template <typename LabelDisplayType = TextBox>
 struct TeleportModuleWidget : ModuleWidget {
 	TextBox *labelDisplay;
 	Teleport *module;
 
+	void addLabelDisplay(TextBox *disp) {
+		disp->font_size = 14;
+		disp->box.size = Vec(30, 14);
+		disp->textOffset.x = disp->box.size.x * 0.5f;
+		disp->box.pos = Vec(7.5f, RACK_GRID_WIDTH + 7.5f);
+		disp->setText(module->label);
+		labelDisplay = disp;
+		addChild(labelDisplay);
+	}
+
 	TeleportModuleWidget(Teleport *module, std::string panelFilename) : ModuleWidget(module) {
-	//TeleportModuleWidget(Teleport *module) : ModuleWidget(module) {
 		this->module = module;
 		setPanel(SVG::load(assetPlugin(plugin, panelFilename)));
 
 		addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
 		addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-		labelDisplay = new LabelDisplayType();
-		labelDisplay->font_size = 14;
-		labelDisplay->box.size = Vec(30, 14);
-		labelDisplay->textOffset.x = labelDisplay->box.size.x * 0.5f;
-		labelDisplay->box.pos = Vec(7.5f, RACK_GRID_WIDTH + 7.5f);
-		labelDisplay->setText(module->label);
-		addChild(labelDisplay);
-
 	}
-	virtual void step() override {
-		//TODO: just for debugging, don't do this on every step (?)
+	void step() override {
+		//TODO: don't do this on every step (?)
 		labelDisplay->setText(module->label);
 	}
 };
 
-struct TeleportInModuleWidget : TeleportModuleWidget<> {
+struct TeleportInModuleWidget : TeleportModuleWidget {
 
 	//TODO: editable text box ?
 
 	TeleportInModuleWidget(TeleportInModule *module) : TeleportModuleWidget(module, "res/TeleportIn.svg") {
+		addLabelDisplay(new TextBox());
 		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 135), module, TeleportInModule::INPUT_1));
 	}
 
@@ -203,13 +195,11 @@ struct TeleportLabelSelectorTextBox : TextBox {
 
 	TeleportLabelSelectorTextBox() : TextBox() {}
 
-	//TODO: SEGFAULTS
 	void onAction(EventAction &e) override {
 		// based on AudioDeviceChoice::onAction in src/app/AudioWidget.cpp
 		Menu *menu = gScene->createMenu();
-		menu->addChild(construct<MenuLabel>(&MenuLabel::text, "Select input"));
+		menu->addChild(construct<MenuLabel>(&MenuLabel::text, "Select source"));
 
-		std::cout << module << std::endl;
 		auto buf = module->buffer;
 		for(auto it = buf.begin(); it != buf.end(); it++) {
 			TeleportLabelMenuItem *item = new TeleportLabelMenuItem();
@@ -231,25 +221,18 @@ struct TeleportLabelSelectorTextBox : TextBox {
 
 };
 
-struct TeleportOutModuleWidget : TeleportModuleWidget<TeleportLabelSelectorTextBox> {
-	//TextBox *labelDisplay;
+struct TeleportOutModuleWidget : TeleportModuleWidget {
 	TeleportLabelSelectorTextBox *labelDisplay;
-	//TeleportOutModule *module;
 
 	//TODO: svg file
 	TeleportOutModuleWidget(TeleportOutModule *module) : TeleportModuleWidget(module, "res/TeleportIn.svg") {
-		// TODO: is this hacky?
-		// if not casting like this, labelDisplay will not have ->module for some reason
-		this->labelDisplay = (TeleportLabelSelectorTextBox *) TeleportModuleWidget::labelDisplay;
-		this->labelDisplay->module = module;
+		labelDisplay = new TeleportLabelSelectorTextBox();
+		labelDisplay->module = module;
+		addLabelDisplay(labelDisplay);
 
-		//TODO: add LED which indicates active inputs on the other end
+		//TODO: add LEDs which indicates active inputs in source
 		addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 135), module, TeleportOutModule::OUTPUT_1));
 	}
-
-	//void step() override {
-	//	labelDisplay->setText(module->label);
-	//}
 };
 
 // Specify the Module and ModuleWidget subclass, human-readable
