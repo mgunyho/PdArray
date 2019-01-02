@@ -35,7 +35,7 @@ struct TeleportInModule : Teleport {
 		std::string l;
 		do {
 			l = randomString(LABEL_LENGTH);
-		} while(sources.find(l) != sources.end()); // if the label exists, regenerate
+		} while(sourceExists(l)); // if the label exists, regenerate
 		return l;
 	}
 
@@ -69,7 +69,7 @@ struct TeleportInModule : Teleport {
 			// remove previous label randomly generated in constructor
 			sources.erase(label);
 			label = std::string(json_string_value(label_json));
-			if(sources.find(label) != sources.end()) {
+			if(sourceExists(label)) {
 				// Label already exists in sources, this means that fromJson()
 				// was called due to duplication instead of loading from file.
 				// Generate new label.
@@ -132,7 +132,7 @@ struct TeleportOutModule : Teleport {
 	TeleportOutModule() : Teleport(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
 		assert(NUM_OUTPUTS == NUM_TELEPORT_INPUTS);
 		if(sources.size() > 0) {
-			if(sources.find(lastInsertedKey) != sources.end()) {
+			if(sourceExists(lastInsertedKey)) {
 				label = lastInsertedKey;
 			} else {
 				// the lastly added input doesn't exist anymore,
@@ -146,8 +146,7 @@ struct TeleportOutModule : Teleport {
 
 	void step() override {
 
-		if(sources.find(label) != sources.end()){
-			// source exists
+		if(sourceExists(label)){
 			for(int i = 0; i < NUM_TELEPORT_INPUTS; i++) {
 				Input src = sources[label][i].get();
 				outputs[OUTPUT_1 + i].value = src.value;

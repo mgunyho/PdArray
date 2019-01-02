@@ -24,6 +24,9 @@ struct Teleport : Module {
 	static std::string lastInsertedKey; // this is used to assign the label of an output initially
 
 	void addSource(TeleportInModule *t);
+	bool sourceExists(std::string lbl) {
+		return sources.find(lbl) != sources.end();
+	}
 };
 
 std::map<std::string, std::vector<std::reference_wrapper<Input>>> Teleport::sources = {};
