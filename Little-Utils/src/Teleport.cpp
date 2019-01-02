@@ -11,6 +11,13 @@ struct TeleportInModule : Teleport {
 	};
 	enum InputIds {
 		INPUT_1,
+		INPUT_2,
+		INPUT_3,
+		INPUT_4,
+		INPUT_5,
+		INPUT_6,
+		INPUT_7,
+		INPUT_8,
 		NUM_INPUTS
 	};
 	enum OutputIds {
@@ -31,8 +38,9 @@ struct TeleportInModule : Teleport {
 	}
 
 	TeleportInModule() : Teleport(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
+		assert(NUM_INPUTS == NUM_TELEPORT_INPUTS);
 		label = getLabel();
-		addToBuffer(label, 0.f);
+		addKeyToBuffer(label);
 	}
 
 	~TeleportInModule() {
@@ -71,7 +79,7 @@ struct TeleportInModule : Teleport {
 			label = getLabel();
 		}
 
-		addToBuffer(label, 0.f);
+		addKeyToBuffer(label);
 
 	}
 
@@ -81,7 +89,9 @@ struct TeleportInModule : Teleport {
 void TeleportInModule::step() {
 	//float deltaTime = engineGetSampleTime();
 	// buffer[label] should exist
-	buffer[label] = inputs[INPUT_1].value;
+	for(int i = 0; i < NUM_TELEPORT_INPUTS; i++) {
+		buffer[label][i] = inputs[INPUT_1 + i].value;
+	}
 }
 
 
@@ -94,6 +104,13 @@ struct TeleportOutModule : Teleport {
 	};
 	enum OutputIds {
 		OUTPUT_1,
+		OUTPUT_2,
+		OUTPUT_3,
+		OUTPUT_4,
+		OUTPUT_5,
+		OUTPUT_6,
+		OUTPUT_7,
+		OUTPUT_8,
 		NUM_OUTPUTS
 	};
 	enum LightIds {
@@ -102,6 +119,7 @@ struct TeleportOutModule : Teleport {
 	};
 
 	TeleportOutModule() : Teleport(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
+		assert(NUM_OUTPUTS == NUM_TELEPORT_INPUTS);
 		if(buffer.size() > 0) {
 			if(buffer.find(lastInsertedKey) != buffer.end()) {
 				label = lastInsertedKey;
@@ -124,7 +142,9 @@ struct TeleportOutModule : Teleport {
 			//TODO: don't set label to empty, but indicate somehow that no input exists (gray out text? make text red? status LED?)
 			label = "";
 		}
-		outputs[OUTPUT_1].value = label.empty() ? 0.f : buffer[label];
+		for(int i = 0; i < NUM_TELEPORT_INPUTS; i++) {
+			outputs[OUTPUT_1 + i].value = label.empty() ? 0.f : buffer[label][i];
+		}
 	};
 
 	json_t* toJson() override {
@@ -144,6 +164,10 @@ struct TeleportOutModule : Teleport {
 struct TeleportModuleWidget : ModuleWidget {
 	TextBox *labelDisplay;
 	Teleport *module;
+
+	float getPortYCoord(int i) {
+		return 55.f + 35.f * i;
+	}
 
 	void addLabelDisplay(TextBox *disp) {
 		disp->font_size = 14;
@@ -176,7 +200,11 @@ struct TeleportInModuleWidget : TeleportModuleWidget {
 
 	TeleportInModuleWidget(TeleportInModule *module) : TeleportModuleWidget(module, "res/TeleportIn.svg") {
 		addLabelDisplay(new TextBox());
-		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 135), module, TeleportInModule::INPUT_1));
+		//addInput(createInputCentered<PJ301MPort>(Vec(22.5, 135), module, TeleportInModule::INPUT_1));
+		for(int i = 0; i < NUM_TELEPORT_INPUTS; i++) {
+			addInput(createInputCentered<PJ301MPort>(Vec(22.5, getPortYCoord(i)), module, TeleportInModule::INPUT_1 + i));
+
+		}
 	}
 
 };
@@ -230,7 +258,11 @@ struct TeleportOutModuleWidget : TeleportModuleWidget {
 		addLabelDisplay(labelDisplay);
 
 		//TODO: add LEDs which indicates active inputs in source
-		addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 135), module, TeleportOutModule::OUTPUT_1));
+		for(int i = 0; i < NUM_TELEPORT_INPUTS; i++) {
+			//float y = 25 + 50*i;
+			addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, getPortYCoord(i)), module, TeleportOutModule::OUTPUT_1 + i));
+		}
+		//addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 135), module, TeleportOutModule::OUTPUT_1));
 	}
 };
 
