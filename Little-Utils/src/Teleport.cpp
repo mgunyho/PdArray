@@ -5,8 +5,6 @@
 
 #include <iostream>
 
-//TODO: why don't LED's on wires get updated?
-
 struct TeleportInModule : Teleport {
 	enum ParamIds {
 		NUM_PARAMS
@@ -166,6 +164,7 @@ struct TeleportModuleWidget : ModuleWidget {
 
 	}
 	void step() override {
+		ModuleWidget::step();
 		//TODO: don't do this on every step (?)
 		labelDisplay->setText(module->label);
 	}
