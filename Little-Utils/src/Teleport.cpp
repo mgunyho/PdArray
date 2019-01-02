@@ -5,7 +5,7 @@
 
 #include <iostream>
 
-//TODO: replace buffer with reference to source teleport module in output
+//TODO: replace reference_wrapper<Input> with reference_wrapper<TeleportInModule> in sources
 
 struct TeleportInModule : Teleport {
 	enum ParamIds {
@@ -30,37 +30,28 @@ struct TeleportInModule : Teleport {
 		NUM_LIGHTS
 	};
 
-	// Generate random, unique label for this teleport endpoint. Don't modify the buffer.
+	// Generate random, unique label for this teleport endpoint. Don't modify the sources map.
 	std::string getLabel() {
 		std::string l;
 		do {
 			l = randomString(LABEL_LENGTH);
-		} while(buffer.find(l) != buffer.end()); // if the label exists, regenerate
+		} while(sources.find(l) != sources.end()); // if the label exists, regenerate
 		return l;
 	}
 
 	TeleportInModule() : Teleport(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
 		assert(NUM_INPUTS == NUM_TELEPORT_INPUTS);
 		label = getLabel();
-		//addKeyToBuffer(label);
-		addInputsToBuffer(this);
+		addSource(this);
 	}
 
 	~TeleportInModule() {
 		//std::cout << "~TeleportInModule(): " << label << std::endl;
-		buffer.erase(label);
+		sources.erase(label);
 	}
 
 
-	//void step() override {
-	//	//float deltaTime = engineGetSampleTime();
-
-	//	for(int i = 0; i < NUM_TELEPORT_INPUTS; i++) {
-	//		// buffer[label] should exist
-	//		buffer[label][i] = inputs[INPUT_1 + i].value;
-	//		//buffer[label][i] = status ? inputs[INPUT_1 + i].value : 0.f;
-	//	}
-	//}
+	// step() is not needed for a teleport source
 
 	// For more advanced Module features, read Rack's engine.hpp header file
 	// - toJson, fromJson: serialization of internal data
@@ -76,10 +67,10 @@ struct TeleportInModule : Teleport {
 		json_t *label_json = json_object_get(root, "label");
 		if(json_is_string(label_json)) {
 			// remove previous label randomly generated in constructor
-			buffer.erase(label);
+			sources.erase(label);
 			label = std::string(json_string_value(label_json));
-			if(buffer.find(label) != buffer.end()) {
-				// Label already exists in buffer, this means that fromJson()
+			if(sources.find(label) != sources.end()) {
+				// Label already exists in sources, this means that fromJson()
 				// was called due to duplication instead of loading from file.
 				// Generate new label.
 				label = getLabel();
@@ -90,8 +81,7 @@ struct TeleportInModule : Teleport {
 			label = getLabel();
 		}
 
-		//addKeyToBuffer(label);
-		addInputsToBuffer(this);
+		addSource(this);
 
 	}
 
@@ -141,13 +131,13 @@ struct TeleportOutModule : Teleport {
 
 	TeleportOutModule() : Teleport(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
 		assert(NUM_OUTPUTS == NUM_TELEPORT_INPUTS);
-		if(buffer.size() > 0) {
-			if(buffer.find(lastInsertedKey) != buffer.end()) {
+		if(sources.size() > 0) {
+			if(sources.find(lastInsertedKey) != sources.end()) {
 				label = lastInsertedKey;
 			} else {
 				// the lastly added input doesn't exist anymore,
 				// pick first input in alphabetical order
-				label = buffer.begin()->first;
+				label = sources.begin()->first;
 			}
 		} else {
 			label = "";
@@ -156,16 +146,10 @@ struct TeleportOutModule : Teleport {
 
 	void step() override {
 
-		bool sourceExists = buffer.find(label) != buffer.end();
-		//if() {
-		//	//outputs[OUTPUT_1].value = buffer[label];
-		//} else {
-		//	//TODO: don't set label to empty, but indicate somehow that no input exists (gray out text? make text red? status LED?)
-		//	label = "";
-		//}
-		if(sourceExists){
+		if(sources.find(label) != sources.end()){
+			// source exists
 			for(int i = 0; i < NUM_TELEPORT_INPUTS; i++) {
-				Input src = buffer[label][i].get();
+				Input src = sources[label][i].get();
 				outputs[OUTPUT_1 + i].value = src.value;
 				lights[OUTPUT_1_LIGHTG + 2*i].setBrightness( src.active);
 				lights[OUTPUT_1_LIGHTR + 2*i].setBrightness(!src.active);
@@ -195,6 +179,16 @@ struct TeleportOutModule : Teleport {
 		}
 	}
 };
+
+void Teleport::addSource(TeleportInModule *t) {
+	//sources.insert(std::pair<std::string, float>(key, std::vector<float>()));
+	std::string key = t->label;
+	for(int i = 0; i < NUM_TELEPORT_INPUTS; i++) {
+		sources[key].push_back(t->inputs[i]);
+	}
+	lastInsertedKey = key;
+}
+
 
 struct TeleportModuleWidget : ModuleWidget {
 	TextBox *labelDisplay;
@@ -271,8 +265,8 @@ struct TeleportLabelSelectorTextBox : TextBox {
 			menu->addChild(item);
 		}
 
-		auto buf = module->buffer;
-		for(auto it = buf.begin(); it != buf.end(); it++) {
+		auto src = module->sources;
+		for(auto it = src.begin(); it != src.end(); it++) {
 			TeleportLabelMenuItem *item = new TeleportLabelMenuItem();
 			item->module = module;
 			item->label = it->first;

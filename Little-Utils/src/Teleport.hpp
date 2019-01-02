@@ -5,6 +5,8 @@
 #define NUM_TELEPORT_INPUTS 8
 #define LABEL_LENGTH 4
 
+struct TeleportInModule;
+
 struct Teleport : Module {
 	bool status; //TODO: necessary?
 	std::string label;
@@ -15,21 +17,14 @@ struct Teleport : Module {
 
 	//static unsigned int sync //TODO: allow multiple inputs with same name?
 
-	// this static buffer is used for transferring the signal from one endpoint to another
+	// this static map is used for keeping track of all existing Teleport instances
 	// TODO: rename
-	// TODO: static std::map<std::string, Input> buffer; <-- access inputs directly in map, good idea? does this prevent mixing? do we want multiple inputs with the same label?
-	static std::map<std::string, std::vector<std::reference_wrapper<Input>>> buffer;
+	// TODO: static std::map<std::string, Input*> sources; <-- access inputs directly in map, good idea? does this prevent mixing? do we want multiple inputs with the same label?
+	static std::map<std::string, std::vector<std::reference_wrapper<Input>>> sources;
 	static std::string lastInsertedKey; // this is used to assign the label of an output initially
 
-	void addInputsToBuffer(Teleport *module) {
-		//buffer.insert(std::pair<std::string, float>(key, std::vector<float>()));
-		std::string key = module->label;
-		for(int i = 0; i < NUM_TELEPORT_INPUTS; i++) {
-			buffer[key].push_back(module->inputs[i]);
-		}
-		lastInsertedKey = key;
-	}
+	void addSource(TeleportInModule *t);
 };
 
-std::map<std::string, std::vector<std::reference_wrapper<Input>>> Teleport::buffer = {};
+std::map<std::string, std::vector<std::reference_wrapper<Input>>> Teleport::sources = {};
 std::string Teleport::lastInsertedKey = "";
