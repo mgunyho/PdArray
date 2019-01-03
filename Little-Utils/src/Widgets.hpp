@@ -95,7 +95,7 @@ struct EditableTextBox : HoverableTextBox, TextField {
 	void draw(NVGcontext *vg) override;
 
 	void onMouseDown(EventMouseDown &e) override {
-		std::cout << "EditableTeleportLabelDisplay: onMouseDown()" << std::endl; //TODO: remove
+		std::cout << "EditableTextBox::onMouseDown()" << std::endl; //TODO: remove
 		TextField::onMouseDown(e);
 	}
 
@@ -111,13 +111,17 @@ struct EditableTextBox : HoverableTextBox, TextField {
 		TextField::onScroll(e);
 	}
 
-	void onTextChange() override {
-		std::cout << "onTextChange() called implementation missing" << std::endl;
-	}
+	//void onTextChange() override {
+	//	std::cout << "onTextChange() called implementation missing" << std::endl;
+	//}
 
 	void onAction(EventAction &e) override {
-		std::cout << "onAction()" << std::endl;
+		std::cout << "EditableTextBox::onAction()" << std::endl;
 		TextField::onAction(e);
+	}
+
+	void onDefocus(EventAction &e) {
+		std::cout << "EditableTextBox::onDefocus() not implemented" << std::endl;
 	}
 };
 

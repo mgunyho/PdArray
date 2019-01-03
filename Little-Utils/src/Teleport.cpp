@@ -5,8 +5,6 @@
 
 #include <iostream>
 
-//TODO: replace reference_wrapper<Input> with reference_wrapper<TeleportInModule> in sources
-
 struct TeleportInModule : Teleport {
 	enum ParamIds {
 		NUM_PARAMS
