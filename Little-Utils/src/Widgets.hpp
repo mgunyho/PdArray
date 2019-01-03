@@ -1,4 +1,7 @@
 #include "rack.hpp"
+#include "LittleUtils.hpp"
+
+#include <iostream>
 
 struct TextBox : TransparentWidget {
 	// Kinda like TextField except not editable. Using Roboto Mono Bold font,
@@ -79,6 +82,42 @@ struct HoverableTextBox : TextBox {
 	void draw(NVGcontext *vg) override {
 		backgroundColor = state == BND_HOVER ? hoverColor : defaultColor;
 		TextBox::draw(vg);
+	}
+};
+
+struct EditableTextBox : HoverableTextBox, TextField {
+	//std::string text1;
+
+	EditableTextBox(): HoverableTextBox(), TextField() {
+		//text1 = HoverableTextBox::text;
+	}
+
+	void draw(NVGcontext *vg) override;
+
+	void onMouseDown(EventMouseDown &e) override {
+		std::cout << "EditableTeleportLabelDisplay: onMouseDown()" << std::endl; //TODO: remove
+		TextField::onMouseDown(e);
+	}
+
+	void onMouseUp(EventMouseUp &e) override {
+		TextField::onMouseUp(e);
+	}
+
+	void onMouseMove(EventMouseMove &e) override {
+		TextField::onMouseMove(e);
+	}
+
+	void onScroll(EventScroll &e) override {
+		TextField::onScroll(e);
+	}
+
+	void onTextChange() override {
+		std::cout << "onTextChange() called implementation missing" << std::endl;
+	}
+
+	void onAction(EventAction &e) override {
+		std::cout << "onAction()" << std::endl;
+		TextField::onAction(e);
 	}
 };
 

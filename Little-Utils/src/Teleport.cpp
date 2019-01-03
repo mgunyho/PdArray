@@ -186,56 +186,56 @@ void Teleport::addSource(TeleportInModule *t) {
 	lastInsertedKey = key;
 }
 
-struct EditableTeleportLabelDisplay : HoverableTextBox, TextField {
-	EditableTeleportLabelDisplay() : HoverableTextBox(), TextField() {};
-
-	void draw(NVGcontext *vg) override {
-		HoverableTextBox::draw(vg);
-
-		// copied from LedDisplayTextField
-		//TODO: set multiline = false
-		NVGcolor highlightColor = nvgRGB(0xd8, 0x0, 0x0);
-		highlightColor.a = 0.5;
-		int begin = min(cursor, selection);
-		int end = (this == gFocusedWidget) ? max(cursor, selection) : -1; //TODO: use this to figure out defocus
-		bndIconLabelCaret(vg, textOffset.x, textOffset.y,
-			box.size.x - 2*textOffset.x, box.size.y - 2*textOffset.y, //TODO: this incorrectly limits line
-			-1, textColor, 12, TextField::text.c_str(), highlightColor, begin, end);
-	}
-
-	void onMouseDown(EventMouseDown &e) override {
-		std::cout << "EditableTeleportLabelDisplay: onMouseDown()" << std::endl; //TODO: remove
-		TextField::onMouseDown(e);
-	}
-
-	void onMouseUp(EventMouseUp &e) override {
-		TextField::onMouseUp(e);
-	}
-
-	void onMouseMove(EventMouseMove &e) override {
-		TextField::onMouseMove(e);
-	}
-
-	void onScroll(EventScroll &e) override {
-		TextField::onScroll(e);
-	}
-
-	void onTextChange() override {
-		std::cout << "onTextChange() called implementation missing" << std::endl;
-	}
-
-	void onAction(EventAction &e) override {
-		std::cout << "onAction()" << std::endl;
-		TextField::onAction(e);
-	}
-
-};
+//struct EditableTeleportLabelDisplay : HoverableTextBox, TextField {
+//	EditableTeleportLabelDisplay() : HoverableTextBox(), TextField() {};
+//
+//	void draw(NVGcontext *vg) override {
+//		HoverableTextBox::draw(vg);
+//
+//		// copied from LedDisplayTextField
+//		//TODO: set multiline = false
+//		NVGcolor highlightColor = nvgRGB(0xd8, 0x0, 0x0);
+//		highlightColor.a = 0.5;
+//		int begin = min(cursor, selection);
+//		int end = (this == gFocusedWidget) ? max(cursor, selection) : -1; //TODO: use this to figure out defocus
+//		bndIconLabelCaret(vg, textOffset.x, textOffset.y,
+//			box.size.x - 2*textOffset.x, box.size.y - 2*textOffset.y, //TODO: this incorrectly limits line
+//			-1, textColor, 12, TextField::text.c_str(), highlightColor, begin, end);
+//	}
+//
+//	void onMouseDown(EventMouseDown &e) override {
+//		std::cout << "EditableTeleportLabelDisplay: onMouseDown()" << std::endl; //TODO: remove
+//		TextField::onMouseDown(e);
+//	}
+//
+//	void onMouseUp(EventMouseUp &e) override {
+//		TextField::onMouseUp(e);
+//	}
+//
+//	void onMouseMove(EventMouseMove &e) override {
+//		TextField::onMouseMove(e);
+//	}
+//
+//	void onScroll(EventScroll &e) override {
+//		TextField::onScroll(e);
+//	}
+//
+//	void onTextChange() override {
+//		std::cout << "onTextChange() called implementation missing" << std::endl;
+//	}
+//
+//	void onAction(EventAction &e) override {
+//		std::cout << "onAction()" << std::endl;
+//		TextField::onAction(e);
+//	}
+//
+//};
 
 struct TeleportModuleWidget : ModuleWidget {
 	HoverableTextBox *labelDisplay;
 	Teleport *module;
 
-	void addLabelDisplay(HoverableTextBox *disp) {
+	virtual void addLabelDisplay(HoverableTextBox *disp) {
 		disp->font_size = 14;
 		disp->box.size = Vec(30, 14);
 		disp->textOffset.x = disp->box.size.x * 0.5f;
@@ -257,7 +257,7 @@ struct TeleportModuleWidget : ModuleWidget {
 		addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
 	}
-	void step() override {
+	virtual void step() override {
 		ModuleWidget::step();
 		//TODO: don't do this on every step (?)
 		labelDisplay->setText(module->label);
@@ -270,7 +270,8 @@ struct TeleportInModuleWidget : TeleportModuleWidget {
 
 	TeleportInModuleWidget(TeleportInModule *module) : TeleportModuleWidget(module, "res/TeleportIn.svg") {
 		//addLabelDisplay(new HoverableTextBox());
-		addLabelDisplay(new EditableTeleportLabelDisplay());
+		//addLabelDisplay(new EditableTeleportLabelDisplay());
+		addLabelDisplay(new EditableTextBox());
 		//addInput(createInputCentered<PJ301MPort>(Vec(22.5, 135), module, TeleportInModule::INPUT_1));
 		for(int i = 0; i < NUM_TELEPORT_INPUTS; i++) {
 			addInput(createInputCentered<PJ301MPort>(Vec(22.5, getPortYCoord(i)), module, TeleportInModule::INPUT_1 + i));
@@ -288,10 +289,10 @@ struct TeleportLabelMenuItem : MenuItem {
 	}
 };
 
-struct TeleportLabelSelectorTextBox : HoverableTextBox {
+struct TeleportSourceSelectorTextBox : HoverableTextBox {
 	TeleportOutModule *module;
 
-	TeleportLabelSelectorTextBox() : HoverableTextBox() {}
+	TeleportSourceSelectorTextBox() : HoverableTextBox() {}
 
 	void onAction(EventAction &e) override {
 		// based on AudioDeviceChoice::onAction in src/app/AudioWidget.cpp
@@ -330,15 +331,14 @@ struct TeleportLabelSelectorTextBox : HoverableTextBox {
 };
 
 struct TeleportOutModuleWidget : TeleportModuleWidget {
-	TeleportLabelSelectorTextBox *labelDisplay;
+	TeleportSourceSelectorTextBox *labelDisplay;
 
 	//TODO: svg file
 	TeleportOutModuleWidget(TeleportOutModule *module) : TeleportModuleWidget(module, "res/TeleportIn.svg") {
-		labelDisplay = new TeleportLabelSelectorTextBox();
+		labelDisplay = new TeleportSourceSelectorTextBox();
 		labelDisplay->module = module;
 		addLabelDisplay(labelDisplay);
 
-		//TODO: add LEDs which indicates active inputs in source
 		for(int i = 0; i < NUM_TELEPORT_INPUTS; i++) {
 			float y = getPortYCoord(i);
 			addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, y), module, TeleportOutModule::OUTPUT_1 + i));
