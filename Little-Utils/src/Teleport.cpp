@@ -323,13 +323,13 @@ struct TeleportModuleWidget : ModuleWidget {
 		disp->font_size = 14;
 		disp->box.size = Vec(30, 14);
 		disp->textOffset.x = disp->box.size.x * 0.5f;
-		disp->box.pos = Vec(7.5f, RACK_GRID_WIDTH + 7.5f);
+		disp->box.pos = Vec(7.5f, RACK_GRID_WIDTH + 7.0f);
 		labelDisplay = disp;
 		addChild(labelDisplay);
 	}
 
 	float getPortYCoord(int i) {
-		return 75.f + 35.f * i;
+		return 57.f + 37.f * i;
 	}
 
 	TeleportModuleWidget(Teleport *module, std::string panelFilename) : ModuleWidget(module) {
@@ -358,8 +358,7 @@ struct TeleportInModuleWidget : TeleportModuleWidget {
 struct TeleportOutModuleWidget : TeleportModuleWidget {
 	TeleportSourceSelectorTextBox *labelDisplay;
 
-	//TODO: svg file
-	TeleportOutModuleWidget(TeleportOutModule *module) : TeleportModuleWidget(module, "res/TeleportIn.svg") {
+	TeleportOutModuleWidget(TeleportOutModule *module) : TeleportModuleWidget(module, "res/TeleportOut.svg") {
 		labelDisplay = new TeleportSourceSelectorTextBox();
 		labelDisplay->module = module;
 		addLabelDisplay(labelDisplay);
