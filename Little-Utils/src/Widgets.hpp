@@ -27,7 +27,7 @@ struct TextBox : TransparentWidget {
 		textOffset = Vec(box.size.x * 0.5f, 0.f);
 	}
 
-	void setText(std::string s) { text = s; }
+	virtual void setText(std::string s) { text = s; }
 
 	virtual void draw(NVGcontext *vg) override {
 		// based on LedDisplayChoice::draw() in Rack/src/app/LedDisplay.cpp
