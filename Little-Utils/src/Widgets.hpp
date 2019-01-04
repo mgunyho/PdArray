@@ -85,17 +85,27 @@ struct HoverableTextBox : TextBox {
 	}
 };
 
+/*
+ * Basically a custom version of TextField.
+ * TextField::text holds the string being edited and HoverableTextBox::text
+ * holds the string being displayed. When the user stops editing (by pressing
+ * enter or clicking away), onDefocus() is called, which by default just sets
+ * the display text to the edited text. Override this to e.g. validate the text
+ * content.
+ */
 struct EditableTextBox : HoverableTextBox, TextField {
-	//std::string text1;
+
+	bool isFocused = false;
+	const static unsigned int defaultMaxTextLength = 4;
+	unsigned int maxTextLength;
 
 	EditableTextBox(): HoverableTextBox(), TextField() {
-		//text1 = HoverableTextBox::text;
+		maxTextLength = defaultMaxTextLength;
 	}
 
 	void draw(NVGcontext *vg) override;
 
 	void onMouseDown(EventMouseDown &e) override {
-		std::cout << "EditableTextBox::onMouseDown()" << std::endl; //TODO: remove
 		TextField::onMouseDown(e);
 	}
 
@@ -111,18 +121,29 @@ struct EditableTextBox : HoverableTextBox, TextField {
 		TextField::onScroll(e);
 	}
 
-	//void onTextChange() override {
-	//	std::cout << "onTextChange() called implementation missing" << std::endl;
-	//}
+	void onAction(EventAction &e) override;
 
-	void onAction(EventAction &e) override {
-		std::cout << "EditableTextBox::onAction()" << std::endl;
-		TextField::onAction(e);
+	void onText(EventText &e) override {
+		if(TextField::text.size() < maxTextLength) {
+			TextField::onText(e);
+		}
 	}
 
-	void onDefocus(EventAction &e) {
-		std::cout << "EditableTextBox::onDefocus() not implemented" << std::endl;
+	void onKey(EventKey &e) override;
+
+	virtual void onDefocus() {
+		HoverableTextBox::setText(TextField::text);
 	}
+
+	void step() override {
+		bool wasFocused = isFocused;
+		isFocused = gFocusedWidget == this; // should maybe use onFocus instead
+		if(wasFocused && !isFocused) {
+			// hacky
+			onDefocus();
+		}
+	}
+
 };
 
 struct ToggleLEDButton : SVGSwitch, ToggleSwitch {

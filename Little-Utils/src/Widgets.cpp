@@ -1,41 +1,72 @@
 #include "Widgets.hpp"
+#include "window.hpp" // windowIsModPressed
+#include <GLFW/glfw3.h> // key codes
 
 void EditableTextBox::draw(NVGcontext *vg) {
-	bool focus = this == gFocusedWidget;
+
 	std::string tmp = HoverableTextBox::text;
-	if(focus) {
+	if(isFocused) {
 		HoverableTextBox::setText(TextField::text);
-	} else {
-		//HoverableTextBox::setText(text1);
 	}
+
 	HoverableTextBox::draw(vg);
 	HoverableTextBox::setText(tmp);
-	//TextField::setText(tmp);
 
-	// copied from LedDisplayTextField
-	//TODO: set multiline = false
-	if(focus) {
-		//NVGcolor highlightColor = nvgRGB(0x0, 0x0, 0xd8);
-		//highlightColor.a = 0.5;
-		//int begin = min(cursor, selection);
-		//int end = focus ? max(cursor, selection) : -1; //TODO: use this to figure out defocus
+	if(isFocused) {
+		NVGcolor highlightColor = nvgRGB(0x0, 0x90, 0xd8);
+		highlightColor.a = 0.5;
 
-		//nvgFontFaceId(vg, HoverableTextBox::font->handle);
-		//nvgFontSize(vg, font_size);
-		//nvgTextLetterSpacing(vg, letter_spacing);
-		//nvgTextAlign(vg, NVG_ALIGN_CENTER | NVG_ALIGN_TOP);
-		//nvgTextAlign(vg, NVG_ALIGN_CENTER | NVG_ALIGN_TOP);
+		int begin = min(cursor, selection);
+		int end = max(cursor, selection);
+		int len = end - begin;
 
-//		void bndIconLabelCaret(NVGcontext *ctx, float x, float y, float w, float h,
-//		    int iconid, NVGcolor color, float fontsize, const char *label,
-//		    NVGcolor caretcolor, int cbegin, int cend);
+		// font face, size, alignment etc should be the same as for TextBox after the above draw call
 
-		//bndIconLabelCaret(vg, 0.f, textOffset.y,
-		//		box.size.x, //box.size.x - 2*textOffset.x,
-		//		box.size.y, //box.size.y - 2*textOffset.y, //TODO: this incorrectly limits line
-		//		-1, textColor, font_size, TextField::text.c_str(), highlightColor, begin, end);
+		// hacky way of measuring character width
+		NVGglyphPosition glyphs[4];
+		nvgTextGlyphPositions(vg, 0.f, 0.f, "a", NULL, glyphs, 4);
+		float char_width = -2*glyphs[0].x;
 
-		// partial implementation of bndIconLabelCaret
+		float ymargin = 2.f;
+		nvgBeginPath(vg);
+		nvgFillColor(vg, highlightColor);
+		nvgRect(vg,
+				textOffset.x + (begin - 0.5f * TextField::text.size()) * char_width - 1,
+				ymargin,
+				(len > 0 ? char_width * len : 1) + 1,
+				box.size.y - 2.f * ymargin);
+		nvgFill(vg);
+	}
+}
 
+void EditableTextBox::onAction(EventAction &e) {
+	// this should only be called by TextField when enter is pressed
+
+	if(this == gFocusedWidget) {
+		gFocusedWidget = NULL;
+		EventAction e;
+		//onDefocus(); // gets called anyway
+	}
+	e.consumed = true;
+}
+
+void EditableTextBox::onKey(EventKey &e) {
+	if(e.key == GLFW_KEY_V && windowIsModPressed()) {
+		// prevent pasting too long text
+		int pasteLength = maxTextLength - TextField::text.size();
+		if(pasteLength > 0) {
+			std::string newText(glfwGetClipboardString(gWindow));
+			if(newText.size() > pasteLength) newText.erase(pasteLength);
+			insertText(newText);
+		}
+		e.consumed = true;
+
+	} else if(e.key == GLFW_KEY_ESCAPE && isFocused) {
+		// defocus on escape
+		gFocusedWidget = NULL;
+		e.consumed = true;
+
+	} else {
+		TextField::onKey(e);
 	}
 }

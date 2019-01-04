@@ -3,7 +3,6 @@
 #include <map>
 
 #define NUM_TELEPORT_INPUTS 8
-#define LABEL_LENGTH 4
 
 struct TeleportInModule;
 
@@ -20,7 +19,7 @@ struct Teleport : Module {
 	// this static map is used for keeping track of all existing Teleport instances
 	// TODO: rename
 	// TODO: static std::map<std::string, Input*> sources; <-- access inputs directly in map, good idea? does this prevent mixing? do we want multiple inputs with the same label?
-	static std::map<std::string, TeleportInModule*> sources;
+	static std::map<std::string, TeleportInModule*> sources; //TODO: replace with set, custom comparator that compares labels.
 	static std::string lastInsertedKey; // this is used to assign the label of an output initially
 
 	void addSource(TeleportInModule *t);

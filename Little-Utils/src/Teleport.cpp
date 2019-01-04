@@ -5,6 +5,10 @@
 
 #include <iostream>
 
+/////////////
+// modules //
+/////////////
+
 struct TeleportInModule : Teleport {
 	enum ParamIds {
 		NUM_PARAMS
@@ -32,7 +36,7 @@ struct TeleportInModule : Teleport {
 	std::string getLabel() {
 		std::string l;
 		do {
-			l = randomString(LABEL_LENGTH);
+			l = randomString(EditableTextBox::defaultMaxTextLength);
 		} while(sourceExists(l)); // if the label exists, regenerate
 		return l;
 	}
@@ -229,52 +233,17 @@ void Teleport::addSource(TeleportInModule *t) {
 //
 //};
 
-struct TeleportModuleWidget : ModuleWidget {
-	HoverableTextBox *labelDisplay;
-	Teleport *module;
+////////////////////////////////////
+// some teleport-specific widgets //
+////////////////////////////////////
 
-	virtual void addLabelDisplay(HoverableTextBox *disp) {
-		disp->font_size = 14;
-		disp->box.size = Vec(30, 14);
-		disp->textOffset.x = disp->box.size.x * 0.5f;
-		disp->box.pos = Vec(7.5f, RACK_GRID_WIDTH + 7.5f);
-		disp->setText(module->label);
-		labelDisplay = disp;
-		addChild(labelDisplay);
-	}
+struct EditableTeleportLabelTextbox : EditableTextBox {
+	EditableTeleportLabelTextbox(): EditableTextBox() {}
 
-	float getPortYCoord(int i) {
-		return 75.f + 35.f * i;
-	}
-
-	TeleportModuleWidget(Teleport *module, std::string panelFilename) : ModuleWidget(module) {
-		this->module = module;
-		setPanel(SVG::load(assetPlugin(plugin, panelFilename)));
-
-		addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
-		addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
-
-	}
-	virtual void step() override {
-		ModuleWidget::step();
-		//TODO: don't do this on every step (?)
-		labelDisplay->setText(module->label);
-	}
-};
-
-struct TeleportInModuleWidget : TeleportModuleWidget {
-
-	//TODO: editable text box ?
-
-	TeleportInModuleWidget(TeleportInModule *module) : TeleportModuleWidget(module, "res/TeleportIn.svg") {
-		//addLabelDisplay(new HoverableTextBox());
-		//addLabelDisplay(new EditableTeleportLabelDisplay());
-		addLabelDisplay(new EditableTextBox());
-		//addInput(createInputCentered<PJ301MPort>(Vec(22.5, 135), module, TeleportInModule::INPUT_1));
-		for(int i = 0; i < NUM_TELEPORT_INPUTS; i++) {
-			addInput(createInputCentered<PJ301MPort>(Vec(22.5, getPortYCoord(i)), module, TeleportInModule::INPUT_1 + i));
-
-		}
+	void onDefocus() override {
+		//TODO
+		std::cout << "EditableTeleportLabelTextbox::onDefocus()" << std::endl;
+		EditableTextBox::onDefocus();
 	}
 
 };
@@ -327,6 +296,63 @@ struct TeleportSourceSelectorTextBox : HoverableTextBox {
 	}
 
 };
+
+
+////////////////////
+// module widgets //
+////////////////////
+
+struct TeleportModuleWidget : ModuleWidget {
+	HoverableTextBox *labelDisplay;
+	Teleport *module;
+
+	virtual void addLabelDisplay(HoverableTextBox *disp) {
+		disp->font_size = 14;
+		disp->box.size = Vec(30, 14);
+		disp->textOffset.x = disp->box.size.x * 0.5f;
+		disp->box.pos = Vec(7.5f, RACK_GRID_WIDTH + 7.5f);
+		disp->setText(module->label);
+		labelDisplay = disp;
+		addChild(labelDisplay);
+	}
+
+	float getPortYCoord(int i) {
+		return 75.f + 35.f * i;
+	}
+
+	TeleportModuleWidget(Teleport *module, std::string panelFilename) : ModuleWidget(module) {
+		this->module = module;
+		setPanel(SVG::load(assetPlugin(plugin, panelFilename)));
+
+		addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
+		addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+
+	}
+	virtual void step() override {
+		ModuleWidget::step();
+		//TODO: don't do this on every step (?)
+		labelDisplay->setText(module->label);
+	}
+};
+
+
+struct TeleportInModuleWidget : TeleportModuleWidget {
+
+	//TODO: editable text box ?
+
+	TeleportInModuleWidget(TeleportInModule *module) : TeleportModuleWidget(module, "res/TeleportIn.svg") {
+		//addLabelDisplay(new HoverableTextBox());
+		//addLabelDisplay(new EditableTeleportLabelDisplay());
+		addLabelDisplay(new EditableTeleportLabelTextbox());
+		//addInput(createInputCentered<PJ301MPort>(Vec(22.5, 135), module, TeleportInModule::INPUT_1));
+		for(int i = 0; i < NUM_TELEPORT_INPUTS; i++) {
+			addInput(createInputCentered<PJ301MPort>(Vec(22.5, getPortYCoord(i)), module, TeleportInModule::INPUT_1 + i));
+
+		}
+	}
+
+};
+
 
 struct TeleportOutModuleWidget : TeleportModuleWidget {
 	TeleportSourceSelectorTextBox *labelDisplay;
