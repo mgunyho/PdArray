@@ -1,8 +1,6 @@
 #include "rack.hpp"
 #include "LittleUtils.hpp"
 
-#include <iostream>
-
 struct TextBox : TransparentWidget {
 	// Kinda like TextField except not editable. Using Roboto Mono Bold font,
 	// numbers look okay.
@@ -12,13 +10,15 @@ struct TextBox : TransparentWidget {
 	float font_size;
 	float letter_spacing;
 	Vec textOffset;
-	NVGcolor textColor;
+	NVGcolor defaultTextColor;
+	NVGcolor textColor; // This can be used to temporarily override text color
 	NVGcolor backgroundColor;
 
 	//TODO: create<...>() thing with position as argument?
 	TextBox() {
 		font = Font::load(assetPlugin(plugin, "res/RobotoMono-Bold.ttf"));
-		textColor = nvgRGB(0x23, 0x23, 0x23);
+		defaultTextColor = nvgRGB(0x23, 0x23, 0x23);
+		textColor = defaultTextColor;
 		backgroundColor = nvgRGB(0xc8, 0xc8, 0xc8);
 		box.size = Vec(30, 18);
 		// size 20 with spacing -2 will fit 3 characters on a 30px box with Roboto mono
@@ -136,6 +136,7 @@ struct EditableTextBox : HoverableTextBox, TextField {
 	}
 
 	void step() override {
+		TextField::step();
 		bool wasFocused = isFocused;
 		isFocused = gFocusedWidget == this; // should maybe use onFocus instead
 		if(wasFocused && !isFocused) {

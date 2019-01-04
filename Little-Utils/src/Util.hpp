@@ -24,3 +24,28 @@ TinyLight<TLightColor> *createTinyLightForPort(Vec portCenterPos, Module *module
 
 // generate random alphanumeric string
 std::string randomString(size_t len);
+
+struct GUITimer {
+	// Kinda like PulseGenerator, but uses std::chrono for timing events, since
+	// we don't have engineGetSampleTime() for Widget::step().
+
+	bool status = false; // true == high, false == low
+	std::chrono::steady_clock::time_point finishTime;
+
+	void trigger(float duration) {
+		// duration in seconds, will be rounded to ms
+		finishTime = std::chrono::steady_clock::now() + std::chrono::milliseconds(int(duration * 1000.f));
+		status = true;
+	}
+
+	bool process() {
+		// proecss() takes no parameters, use internal clock to figure out when to go from high to low
+		if(status) {
+			status = std::chrono::steady_clock::now() < finishTime;
+		}
+
+		return status;
+	}
+
+	void reset() { status = false; }
+};

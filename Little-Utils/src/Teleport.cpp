@@ -3,8 +3,6 @@
 #include "Widgets.hpp"
 #include "Util.hpp"
 
-#include <iostream>
-
 /////////////
 // modules //
 /////////////
@@ -60,12 +58,11 @@ struct TeleportInModule : Teleport {
 	}
 
 	~TeleportInModule() {
-		//std::cout << "~TeleportInModule(): " << label << std::endl;
 		sources.erase(label);
 	}
 
 
-	// step() is not needed for a teleport source
+	// step() is not needed for a teleport source, values are read directly from map
 
 	// For more advanced Module features, read Rack's engine.hpp header file
 	// - toJson, fromJson: serialization of internal data
@@ -90,7 +87,6 @@ struct TeleportInModule : Teleport {
 				label = getLabel();
 			}
 		} else {
-			//std::cout << "error reading label" << std::endl;
 			// label couldn't be read from json for some reason, generate new one
 			label = getLabel();
 		}
@@ -102,6 +98,9 @@ struct TeleportInModule : Teleport {
 };
 
 struct TeleportOutModule : Teleport {
+
+	bool sourceIsValid;
+
 	enum ParamIds {
 		NUM_PARAMS
 	};
@@ -153,8 +152,10 @@ struct TeleportOutModule : Teleport {
 				// pick first input in alphabetical order
 				label = sources.begin()->first;
 			}
+			sourceIsValid = true;
 		} else {
 			label = "";
+			sourceIsValid = false;
 		}
 	}
 
@@ -168,15 +169,14 @@ struct TeleportOutModule : Teleport {
 				lights[OUTPUT_1_LIGHTG + 2*i].setBrightness( input.active);
 				lights[OUTPUT_1_LIGHTR + 2*i].setBrightness(!input.active);
 			}
+			sourceIsValid = true;
 		} else {
-			//TODO: don't set label to empty, but indicate somehow that no input exists (gray out text? make text red? status LED? set font red?)
-			label = "";
 			for(int i = 0; i < NUM_TELEPORT_INPUTS; i++) {
 				outputs[OUTPUT_1 + i].value = 0.f;
 				lights[OUTPUT_1_LIGHTG + 2*i].setBrightness(0.f);
 				lights[OUTPUT_1_LIGHTR + 2*i].setBrightness(0.f);
 			}
-
+			sourceIsValid = false;
 		}
 	};
 
@@ -205,47 +205,44 @@ void Teleport::addSource(TeleportInModule *t) {
 // some teleport-specific widgets //
 ////////////////////////////////////
 
-struct EditableTeleportLabelTextbox : EditableTextBox {
+struct TeleportLabelDisplay {
+	NVGcolor errorTextColor = nvgRGB(0xd8, 0x0, 0x0);
+};
+
+struct EditableTeleportLabelTextbox : EditableTextBox, TeleportLabelDisplay {
 	TeleportInModule *module;
-	//PulseGenerator errorDisplayTimer; // TODO
-	bool moduleLabelValid = true;
+	std::string errorText = "!err";
+	GUITimer errorDisplayTimer;
+	float errorDuration = 3.f;
 
 	EditableTeleportLabelTextbox(TeleportInModule *m): EditableTextBox() {
+		assert(errorText.size() <= maxTextLength);
 		module = m;
 	}
 
 	void onDefocus() override {
 		if(module->updateLabel(TextField::text) || module->label.compare(TextField::text) == 0) {
-			HoverableTextBox::setText(TextField::text);
-			moduleLabelValid = true;
+			errorDisplayTimer.reset();
 		} else {
-			//TODO: after a while (~2 seconds), show the original label
-			HoverableTextBox::setText("!err");
-			moduleLabelValid = false;
+			errorDisplayTimer.trigger(errorDuration);
 		}
 
 	}
 
-	void setText(std::string text) override {
-		//TODO: TextField:text is not set when the modules are created/loaded
-		if(moduleLabelValid) {
-			//this->HoverableTextBox::text = text;
-			HoverableTextBox::setText(text);
+	void step() override {
+		EditableTextBox::step();
+		if(errorDisplayTimer.process()) {
+			textColor = isFocused ? defaultTextColor : errorTextColor;
+			HoverableTextBox::setText(errorText);
+		} else {
+			textColor = defaultTextColor;
+			HoverableTextBox::setText(module->label);
 
 			if(!isFocused) {
-				TextField::setText(HoverableTextBox::text);
+				TextField::setText(module->label);
 			}
 		}
-
 	}
-
-	// TODO
-	//void step() override {
-	//	float deltaTime = std::chrono::steady_clock::now() ???
-	//	if(!errorDisplayTimer.process(deltaTime)) {
-	//		moduleLabelValid = true;
-	//	}
-	//}
 
 };
 
@@ -257,7 +254,7 @@ struct TeleportLabelMenuItem : MenuItem {
 	}
 };
 
-struct TeleportSourceSelectorTextBox : HoverableTextBox {
+struct TeleportSourceSelectorTextBox : HoverableTextBox, TeleportLabelDisplay {
 	TeleportOutModule *module;
 
 	TeleportSourceSelectorTextBox() : HoverableTextBox() {}
@@ -273,6 +270,17 @@ struct TeleportSourceSelectorTextBox : HoverableTextBox {
 			item->label = "";
 			item->text = "(none)";
 			item->rightText = CHECKMARK(module->label.empty());
+			menu->addChild(item);
+		}
+
+		if(!module->sourceIsValid && !module->label.empty()) {
+			// the source of the module doesn't exist, it shouldn't appear in sources, so display it as unavailable
+			TeleportLabelMenuItem *item = new TeleportLabelMenuItem();
+			item->module = module;
+			item->label = module->label;
+			item->text = module->label;
+			item->text += " (missing)";
+			item->rightText = CHECKMARK("true");
 			menu->addChild(item);
 		}
 
@@ -296,6 +304,12 @@ struct TeleportSourceSelectorTextBox : HoverableTextBox {
 		}
 	}
 
+	void step() override {
+		HoverableTextBox::step();
+		setText(module->label);
+		textColor = module->sourceIsValid ? defaultTextColor : errorTextColor;
+	}
+
 };
 
 
@@ -312,7 +326,6 @@ struct TeleportModuleWidget : ModuleWidget {
 		disp->box.size = Vec(30, 14);
 		disp->textOffset.x = disp->box.size.x * 0.5f;
 		disp->box.pos = Vec(7.5f, RACK_GRID_WIDTH + 7.5f);
-		disp->setText(module->label);
 		labelDisplay = disp;
 		addChild(labelDisplay);
 	}
@@ -329,27 +342,15 @@ struct TeleportModuleWidget : ModuleWidget {
 		addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
 	}
-
-	virtual void step() override {
-		ModuleWidget::step();
-		//TODO: don't do this on every step (?)
-		labelDisplay->setText(module->label);
-	}
 };
 
 
 struct TeleportInModuleWidget : TeleportModuleWidget {
 
-	//TODO: editable text box ?
-
 	TeleportInModuleWidget(TeleportInModule *module) : TeleportModuleWidget(module, "res/TeleportIn.svg") {
-		//addLabelDisplay(new HoverableTextBox());
-		//addLabelDisplay(new EditableTeleportLabelDisplay());
 		addLabelDisplay(new EditableTeleportLabelTextbox(module));
-		//addInput(createInputCentered<PJ301MPort>(Vec(22.5, 135), module, TeleportInModule::INPUT_1));
 		for(int i = 0; i < NUM_TELEPORT_INPUTS; i++) {
 			addInput(createInputCentered<PJ301MPort>(Vec(22.5, getPortYCoord(i)), module, TeleportInModule::INPUT_1 + i));
-
 		}
 	}
 
@@ -372,6 +373,9 @@ struct TeleportOutModuleWidget : TeleportModuleWidget {
 		}
 		//addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 135), module, TeleportOutModule::OUTPUT_1));
 	}
+
+	//TODO: append source list to right click menu of entire modulewidget?
+
 };
 
 // Specify the Module and ModuleWidget subclass, human-readable
