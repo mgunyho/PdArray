@@ -5,6 +5,15 @@
 
 #include <algorithm> // std::replace
 
+/*
+ * TODO:
+ * tighten layout
+ * 	- set s/ms font size smaller
+ * 	- smaller margins
+ * 	- change bar in CV AMT midpoint to a point
+ * squeeze in an output which outputs a trigger when done, label FIN
+ */
+
 const float MIN_EXPONENT = -3.0f;
 const float MAX_EXPONENT = 1.0f;
 

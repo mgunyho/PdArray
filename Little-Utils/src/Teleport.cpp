@@ -226,7 +226,6 @@ struct EditableTeleportLabelTextbox : EditableTextBox, TeleportLabelDisplay {
 		} else {
 			errorDisplayTimer.trigger(errorDuration);
 		}
-
 	}
 
 	void step() override {
@@ -237,7 +236,6 @@ struct EditableTeleportLabelTextbox : EditableTextBox, TeleportLabelDisplay {
 		} else {
 			textColor = defaultTextColor;
 			HoverableTextBox::setText(module->label);
-
 			if(!isFocused) {
 				TextField::setText(module->label);
 			}
