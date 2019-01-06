@@ -76,19 +76,8 @@ struct PulseGenModule : Module {
 	CustomPulseGenerator gateGenerator;
 	float gate_duration = 0.5f;
 	float cv_scale = 0.f; // cv_scale = +- 1 -> 10V CV changes duration by +-10s
-	float prev_cv_amt = 0.f; // value of the CV amount knob in the previous step
 
 	PulseGenModule() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
-
-	void updateCVScale(float cv_amt) {
-		float cv_exponent = rescale(fabs(cv_amt), 0.f, 1.f,
-				MIN_EXPONENT, MAX_EXPONENT);
-
-		// decrease exponent by one so that 10V maps to 1.0 (100%) CV.
-		//float cv_scale = powf(10.0f, cv_exponent - 1.f);
-		cv_scale = powf(10.0f, cv_exponent - 1.f) * signum(cv_amt); // take sign into account
-		//std::cout << "updateCVScale(): cv_scale = " << cv_scale << std::endl;
-	}
 
 	void step() override;
 
@@ -113,20 +102,23 @@ void PulseGenModule::step() {
 
 	if(params[LIN_LOG_MODE_PARAM].value < 0.5f) {
 		// linear mode
+		cv_scale = cv_amt;
 		gate_duration = clamp(knob_value + cv_voltage * cv_amt, 0.f, 10.f);
 	} else {
 		// logarithmic mode
 		float exponent = rescale(knob_value,
 				0.f, 10.f, MIN_EXPONENT, MAX_EXPONENT);
 
-		if(cv_amt != prev_cv_amt) updateCVScale(cv_amt);
+		float cv_exponent = rescale(fabs(cv_amt), 0.f, 1.f,
+				MIN_EXPONENT, MAX_EXPONENT);
+
+		// decrease exponent by one so that 10V maps to 1.0 (100%) CV.
+		cv_scale = powf(10.0f, cv_exponent - 1.f) * signum(cv_amt); // take sign into account
 
 		gate_duration = clamp(
 				powf(10.0f, exponent) + cv_voltage * cv_scale,
 				0.f, 10.f);
 	}
-
-	prev_cv_amt = cv_amt;
 
 	if(triggered && gate_duration > 0.f) {
 		gateGenerator.trigger(gate_duration);
@@ -249,18 +241,18 @@ struct PulseGeneratorWidget : ModuleWidget {
 		//addParam(createParam<CKSS>(Vec(7.5, 69), module, PulseGenModule::LIN_LOG_MODE_PARAM, 0.f, 1.f, 1.f));
 		addParam(createParam<CKSS>(Vec(7.5, 60), module, PulseGenModule::LIN_LOG_MODE_PARAM, 0.f, 1.f, 1.f));
 
-		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 182), module, PulseGenModule::GATE_LENGTH_INPUT));
-		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 228), module, PulseGenModule::TRIG_INPUT));
-		addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 278), module, PulseGenModule::GATE_OUTPUT));
+		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 151), module, PulseGenModule::GATE_LENGTH_INPUT));
+		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 192), module, PulseGenModule::TRIG_INPUT));
+		addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 240), module, PulseGenModule::GATE_OUTPUT));
 
-		addChild(createTinyLightForPort<GreenLight>(Vec(22.5, 278), module, PulseGenModule::GATE_LIGHT));
+		addChild(createTinyLightForPort<GreenLight>(Vec(22.5, 240), module, PulseGenModule::GATE_LIGHT));
 
 		msDisplay = new MsDisplayWidget(module);
-		msDisplay->box.pos = Vec(7.5, 300);
+		msDisplay->box.pos = Vec(7.5, 308);
 		addChild(msDisplay);
 
 		auto cvKnob = createParamCentered<CustomTrimpot>(
-					Vec(22.5, 133), module, PulseGenModule::CV_AMT_PARAM,
+					Vec(22.5, 110), module, PulseGenModule::CV_AMT_PARAM,
 					-1.f, 1.f, 0.f);
 		cvKnob->display = msDisplay;
 		addParam(cvKnob);
