@@ -65,15 +65,17 @@ struct PulseGenModule : Module {
 	};
 	enum OutputIds {
 		GATE_OUTPUT,
+		FINISH_OUTPUT,
 		NUM_OUTPUTS
 	};
 	enum LightIds {
 		GATE_LIGHT,
+		FINISH_LIGHT,
 		NUM_LIGHTS
 	};
 
-	SchmittTrigger inputTrigger;
-	CustomPulseGenerator gateGenerator;
+	SchmittTrigger inputTrigger, finishTrigger;
+	CustomPulseGenerator gateGenerator, finishTriggerGenerator;
 	float gate_duration = 0.5f;
 	float cv_scale = 0.f; // cv_scale = +- 1 -> 10V CV changes duration by +-10s
 
@@ -127,9 +129,17 @@ void PulseGenModule::step() {
 	// update trigger duration even in the middle of a trigger
 	gateGenerator.triggerDuration = gate_duration;
 
-	outputs[GATE_OUTPUT].value = gateGenerator.process(deltaTime) ? 10.0f : 0.0f;
+	bool gate = gateGenerator.process(deltaTime);
+
+	if(finishTrigger.process(gate ? 0.f : 1.f)) {
+		finishTriggerGenerator.trigger(1.e-3f);
+	}
+
+	outputs[GATE_OUTPUT].value = gate ? 10.0f : 0.0f;
+	outputs[FINISH_OUTPUT].value = finishTriggerGenerator.process(deltaTime) ? 10.f : 0.f;
 
 	lights[GATE_LIGHT].setBrightnessSmooth(outputs[GATE_OUTPUT].value);
+	lights[FINISH_LIGHT].setBrightnessSmooth(outputs[FINISH_OUTPUT].value);
 
 }
 
@@ -244,8 +254,10 @@ struct PulseGeneratorWidget : ModuleWidget {
 		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 151), module, PulseGenModule::GATE_LENGTH_INPUT));
 		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 192), module, PulseGenModule::TRIG_INPUT));
 		addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 240), module, PulseGenModule::GATE_OUTPUT));
+		addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 288), module, PulseGenModule::FINISH_OUTPUT));
 
 		addChild(createTinyLightForPort<GreenLight>(Vec(22.5, 240), module, PulseGenModule::GATE_LIGHT));
+		addChild(createTinyLightForPort<GreenLight>(Vec(22.5, 288), module, PulseGenModule::FINISH_LIGHT));
 
 		msDisplay = new MsDisplayWidget(module);
 		msDisplay->box.pos = Vec(7.5, 308);
