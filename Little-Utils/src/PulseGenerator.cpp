@@ -51,7 +51,6 @@ struct CustomPulseGenerator {
 
 
 // the module is called PulseGenModule because PulseGenerator is already taken
-// in dsp/digital.hpp
 struct PulseGenModule : Module {
 	enum ParamIds {
 		GATE_LENGTH_PARAM,
@@ -76,7 +75,7 @@ struct PulseGenModule : Module {
 	SchmittTrigger inputTrigger;
 	CustomPulseGenerator gateGenerator;
 	float gate_duration = 0.5f;
-	float cv_scale = 0.f; // cv_scale = +- 1 -> 10V CV = changes duration by +-10s
+	float cv_scale = 0.f; // cv_scale = +- 1 -> 10V CV changes duration by +-10s
 	float prev_cv_amt = 0.f; // value of the CV amount knob in the previous step
 
 	PulseGenModule() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
@@ -85,7 +84,7 @@ struct PulseGenModule : Module {
 		float cv_exponent = rescale(fabs(cv_amt), 0.f, 1.f,
 				MIN_EXPONENT, MAX_EXPONENT);
 
-		//// decrease exponent by one so that 10V maps to 1.0 (100%) CV.
+		// decrease exponent by one so that 10V maps to 1.0 (100%) CV.
 		//float cv_scale = powf(10.0f, cv_exponent - 1.f);
 		cv_scale = powf(10.0f, cv_exponent - 1.f) * signum(cv_amt); // take sign into account
 		//std::cout << "updateCVScale(): cv_scale = " << cv_scale << std::endl;
@@ -98,14 +97,6 @@ struct PulseGenModule : Module {
 	// - toJson, fromJson: serialization of internal data
 	// - onSampleRateChange: event triggered by a change of sample rate
 	// - onReset, onRandomize, onCreate, onDelete: implements special behavior when user clicks these from the context menu
-	json_t* toJson() override {
-		// TODO
-		return NULL;
-	}
-
-	void fromJson(json_t* root) override {
-		// TODO: set prev_cv_amt to current cv amount?
-	}
 
 };
 
@@ -119,35 +110,20 @@ void PulseGenModule::step() {
 	float knob_value = params[GATE_LENGTH_PARAM].value;
 	float cv_amt = params[CV_AMT_PARAM].value;
 	float cv_voltage = inputs[GATE_LENGTH_INPUT].value;
+
 	if(params[LIN_LOG_MODE_PARAM].value < 0.5f) {
-
+		// linear mode
 		gate_duration = clamp(knob_value + cv_voltage * cv_amt, 0.f, 10.f);
-
 	} else {
+		// logarithmic mode
 		float exponent = rescale(knob_value,
 				0.f, 10.f, MIN_EXPONENT, MAX_EXPONENT);
 
 		if(cv_amt != prev_cv_amt) updateCVScale(cv_amt);
 
-		//if(cv_amt != 0 && cv_voltage != 0) {
-		//	// logarithmic CV
-
-		//	//float cv_exponent = rescale(fabs(cv_amt), 0.f, 1.f,
-		//	//		MIN_EXPONENT, MAX_EXPONENT);
-		//	// decrease exponent by one so that 10V maps to 1.0 (100%) CV.
-		//	//TODO: how to make pow more efficient?
-		//	//float cv_scale = powf(10.0f, cv_exponent - 1.f);
-
-		//	gate_duration = clamp(
-		//			powf(10.0f, exponent) + cv_scale * cv_voltage * signum(cv_amt),
-		//			0.f, 10.f);
-		//} else {
-
-			gate_duration = clamp(
-					powf(10.0f, exponent) + cv_voltage * cv_scale,
-					0.f, 10.f);
-
-		//}
+		gate_duration = clamp(
+				powf(10.0f, exponent) + cv_voltage * cv_scale,
+				0.f, 10.f);
 	}
 
 	prev_cv_amt = cv_amt;
@@ -155,6 +131,7 @@ void PulseGenModule::step() {
 	if(triggered && gate_duration > 0.f) {
 		gateGenerator.trigger(gate_duration);
 	}
+
 	// update trigger duration even in the middle of a trigger
 	gateGenerator.triggerDuration = gate_duration;
 
@@ -166,13 +143,16 @@ void PulseGenModule::step() {
 
 // TextBox defined in ./Widgets.hpp
 struct MsDisplayWidget : TextBox {
+	PulseGenModule *module;
 	bool msLabelStatus = false; // 0 = 'ms', 1 = 's'
 	bool cvLabelStatus = false; // whether to show 'cv'
 	float previous_displayed_value = 0.f;
 	float cvDisplayTime = 2.f;
+
 	GUITimer cvDisplayTimer;
 
-	MsDisplayWidget() : TextBox() {
+	MsDisplayWidget(PulseGenModule *m) : TextBox() {
+		module = m;
 		box.size = Vec(30, 27);
 		letter_spacing = -2.0f;
 	}
@@ -201,7 +181,7 @@ struct MsDisplayWidget : TextBox {
 		TextBox::draw(vg);
 		nvgScissor(vg, 0, 0, box.size.x, box.size.y);
 
-		if (font->handle >= 0) {
+		if(font->handle >= 0) {
 			nvgFillColor(vg, textColor);
 			nvgFontFaceId(vg, font->handle);
 
@@ -227,6 +207,7 @@ struct MsDisplayWidget : TextBox {
 	void step() override {
 		TextBox::step();
 		cvLabelStatus = cvDisplayTimer.process();
+		updateDisplayValue(cvLabelStatus ? fabs(module->cv_scale) * 10.f : module->gate_duration);
 	}
 
 };
@@ -235,32 +216,15 @@ struct CustomTrimpot : Trimpot {
 	MsDisplayWidget *display;
 	CustomTrimpot(): Trimpot() {};
 
-	void onMouseMove(EventMouseMove &e) override {
-		Trimpot::onMouseMove(e);
-		if(display && gDraggedWidget == this) {
-			std::cout << "CustomTrimpot::onMouseMove(): triggering" << std::endl;
-			display->triggerCVDisplay();
-		}
-	}
-
-	void onMouseDown(EventMouseDown &e) override {
-		Trimpot::onMouseDown(e);
-		if(display) {
-			std::cout << "CustomTrimpot::onMouseDown(): triggering" << std::endl;
-			display->triggerCVDisplay();
-		}
-	}
-
-	void onMouseUp(EventMouseUp &e) override {
-		std::cout << "CustomTrimpot::onMouseUp()" << std::endl;
-		Trimpot::onMouseUp(e);
+	void onDragMove(EventDragMove &e) override {
+		Trimpot::onDragMove(e);
+		display->triggerCVDisplay();
 	}
 };
 
 struct PulseGeneratorWidget : ModuleWidget {
 	PulseGenModule *module;
 	MsDisplayWidget *msDisplay;
-	//float prev_cv_scale;
 
 	PulseGeneratorWidget(PulseGenModule *module) : ModuleWidget(module) {
 		this->module = module;
@@ -291,7 +255,7 @@ struct PulseGeneratorWidget : ModuleWidget {
 
 		addChild(createTinyLightForPort<GreenLight>(Vec(22.5, 278), module, PulseGenModule::GATE_LIGHT));
 
-		msDisplay = new MsDisplayWidget();
+		msDisplay = new MsDisplayWidget(module);
 		msDisplay->box.pos = Vec(7.5, 300);
 		addChild(msDisplay);
 
@@ -299,33 +263,10 @@ struct PulseGeneratorWidget : ModuleWidget {
 					Vec(22.5, 133), module, PulseGenModule::CV_AMT_PARAM,
 					-1.f, 1.f, 0.f);
 		cvKnob->display = msDisplay;
-		addChild(cvKnob);
+		addParam(cvKnob);
 
 	}
 
-	void step() override {
-		ModuleWidget::step();
-
-		//msDisplay->updateDisplayValue(module->gate_duration);
-
-		//TODO: cv amount change
-		//float cvs = module->cv_scale;
-		//if(cvs != prev_cv_scale) {
-		//	prev_cv_scale = cvs;
-		//	cvDisplayTimer.trigger(2.f);
-		//}
-
-		//if(cvDisplayTimer.process()) {
-		//	msDisplay->updateDisplayValue(fabs(module->cv_scale) * 10.f);
-		//	msDisplay->cvLabelStatus = true;
-		//} else {
-		//	msDisplay->updateDisplayValue(module->gate_duration);
-		//	msDisplay->cvLabelStatus = false;
-		//}
-
-		msDisplay->updateDisplayValue(msDisplay->cvLabelStatus ?
-				fabs(module->cv_scale) * 10.f : module->gate_duration);
-	}
 };
 
 
