@@ -29,27 +29,28 @@ struct TextBox : TransparentWidget {
 
 	virtual void setText(std::string s) { text = s; }
 
-	virtual void draw(NVGcontext *vg) override {
-		// based on LedDisplayChoice::draw() in Rack/src/app/LedDisplay.cpp
-		nvgScissor(vg, 0, 0, box.size.x, box.size.y);
+	virtual void draw(NVGcontext *vg) override;
+	//{
+	//	// based on LedDisplayChoice::draw() in Rack/src/app/LedDisplay.cpp
+	//	nvgScissor(vg, 0, 0, box.size.x, box.size.y);
 
-		nvgBeginPath(vg);
-		nvgRoundedRect(vg, 0, 0, box.size.x, box.size.y, 3.0);
-		nvgFillColor(vg, backgroundColor);
-		nvgFill(vg);
+	//	nvgBeginPath(vg);
+	//	nvgRoundedRect(vg, 0, 0, box.size.x, box.size.y, 3.0);
+	//	nvgFillColor(vg, backgroundColor);
+	//	nvgFill(vg);
 
-		if (font->handle >= 0) {
-			nvgFillColor(vg, textColor);
-			nvgFontFaceId(vg, font->handle);
+	//	if (font->handle >= 0) {
+	//		nvgFillColor(vg, textColor);
+	//		nvgFontFaceId(vg, font->handle);
 
-			nvgFontSize(vg, font_size);
-			nvgTextLetterSpacing(vg, letter_spacing);
-			nvgTextAlign(vg, NVG_ALIGN_CENTER | NVG_ALIGN_TOP);
-			nvgText(vg, textOffset.x, textOffset.y, text.c_str(), NULL);
-		}
+	//		nvgFontSize(vg, font_size);
+	//		nvgTextLetterSpacing(vg, letter_spacing);
+	//		nvgTextAlign(vg, NVG_ALIGN_CENTER | NVG_ALIGN_TOP);
+	//		nvgText(vg, textOffset.x, textOffset.y, text.c_str(), NULL);
+	//	}
 
-		nvgResetScissor(vg);
-	}
+	//	nvgResetScissor(vg);
+	//}
 };
 
 // a TextBox that changes its background color when hovered

@@ -2,6 +2,29 @@
 #include "window.hpp" // windowIsModPressed
 #include <GLFW/glfw3.h> // key codes
 
+void TextBox::draw(NVGcontext *vg) {
+	// based on LedDisplayChoice::draw() in Rack/src/app/LedDisplay.cpp
+	nvgScissor(vg, 0, 0, box.size.x, box.size.y);
+
+	nvgBeginPath(vg);
+	nvgRoundedRect(vg, 0, 0, box.size.x, box.size.y, 3.0);
+	nvgFillColor(vg, backgroundColor);
+	nvgFill(vg);
+
+	if (font->handle >= 0) {
+
+		nvgFillColor(vg, textColor);
+		nvgFontFaceId(vg, font->handle);
+
+		nvgFontSize(vg, font_size);
+		nvgTextLetterSpacing(vg, letter_spacing);
+		nvgTextAlign(vg, NVG_ALIGN_CENTER | NVG_ALIGN_TOP);
+		nvgText(vg, textOffset.x, textOffset.y, text.c_str(), NULL);
+	}
+
+	nvgResetScissor(vg);
+}
+
 void EditableTextBox::draw(NVGcontext *vg) {
 
 	std::string tmp = HoverableTextBox::text;
