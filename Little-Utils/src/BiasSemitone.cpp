@@ -16,8 +16,6 @@ constexpr float KNOB_COLORS[N_KNOBS][3] = {
 
 const int MAX_SEMITONES = 36;
 
-//TODO: good name?
-//alternatives: offset/semitone, bias/semitone
 struct Bias_Semitone : Module {
 	enum ParamIds {
 		BIAS_1_PARAM,
@@ -85,19 +83,10 @@ struct Bias_Semitone : Module {
 
 	void step() override;
 
-
 	// For more advanced Module features, read Rack's engine.hpp header file
 	// - toJson, fromJson: serialization of internal data
 	// - onSampleRateChange: event triggered by a change of sample rate
 	// - onReset, onRandomize, onCreate, onDelete: implements special behavior when user clicks these from the context menu
-	json_t* toJson() override {
-		// TODO
-		return NULL;
-	}
-
-	void fromJson(json_t* root) override {
-		// TODO
-	}
 
 };
 
@@ -159,7 +148,6 @@ struct Bias_SemitoneWidget : ModuleWidget {
 			addChild(createTinyLightForPort<RGBLight>(input_pos,  module, Bias_Semitone::INPUT_1_LIGHTR  + 3*i));
 			addChild(createTinyLightForPort<RGBLight>(output_pos, module, Bias_Semitone::OUTPUT_1_LIGHTR + 3*i));
 
-			//TODO: is 'new' good? does it get freed somewhere?
 			TextBox *display = new TextBox();
 			//display->font_size = 18;
 			//display->box.size.x = 45;
