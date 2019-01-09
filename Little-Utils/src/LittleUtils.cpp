@@ -13,7 +13,7 @@ void init(Plugin *p) {
 	p->addModel(modelButtonModule);
 	p->addModel(modelPulseGenerator);
 	p->addModel(modelBias_Semitone);
-	p->addModel(modelArithmetic);
+	p->addModel(modelMulDiv);
 	p->addModel(modelTeleportInModule);
 	p->addModel(modelTeleportOutModule);
 

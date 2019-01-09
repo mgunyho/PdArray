@@ -4,14 +4,17 @@
 
 #include <algorithm> // std::replace
 
-struct Arithmetic : Module {
+struct MulDiv : Module {
 	enum ParamIds {
+		A_SCALE_PARAM,
+		B_SCALE_PARAM,
+		OUTPUT_SCALE_PARAM,
 		CLIP_ENABLE_PARAM,
 		NUM_PARAMS
 	};
 	enum InputIds {
-		X_INPUT,
-		Y_INPUT,
+		A_INPUT,
+		B_INPUT,
 		NUM_INPUTS
 	};
 	enum OutputIds {
@@ -29,7 +32,7 @@ struct Arithmetic : Module {
 	// output this instead of NaN (when e.g. dividing by zero)
 	float valid_div_value = 0.f;
 
-	Arithmetic() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
+	MulDiv() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
 
 	void step() override;
 
@@ -41,10 +44,10 @@ struct Arithmetic : Module {
 
 };
 
-void Arithmetic::step() {
+void MulDiv::step() {
 	bool clip = params[CLIP_ENABLE_PARAM].value > 0.5f;
-	auto xin = inputs[X_INPUT];
-	auto yin = inputs[Y_INPUT];
+	auto xin = inputs[A_INPUT];
+	auto yin = inputs[B_INPUT];
 	float a = xin.value + yin.value;
 	float s = xin.value - yin.value;
 	float m = (xin.active ? xin.value : 1.f) * (yin.active ? yin.value : 1.f);
@@ -64,26 +67,26 @@ void Arithmetic::step() {
 	lights[CLIP_ENABLE_LIGHT].setBrightnessSmooth(clip);
 }
 
-struct ArithmeticWidget : ModuleWidget {
-	Arithmetic *module;
+struct MulDivWidget : ModuleWidget {
+	MulDiv *module;
 
-	ArithmeticWidget(Arithmetic *module) : ModuleWidget(module) {
+	MulDivWidget(MulDiv *module) : ModuleWidget(module) {
 		this->module = module;
-		setPanel(SVG::load(assetPlugin(plugin, "res/Arithmetic.svg")));
+		setPanel(SVG::load(assetPlugin(plugin, "res/Arithmetic.svg"))); // TODO
 
 		addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
 		addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-		addInput(createInputCentered<PJ301MPort>(Vec(22.5,  46), module, Arithmetic::X_INPUT));
-		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 89), module, Arithmetic::Y_INPUT));
-		addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 136), module, Arithmetic::ADD_OUTPUT));
-		addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 186), module, Arithmetic::SUB_OUTPUT));
-		addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 236), module, Arithmetic::MUL_OUTPUT));
-		addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 286), module, Arithmetic::DIV_OUTPUT));
+		addInput(createInputCentered<PJ301MPort>(Vec(22.5,  46), module, MulDiv::A_INPUT));
+		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 89), module, MulDiv::B_INPUT));
+		addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 136), module, MulDiv::ADD_OUTPUT));
+		addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 186), module, MulDiv::SUB_OUTPUT));
+		addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 236), module, MulDiv::MUL_OUTPUT));
+		addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 286), module, MulDiv::DIV_OUTPUT));
 
-		addParam(createParamCentered<ToggleLEDButton>(Vec(22.5, 315), module, Arithmetic::CLIP_ENABLE_PARAM, 0.f, 1.f, 0.f));
+		addParam(createParamCentered<ToggleLEDButton>(Vec(22.5, 315), module, MulDiv::CLIP_ENABLE_PARAM, 0.f, 1.f, 0.f));
 
-		addChild(createLightCentered<MediumLight<GreenLight>>(Vec(22.5, 315), module, Arithmetic::CLIP_ENABLE_LIGHT));
+		addChild(createLightCentered<MediumLight<GreenLight>>(Vec(22.5, 315), module, MulDiv::CLIP_ENABLE_LIGHT));
 	}
 
 };
@@ -93,4 +96,4 @@ struct ArithmeticWidget : ModuleWidget {
 // author name for categorization per plugin, module slug (should never
 // change), human-readable module name, and any number of tags
 // (found in `include/tags.hpp`) separated by commas.
-Model *modelArithmetic = Model::create<Arithmetic, ArithmeticWidget>("Little Utils", "Arithmetic", "Arithmetic", UTILITY_TAG);
+Model *modelMulDiv = Model::create<MulDiv, MulDivWidget>("Little Utils", "MultiplyDivide", "Multiply/Divide", UTILITY_TAG);

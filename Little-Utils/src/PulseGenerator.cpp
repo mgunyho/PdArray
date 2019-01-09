@@ -5,6 +5,8 @@
 
 #include <algorithm> // std::replace
 
+// TODO: right click menu option to toggle realtime update of display
+
 const float MIN_EXPONENT = -3.0f;
 const float MAX_EXPONENT = 1.0f;
 
