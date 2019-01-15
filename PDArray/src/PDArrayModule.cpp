@@ -21,7 +21,7 @@ struct PDArrayModule : Module {
 		NUM_LIGHTS
 	};
 
-	float phase = 0.0;
+	float phase = 0.f;
 	unsigned int size = 10;
 	//float miny, maxy; // output value scale TODO
 	std::vector<float> buffer;
@@ -31,33 +31,45 @@ struct PDArrayModule : Module {
 
 		//TODO: remove
 		buffer.clear();
-		buffer.push_back(10.f);
-		buffer.push_back(10.f);
-		buffer.push_back(10.f);
-		buffer.push_back(10.f);
-		buffer.push_back(10.f);
-		buffer.push_back(-10.f);
-		buffer.push_back(-10.f);
-		buffer.push_back(-10.f);
-		buffer.push_back(-10.f);
-		buffer.push_back(-10.f);
+		for(int i = 0; i < size; i++) {
+			//buffer.push_back(10.f * sin(i*0.2f*3.14159f));
+			buffer.push_back(20.f * i / (size - 1) - 10.f);
+		}
+		//buffer.push_back(10.f);
+		//buffer.push_back(10.f);
+		//buffer.push_back(10.f);
+		//buffer.push_back(10.f);
+		//buffer.push_back(10.f);
+		//buffer.push_back(-10.f);
+		//buffer.push_back(-10.f);
+		//buffer.push_back(-10.f);
+		//buffer.push_back(-10.f);
+		//buffer.push_back(-10.f);
+		//std::cout << "PDArrayModule(): " << this << std::endl;
 	}
 
 	void step() override;
 	void resizeBuffer(unsigned int newSize) {
 		buffer.resize(newSize, 0.f);
+		size = newSize;
 	}
 
 	// For more advanced Module features, read Rack's engine.hpp header file
 	// - toJson, fromJson: serialization of internal data
 	// - onSampleRateChange: event triggered by a change of sample rate
 	// - onReset, onRandomize, onCreate, onDelete: implements special behavior when user clicks these from the context menu
+
+	//void fromJson(json_t *json) override {
+	//}
 };
 
 void PDArrayModule::step() {
 	// Implement a simple sine oscillator
 	float deltaTime = engineGetSampleTime();
-	phase = rescale(clamp(inputs[PHASE_INPUT].value, 0.f, 10.f), 0.f, 10.f, 0.f, 1.f);
+
+	// if phase input is inactive, keep phase (TODO: good idea?).
+	//if(inputs[PHASE_INPUT].active)
+		phase = rescale(clamp(inputs[PHASE_INPUT].value, 0.f, 10.f), 0.f, 10.f, 0.f, 1.f);
 
 	int i = int(phase * size); //TODO: clamp?
 
@@ -83,10 +95,59 @@ void PDArrayModule::step() {
 	//	<< ", i: " << i
 	//	<< ", frac: " << frac
 	//	<< std::endl;
+
 }
 
+struct ArrayDisplay : OpaqueWidget {
+	PDArrayModule *module;
+	ArrayDisplay(PDArrayModule *module): OpaqueWidget() {
+		this->module = module;
+		box.size = Vec(150, 100);
+	}
+
+	void draw(NVGcontext *vg) override {
+		OpaqueWidget::draw(vg);
+
+		// show phase
+		float px =  module->phase * box.size.x;
+		nvgBeginPath(vg);
+		nvgStrokeWidth(vg, 1.f);
+		nvgStrokeColor(vg, nvgRGB(0x23, 0x23, 0x23));
+		nvgMoveTo(vg, px, 0);
+		nvgLineTo(vg, px, box.size.y);
+		nvgStroke(vg);
+
+		int s = module->size;
+		float w = box.size.x * 1.f / s;
+		nvgBeginPath(vg);
+		for(int i = 0; i < s; i++) {
+			float x1 = i * w;
+			float x2 = (i + 1) * w;
+			float y = (rescale(module->buffer[i], -10.f, 10.f, 1.f, 0.f) * 0.9f  + 0.05f) * box.size.y;
+
+			if(i == 0) nvgMoveTo(vg, x1, y);
+			else nvgLineTo(vg, x1, y);
+
+			nvgLineTo(vg, x2, y);
+		}
+		nvgStrokeWidth(vg, 2.f);
+		nvgStrokeColor(vg, nvgRGB(0x0, 0x0, 0x0));
+		nvgStroke(vg);
+
+		nvgBeginPath(vg);
+		nvgStrokeColor(vg, nvgRGB(0x0, 0x0, 0x0));
+		nvgStrokeWidth(vg, 2.f);
+		nvgRect(vg, 0, 0, box.size.x, box.size.y);
+		nvgStroke(vg);
+
+	}
+};
+
 struct PDArrayModuleWidget : ModuleWidget {
+	ArrayDisplay *display;
+
 	PDArrayModuleWidget(PDArrayModule *module) : ModuleWidget(module) {
+
 		setPanel(SVG::load(assetPlugin(plugin, "res/Array.svg"))); //TODO
 
 		addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
@@ -97,7 +158,15 @@ struct PDArrayModuleWidget : ModuleWidget {
 		addInput(Port::create<PJ301MPort>(Vec(10.f, 50), Port::INPUT, module, PDArrayModule::PHASE_INPUT));
 		addOutput(Port::create<PJ301MPort>(Vec(10.f, 100), Port::OUTPUT, module, PDArrayModule::DIRECT_OUTPUT));
 		addOutput(Port::create<PJ301MPort>(Vec(10.f, 150), Port::OUTPUT, module, PDArrayModule::INTERP_OUTPUT));
+
+		display = new ArrayDisplay(module);
+		display->box.pos = Vec(50, 10);
+		addChild(display);
 	}
+
+	//void draw(NVGcontext *vg) override {
+	//	ModuleWidget::draw(vg);
+	//}
 };
 
 Model *modelPDArray = Model::create<PDArrayModule, PDArrayModuleWidget>("PDArray", "PDArray", "Array", VISUAL_TAG, ENVELOPE_GENERATOR_TAG);
