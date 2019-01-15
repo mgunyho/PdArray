@@ -100,6 +100,9 @@ void PDArrayModule::step() {
 
 struct ArrayDisplay : OpaqueWidget {
 	PDArrayModule *module;
+	Vec dragPosition;
+	bool dragging = false;
+
 	ArrayDisplay(PDArrayModule *module): OpaqueWidget() {
 		this->module = module;
 		box.size = Vec(150, 100);
@@ -141,6 +144,39 @@ struct ArrayDisplay : OpaqueWidget {
 		nvgStroke(vg);
 
 	}
+
+	//TODO: see https://github.com/jeremywen/JW-Modules/blob/master/src/XYPad.cpp
+	//void onMouseDown(EventMouseDown &e) override {
+	//	OpaqueWidget::onMouseDown(e);
+	//	std::cout << "mouse down @ " << e.pos.x << ", " << e.pos.y << std::endl;
+	//	dragPosition = e.pos;
+	//	if(e.target == this) dragging = true;
+	//}
+	//void onMouseUp(EventMouseUp &e) override {
+	//	OpaqueWidget::onMouseUp(e);
+	//	std::cout << "target == this at mouse up: " << (e.target == this) << std::endl;
+	//}
+	//void onMouseMove(EventMouseMove &e) override {
+	//	OpaqueWidget::onMouseMove(e);
+	//}
+	void onDragStart(EventDragStart &e) override {
+		OpaqueWidget::onDragStart(e);
+		dragging = true;
+		std::cout << "onDragStart()" << std::endl;
+		dragPosition = gRackWidget->lastMousePos;
+	}
+	void onDragEnd(EventDragEnd &e) override {
+		OpaqueWidget::onDragEnd(e);
+		dragging = false;
+		std::cout << "onDragEnd()" << std::endl;
+	}
+
+	//void onDragMove(EventDragMove &e) override {
+	//	OpaqueWidget::onDragMove(e);
+	//	//std::cout << "mouse drag + " << e.mouseRel.x << ", " << e.mouseRel.y << std::endl;
+	//	dragPosition = dragPosition.plus(e.mouseRel);
+	//	std::cout << "mouse drag @ " << dragPosition.x << ", " << dragPosition.y << std::endl;
+	//}
 };
 
 struct PDArrayModuleWidget : ModuleWidget {
