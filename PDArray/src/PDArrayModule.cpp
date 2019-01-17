@@ -8,6 +8,7 @@
 //TODO: output range right click menu
 //TODO: preiodic interp right click menu
 //TODO: reinitialize buffer with onInitialize()
+//TODO: right-click load audio file
 
 struct PDArrayModule : Module {
 	enum ParamIds {
@@ -67,9 +68,31 @@ struct PDArrayModule : Module {
 	// - onSampleRateChange: event triggered by a change of sample rate
 	// - onReset, onRandomize, onCreate, onDelete: implements special behavior when user clicks these from the context menu
 
-	// TODO: store array data, if array is large enough (how large?) encode as base64?
-	//void fromJson(json_t *json) override {
-	//}
+	// TODO: if array is large enough (how large?) encode as base64?
+	// see https://stackoverflow.com/questions/45508360/quickest-way-to-encode-vector-of-floats-into-hex-or-base64binary
+	void fromJson(json_t *json) override {
+
+		json_t *arr = json_object_get(json, "arrayData");
+		if(arr) {
+			buffer.clear();
+			size_t i;
+			json_t *val;
+			json_array_foreach(arr, i, val) {
+				buffer.push_back(json_real_value(val));
+			}
+			size = buffer.size();
+		}
+
+	}
+	json_t *toJson() override {
+		json_t *root = json_object();
+		json_t *arr = json_array();
+		for(float x : buffer) {
+			json_array_append_new(arr, json_real(x));
+		}
+		json_object_set(root, "arrayData", arr);
+		return root;
+	}
 };
 
 void PDArrayModule::step() {
@@ -177,6 +200,7 @@ struct ArrayDisplay : OpaqueWidget {
 		OpaqueWidget::onDragMove(e);
 		//TODO: this results in erroneous behavior, use gRackWidget.lastMousePos? (then needs conversion to local coordinate frame). See e.g.
 		// https://github.com/jeremywen/JW-Modules/blob/master/src/XYPad.cpp
+		//TODO: figure out affected i's with mouseRel?
 		dragPosition = dragPosition.plus(e.mouseRel);
 
 		// int() rounds down, so the upper limit of rescale will be module->size without -1.
@@ -250,6 +274,14 @@ struct NumberTextField : TextField {
 				&& GLFW_KEY_0  <= e.codepoint
 				&& e.codepoint <= GLFW_KEY_9) {
 			TextField::onText(e);
+		}
+	}
+	void step() override {
+		TextField::step();
+		// eh, kinda hacky - is there any way to do this just once after the module has been initialized? after fromJson?
+		if(gFocusedWidget != this) {
+			validText = stringf("%u", module->size);
+			text = validText;
 		}
 	}
 
