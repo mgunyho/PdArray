@@ -1,6 +1,13 @@
 #include "PDArray.hpp"
+#include "window.hpp" // windowIsModPressed
+#include <GLFW/glfw3.h> // key codes
 
 #include <iostream>
+
+//TODO: input range right click menu
+//TODO: output range right click menu
+//TODO: preiodic interp right click menu
+//TODO: reinitialize buffer with onInitialize()
 
 struct PDArrayModule : Module {
 	enum ParamIds {
@@ -60,6 +67,7 @@ struct PDArrayModule : Module {
 	// - onSampleRateChange: event triggered by a change of sample rate
 	// - onReset, onRandomize, onCreate, onDelete: implements special behavior when user clicks these from the context menu
 
+	// TODO: store array data, if array is large enough (how large?) encode as base64?
 	//void fromJson(json_t *json) override {
 	//}
 };
@@ -99,12 +107,6 @@ void PDArrayModule::step() {
 				(d - a - 3.f * (c - b)) * frac + (d + 2.f * a - 3.f * b)
 			)
 		);
-
-	//std::cout
-	//	<< "phase: " << phase
-	//	<< ", i: " << i
-	//	<< ", frac: " << frac
-	//	<< std::endl;
 
 }
 
@@ -173,6 +175,8 @@ struct ArrayDisplay : OpaqueWidget {
 
 	void onDragMove(EventDragMove &e) override {
 		OpaqueWidget::onDragMove(e);
+		//TODO: this results in erroneous behavior, use gRackWidget.lastMousePos? (then needs conversion to local coordinate frame). See e.g.
+		// https://github.com/jeremywen/JW-Modules/blob/master/src/XYPad.cpp
 		dragPosition = dragPosition.plus(e.mouseRel);
 
 		// int() rounds down, so the upper limit of rescale will be module->size without -1.
@@ -186,8 +190,74 @@ struct ArrayDisplay : OpaqueWidget {
 	}
 };
 
+
+// TextField that only allows inputting numbers
+struct NumberTextField : TextField {
+	int maxCharacters = 6;
+	PDArrayModule *module;
+	std::string validText = "1";
+
+	NumberTextField(PDArrayModule *m) : TextField() {
+		module = m;
+		validText = stringf("%u", module->size);
+		text = validText;
+	};
+
+	bool isNumber(const std::string& s) {
+		// shamelessly copypasted from https://stackoverflow.com/questions/4654636/how-to-determine-if-a-string-is-a-number-with-c
+		std::string::const_iterator it = s.begin();
+		while (it != s.end() && std::isdigit(*it)) ++it;
+		return !s.empty() && it == s.end();
+	}
+
+	void onAction(EventAction &e) {
+		if(text.size() > 0) {
+			int n = stoi(text); // text should always contain only digits
+			if(n > 0) {
+				validText = stringf("%u", n);
+				module->resizeBuffer(n);
+			}
+		}
+		text = validText;
+		if(gFocusedWidget == this) gFocusedWidget = NULL;
+		e.consumed = true;
+	}
+
+	void onKey(EventKey &e) override {
+		if(e.key == GLFW_KEY_V && windowIsModPressed()) {
+			// prevent pasting too long text
+			int pasteLength = maxCharacters - TextField::text.size();
+			if(pasteLength > 0) {
+				std::string newText(glfwGetClipboardString(gWindow));
+				if(newText.size() > pasteLength) newText.erase(pasteLength);
+				if(isNumber(newText)) insertText(newText);
+			}
+			e.consumed = true;
+
+		} else if(e.key == GLFW_KEY_ESCAPE && (gFocusedWidget == this)) {
+			// same as pressing enter
+			EventAction ee;
+			onAction(ee);
+
+		} else {
+			TextField::onKey(e);
+		}
+	}
+
+	void onText(EventText &e) override {
+		// assuming GLFW number keys are contiguous
+		if(text.size() < maxCharacters
+				&& GLFW_KEY_0  <= e.codepoint
+				&& e.codepoint <= GLFW_KEY_9) {
+			TextField::onText(e);
+		}
+	}
+
+};
+
 struct PDArrayModuleWidget : ModuleWidget {
 	ArrayDisplay *display;
+	NumberTextField *sizeSelector;
 
 	PDArrayModuleWidget(PDArrayModule *module) : ModuleWidget(module) {
 
@@ -205,6 +275,11 @@ struct PDArrayModuleWidget : ModuleWidget {
 		display = new ArrayDisplay(module);
 		display->box.pos = Vec(50, 10);
 		addChild(display);
+
+		sizeSelector = new NumberTextField(module);
+		sizeSelector->box.pos = Vec(50, 120);
+		sizeSelector->box.size.x = 50;
+		addChild(sizeSelector);
 	}
 
 	//void draw(NVGcontext *vg) override {
