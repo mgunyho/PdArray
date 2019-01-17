@@ -23,6 +23,7 @@ struct PDArrayModule : Module {
 
 	float phase = 0.f;
 	unsigned int size = 10;
+	bool periodicInterpolation = true; // TODO: implement in GUI
 	//float miny, maxy; // output value scale TODO
 	std::vector<float> buffer;
 
@@ -79,10 +80,19 @@ void PDArrayModule::step() {
 	// interpolation based on tabread4_tilde_perform() in
 	// https://github.com/pure-data/pure-data/blob/master/src/d_array.c
 	float a, b, c, d;
-	a = buffer[clamp(i - 1, 0, size)];
-	b = buffer[clamp(i - 0, 0, size)];
-	c = buffer[clamp(i + 1, 0, size)];
-	d = buffer[clamp(i + 2, 0, size)];
+	// TODO: add right-click menu option to toggle periodic interpolation
+	if(periodicInterpolation) {
+		a = buffer[(i - 1 + size) % size];
+		b = buffer[i];
+		c = buffer[(i + 1) % size];
+		d = buffer[(i + 2) % size];
+	} else {
+		a = buffer[clamp(i - 1, 0, size)];
+		b = buffer[clamp(i - 0, 0, size)];
+		c = buffer[clamp(i + 1, 0, size)];
+		d = buffer[clamp(i + 2, 0, size)];
+	}
+
 	float frac = phase * size - i; // fractional part of phase
 	outputs[INTERP_OUTPUT].value = b + frac * (
 			c - b - 0.1666667f * (1.f - frac) * (
@@ -126,7 +136,8 @@ struct ArrayDisplay : OpaqueWidget {
 		for(int i = 0; i < s; i++) {
 			float x1 = i * w;
 			float x2 = (i + 1) * w;
-			float y = (rescale(module->buffer[i], -10.f, 10.f, 1.f, 0.f) * 0.9f  + 0.05f) * box.size.y;
+			//float y = (rescale(module->buffer[i], -10.f, 10.f, 1.f, 0.f) * 0.9f  + 0.05f) * box.size.y;
+			float y = rescale(module->buffer[i], -10.f, 10.f, 1.f, 0.f) * box.size.y;
 
 			if(i == 0) nvgMoveTo(vg, x1, y);
 			else nvgLineTo(vg, x1, y);
@@ -145,38 +156,34 @@ struct ArrayDisplay : OpaqueWidget {
 
 	}
 
-	//TODO: see https://github.com/jeremywen/JW-Modules/blob/master/src/XYPad.cpp
-	//void onMouseDown(EventMouseDown &e) override {
-	//	OpaqueWidget::onMouseDown(e);
-	//	std::cout << "mouse down @ " << e.pos.x << ", " << e.pos.y << std::endl;
-	//	dragPosition = e.pos;
-	//	if(e.target == this) dragging = true;
-	//}
-	//void onMouseUp(EventMouseUp &e) override {
-	//	OpaqueWidget::onMouseUp(e);
-	//	std::cout << "target == this at mouse up: " << (e.target == this) << std::endl;
-	//}
-	//void onMouseMove(EventMouseMove &e) override {
-	//	OpaqueWidget::onMouseMove(e);
-	//}
+	void onMouseDown(EventMouseDown &e) override {
+		OpaqueWidget::onMouseDown(e);
+		dragPosition = e.pos;
+	}
+
 	void onDragStart(EventDragStart &e) override {
 		OpaqueWidget::onDragStart(e);
 		dragging = true;
-		std::cout << "onDragStart()" << std::endl;
-		dragPosition = gRackWidget->lastMousePos;
 	}
+
 	void onDragEnd(EventDragEnd &e) override {
 		OpaqueWidget::onDragEnd(e);
 		dragging = false;
-		std::cout << "onDragEnd()" << std::endl;
 	}
 
-	//void onDragMove(EventDragMove &e) override {
-	//	OpaqueWidget::onDragMove(e);
-	//	//std::cout << "mouse drag + " << e.mouseRel.x << ", " << e.mouseRel.y << std::endl;
-	//	dragPosition = dragPosition.plus(e.mouseRel);
-	//	std::cout << "mouse drag @ " << dragPosition.x << ", " << dragPosition.y << std::endl;
-	//}
+	void onDragMove(EventDragMove &e) override {
+		OpaqueWidget::onDragMove(e);
+		dragPosition = dragPosition.plus(e.mouseRel);
+
+		// int() rounds down, so the upper limit of rescale will be module->size without -1.
+		int i = clamp(int(rescale(dragPosition.x, 0, box.size.x, 0, module->size)), 0, module->size - 1);
+		float y = clamp(rescale(dragPosition.y, 0, box.size.y, 10.f, -10.f), -10.f, 10.f);
+		module->buffer[i] = y;
+	}
+
+	void step() override {
+		OpaqueWidget::step();
+	}
 };
 
 struct PDArrayModuleWidget : ModuleWidget {
