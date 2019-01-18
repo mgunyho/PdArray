@@ -381,9 +381,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.99999996"
-     inkscape:cx="-45.72889"
-     inkscape:cy="174.34519"
+     inkscape:zoom="2.828427"
+     inkscape:cx="86.157103"
+     inkscape:cy="14.00799"
      inkscape:document-units="px"
      inkscape:current-layer="layer7"
      showgrid="true"
@@ -554,37 +554,6 @@
        id="rect817"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="ccccc" />
-    <g
-       transform="translate(-1.984375,-1.4223331e-5)"
-       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:0%;font-family:'Cooper Hewitt';-inkscape-font-specification:'Cooper Hewitt, Bold';text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       id="text4640">
-      <path
-         d="m 8.5506086,91.876254 0.7252761,0 0,0.735942 -0.7252761,0 0,1.018586 q 0,0.245314 0.1013254,0.330641 0.1013253,0.08533 0.3146418,0.08533 0.181319,0 0.2559798,-0.03733 l 0,0.693279 q -0.122657,0.06933 -0.4532976,0.06933 -1.0612495,0 -1.0612495,-1.050584 l 0,-1.109246 -0.4319659,0 0,-0.735942 0.4319659,0 0,-0.799937 0.8426001,0 0,0.799937 z"
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:5.33291245px;line-height:1.25;font-family:'Cooper Hewitt';-inkscape-font-specification:'Cooper Hewitt, Bold';text-align:center;writing-mode:lr-tb;text-anchor:middle;stroke-width:0.26458332px"
-         id="path4645"
-         inkscape:connector-curvature="0" />
-      <path
-         d="m 11.327139,94.772026 q -0.45863,0 -0.725276,-0.309309 l 0,1.306563 -0.8425998,0 0,-3.093089 -0.047996,-0.799937 0.7519408,0 0.05866,0.346639 q 0.277311,-0.415967 0.805269,-0.415967 1.050584,0 1.050584,1.386558 l 0,0.191984 q 0,1.386558 -1.050584,1.386558 z m -0.245314,-2.239824 q -0.298643,0 -0.479962,0.266646 l 0,0.981256 q 0.181319,0.266646 0.479962,0.266646 0.453298,0 0.453298,-0.661282 l 0,-0.191984 q 0,-0.661282 -0.453298,-0.661282 z"
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:5.33291245px;line-height:1.25;font-family:'Cooper Hewitt';-inkscape-font-specification:'Cooper Hewitt, Bold';text-align:center;writing-mode:lr-tb;text-anchor:middle;stroke-width:0.26458332px"
-         id="path4647"
-         inkscape:connector-curvature="0" />
-    </g>
-    <g
-       transform="translate(-1.984375,-196.72292)"
-       style="display:inline"
-       id="g4652">
-      <path
-         sodipodi:nodetypes="cc"
-         inkscape:connector-curvature="0"
-         id="path4628"
-         d="m 3.3072919,289.85627 2.9104171,0"
-         style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.79375023;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
-      <path
-         inkscape:connector-curvature="0"
-         id="path4638"
-         d="m 4.8947921,291.17919 1.322917,-1.32292 -1.3229155,-1.32292"
-         style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.79375023;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
-    </g>
   </g>
   <g
      inkscape:groupmode="layer"

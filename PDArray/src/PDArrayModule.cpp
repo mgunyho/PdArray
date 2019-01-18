@@ -1,6 +1,7 @@
 #include "PDArray.hpp"
 #include "window.hpp" // windowIsModPressed
 #include <GLFW/glfw3.h> // key codes
+#include "dsp/digital.hpp"
 
 #include <iostream>
 
@@ -18,6 +19,9 @@ struct PDArrayModule : Module {
 	};
 	enum InputIds {
 		PHASE_INPUT,
+		REC_SIGNAL_INPUT,
+		REC_PHASE_INPUT,
+		REC_ENABLE_INPUT,
 		NUM_INPUTS
 	};
 	enum OutputIds {
@@ -26,11 +30,13 @@ struct PDArrayModule : Module {
 		NUM_OUTPUTS
 	};
 	enum LightIds {
-		BLINK_LIGHT,
+		REC_LIGHT,
 		NUM_LIGHTS
 	};
 
 	float phase = 0.f;
+	float recPhase = 0.f;
+	SchmittTrigger recTrigger;
 	bool periodicInterpolation = true; // TODO: implement in GUI
 	std::vector<float> buffer;
 
@@ -104,9 +110,19 @@ void PDArrayModule::step() {
 	}
 	//phase = rescale(clamp(inputs[PHASE_INPUT].value, 0.f, 10.f), 0.f, 10.f, 0.f, 1.f);
 	phase = clamp(rescale(inputs[PHASE_INPUT].value, phaseMin, phaseMax, 0.f, 1.f), 0.f, 1.f);
+	recPhase = clamp(rescale(inputs[REC_PHASE_INPUT].value, phaseMin, phaseMax, 0.f, 1.f), 0.f, 1.f);
 
 	int size = buffer.size();
-	int i = int(phase * size);
+
+	// recording
+	int ri = int(recPhase * size);
+	recTrigger.process(rescale(inputs[REC_ENABLE_INPUT].value, 0.1f, 2.f, 0.f, 1.f));
+	bool rec = recTrigger.isHigh();
+	if(rec) {
+		//TODO: parametrize input scale like output/phase? or use outMin/max?
+		buffer[ri] = clamp(rescale(inputs[REC_SIGNAL_INPUT].value, -10.f, 10.f, 0.f, 1.f), 0.f, 1.f);
+	}
+	lights[REC_LIGHT].setBrightnessSmooth(rec);
 
 	float outMin, outMax;
 	float orange = params[OUTPUT_RANGE_PARAM].value;
@@ -120,6 +136,7 @@ void PDArrayModule::step() {
 		outMin = -10.f;
 		outMax =  10.f;
 	}
+	int i = int(phase * size);
 	outputs[DIRECT_OUTPUT].value = rescale(buffer[i], 0.f, 1.f, outMin, outMax);
 
 	// interpolation based on tabread4_tilde_perform() in
@@ -164,10 +181,19 @@ struct ArrayDisplay : OpaqueWidget {
 		// show phase
 		float px =  module->phase * box.size.x;
 		nvgBeginPath(vg);
-		nvgStrokeWidth(vg, 1.f);
-		nvgStrokeColor(vg, nvgRGB(0x23, 0x23, 0x23));
+		nvgStrokeWidth(vg, 2.f);
+		nvgStrokeColor(vg, nvgRGB(0x23, 0x23, 0x53));
 		nvgMoveTo(vg, px, 0);
 		nvgLineTo(vg, px, box.size.y);
+		nvgStroke(vg);
+
+		// phase of recording
+		float rpx = module->recPhase * box.size.x;
+		nvgBeginPath(vg);
+		nvgStrokeWidth(vg, 2.f);
+		nvgStrokeColor(vg, nvgRGB(0x23, 0x53, 0x23));
+		nvgMoveTo(vg, rpx, 0);
+		nvgLineTo(vg, rpx, box.size.y);
 		nvgStroke(vg);
 
 		int s = module->buffer.size();
@@ -318,11 +344,16 @@ struct PDArrayModuleWidget : ModuleWidget {
 		addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
 		addInput(Port::create<PJ301MPort>(Vec(10.f, 50), Port::INPUT, module, PDArrayModule::PHASE_INPUT));
+		addInput(Port::create<PJ301MPort>(Vec(10.f, 300), Port::INPUT, module, PDArrayModule::REC_PHASE_INPUT));
+		addInput(Port::create<PJ301MPort>(Vec(60.f, 300), Port::INPUT, module, PDArrayModule::REC_ENABLE_INPUT));
+		addInput(Port::create<PJ301MPort>(Vec(110.f, 300), Port::INPUT, module, PDArrayModule::REC_SIGNAL_INPUT));
 		addOutput(Port::create<PJ301MPort>(Vec(10.f, 100), Port::OUTPUT, module, PDArrayModule::DIRECT_OUTPUT));
 		addOutput(Port::create<PJ301MPort>(Vec(10.f, 150), Port::OUTPUT, module, PDArrayModule::INTERP_OUTPUT));
 
 		addParam(ParamWidget::create<CKSSThree>(Vec(50, 200), module, PDArrayModule::OUTPUT_RANGE_PARAM, 0, 2, 0));
 		addParam(ParamWidget::create<CKSSThree>(Vec(50, 250), module, PDArrayModule::PHASE_RANGE_PARAM, 0, 2, 2));
+
+		addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(50, 300), module, PDArrayModule::REC_LIGHT));
 
 		display = new ArrayDisplay(module);
 		display->box.pos = Vec(50, 10);
