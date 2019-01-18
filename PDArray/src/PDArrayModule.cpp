@@ -12,7 +12,8 @@
 
 struct PDArrayModule : Module {
 	enum ParamIds {
-		PITCH_PARAM,
+		PHASE_RANGE_PARAM,
+		OUTPUT_RANGE_PARAM,
 		NUM_PARAMS
 	};
 	enum InputIds {
@@ -30,7 +31,7 @@ struct PDArrayModule : Module {
 	};
 
 	float phase = 0.f;
-	unsigned int size = 10;
+	unsigned int size = 10; //TODO: remove
 	bool periodicInterpolation = true; // TODO: implement in GUI
 	//float miny, maxy; // output value scale TODO
 	std::vector<float> buffer;
@@ -96,17 +97,38 @@ struct PDArrayModule : Module {
 };
 
 void PDArrayModule::step() {
-	// Implement a simple sine oscillator
 	float deltaTime = engineGetSampleTime();
 
-	// if phase input is inactive, keep phase (TODO: good idea?).
-	//if(inputs[PHASE_INPUT].active)
-		phase = rescale(clamp(inputs[PHASE_INPUT].value, 0.f, 10.f), 0.f, 10.f, 0.f, 1.f);
+	float phaseMin, phaseMax;
+	float prange = params[PHASE_RANGE_PARAM].value;
+	if(prange > 1.5f) {
+		phaseMin = 0.f;
+		phaseMax = 10.f;
+	} else if(prange > 0.5f) {
+		phaseMin = -5.f;
+		phaseMax =  5.f;
+	} else {
+		phaseMin = -10.f;
+		phaseMax =  10.f;
+	}
+	//phase = rescale(clamp(inputs[PHASE_INPUT].value, 0.f, 10.f), 0.f, 10.f, 0.f, 1.f);
+	phase = clamp(rescale(inputs[PHASE_INPUT].value, phaseMin, phaseMax, 0.f, 1.f), 0.f, 1.f);
 
 	int i = int(phase * size); //TODO: clamp?
 
-	outputs[DIRECT_OUTPUT].value = buffer[i];
-
+	float outMin, outMax;
+	float orange = params[OUTPUT_RANGE_PARAM].value;
+	if(orange > 1.5f) {
+		outMin = 0.f;
+		outMax = 10.f;
+	} else if(orange > 0.5f) {
+		outMin = -5.f;
+		outMax =  5.f;
+	} else {
+		outMin = -10.f;
+		outMax =  10.f;
+	}
+	outputs[DIRECT_OUTPUT].value = rescale(buffer[i], 0.f, 1.f, outMin, outMax);
 
 	// interpolation based on tabread4_tilde_perform() in
 	// https://github.com/pure-data/pure-data/blob/master/src/d_array.c
@@ -125,11 +147,12 @@ void PDArrayModule::step() {
 	}
 
 	float frac = phase * size - i; // fractional part of phase
-	outputs[INTERP_OUTPUT].value = b + frac * (
+	float y = b + frac * (
 			c - b - 0.1666667f * (1.f - frac) * (
 				(d - a - 3.f * (c - b)) * frac + (d + 2.f * a - 3.f * b)
 			)
 		);
+	outputs[INTERP_OUTPUT].value = rescale(y, 0.f, 1.f, outMin, outMax);
 
 }
 
@@ -162,7 +185,8 @@ struct ArrayDisplay : OpaqueWidget {
 			float x1 = i * w;
 			float x2 = (i + 1) * w;
 			//float y = (rescale(module->buffer[i], -10.f, 10.f, 1.f, 0.f) * 0.9f  + 0.05f) * box.size.y;
-			float y = rescale(module->buffer[i], -10.f, 10.f, 1.f, 0.f) * box.size.y;
+			//float y = rescale(module->buffer[i], -10.f, 10.f, 1.f, 0.f) * box.size.y;
+			float y = (1.f - module->buffer[i]) * box.size.y;
 
 			if(i == 0) nvgMoveTo(vg, x1, y);
 			else nvgLineTo(vg, x1, y);
@@ -200,12 +224,12 @@ struct ArrayDisplay : OpaqueWidget {
 		OpaqueWidget::onDragMove(e);
 		//TODO: this results in erroneous behavior, use gRackWidget.lastMousePos? (then needs conversion to local coordinate frame). See e.g.
 		// https://github.com/jeremywen/JW-Modules/blob/master/src/XYPad.cpp
-		//TODO: figure out affected i's with mouseRel?
+		//TODO: figure out range of affected i's with mouseRel?
 		dragPosition = dragPosition.plus(e.mouseRel);
 
 		// int() rounds down, so the upper limit of rescale will be module->size without -1.
 		int i = clamp(int(rescale(dragPosition.x, 0, box.size.x, 0, module->size)), 0, module->size - 1);
-		float y = clamp(rescale(dragPosition.y, 0, box.size.y, 10.f, -10.f), -10.f, 10.f);
+		float y = clamp(rescale(dragPosition.y, 0, box.size.y, 1.f, 0.f), 0.f, 1.f);
 		module->buffer[i] = y;
 	}
 
@@ -303,6 +327,9 @@ struct PDArrayModuleWidget : ModuleWidget {
 		addInput(Port::create<PJ301MPort>(Vec(10.f, 50), Port::INPUT, module, PDArrayModule::PHASE_INPUT));
 		addOutput(Port::create<PJ301MPort>(Vec(10.f, 100), Port::OUTPUT, module, PDArrayModule::DIRECT_OUTPUT));
 		addOutput(Port::create<PJ301MPort>(Vec(10.f, 150), Port::OUTPUT, module, PDArrayModule::INTERP_OUTPUT));
+
+		addParam(ParamWidget::create<CKSSThree>(Vec(50, 200), module, PDArrayModule::OUTPUT_RANGE_PARAM, 0, 2, 0));
+		addParam(ParamWidget::create<CKSSThree>(Vec(50, 250), module, PDArrayModule::PHASE_RANGE_PARAM, 0, 2, 2));
 
 		display = new ArrayDisplay(module);
 		display->box.pos = Vec(50, 10);
