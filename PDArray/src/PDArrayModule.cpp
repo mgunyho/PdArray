@@ -4,11 +4,11 @@
 
 #include <iostream>
 
-//TODO: input range right click menu
-//TODO: output range right click menu
 //TODO: preiodic interp right click menu
 //TODO: reinitialize buffer with onInitialize()
 //TODO: right-click load audio file
+//TODO: right-click option to 'lock editing', enable when an audio file is loaded
+//TODO: record
 
 struct PDArrayModule : Module {
 	enum ParamIds {
@@ -31,37 +31,24 @@ struct PDArrayModule : Module {
 	};
 
 	float phase = 0.f;
-	unsigned int size = 10; //TODO: remove
 	bool periodicInterpolation = true; // TODO: implement in GUI
-	//float miny, maxy; // output value scale TODO
 	std::vector<float> buffer;
 
-	PDArrayModule() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
-		resizeBuffer(size);
-
-		//TODO: remove
+	void initBuffer() {
 		buffer.clear();
-		for(int i = 0; i < size; i++) {
-			//buffer.push_back(10.f * sin(i*0.2f*3.14159f));
-			buffer.push_back(20.f * i / (size - 1) - 10.f);
+		for(int i = 0; i < 10; i++) {
+			buffer.push_back(i / 9.f);
 		}
-		//buffer.push_back(10.f);
-		//buffer.push_back(10.f);
-		//buffer.push_back(10.f);
-		//buffer.push_back(10.f);
-		//buffer.push_back(10.f);
-		//buffer.push_back(-10.f);
-		//buffer.push_back(-10.f);
-		//buffer.push_back(-10.f);
-		//buffer.push_back(-10.f);
-		//buffer.push_back(-10.f);
-		//std::cout << "PDArrayModule(): " << this << std::endl;
+	}
+
+	PDArrayModule() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
+		initBuffer();
 	}
 
 	void step() override;
 	void resizeBuffer(unsigned int newSize) {
 		buffer.resize(newSize, 0.f);
-		size = newSize;
+		//size = newSize;
 	}
 
 	// For more advanced Module features, read Rack's engine.hpp header file
@@ -81,10 +68,10 @@ struct PDArrayModule : Module {
 			json_array_foreach(arr, i, val) {
 				buffer.push_back(json_real_value(val));
 			}
-			size = buffer.size();
+			//size = buffer.size();
 		}
-
 	}
+
 	json_t *toJson() override {
 		json_t *root = json_object();
 		json_t *arr = json_array();
@@ -93,6 +80,10 @@ struct PDArrayModule : Module {
 		}
 		json_object_set(root, "arrayData", arr);
 		return root;
+	}
+
+	void onReset() override {
+		initBuffer();
 	}
 };
 
@@ -114,7 +105,8 @@ void PDArrayModule::step() {
 	//phase = rescale(clamp(inputs[PHASE_INPUT].value, 0.f, 10.f), 0.f, 10.f, 0.f, 1.f);
 	phase = clamp(rescale(inputs[PHASE_INPUT].value, phaseMin, phaseMax, 0.f, 1.f), 0.f, 1.f);
 
-	int i = int(phase * size); //TODO: clamp?
+	int size = buffer.size();
+	int i = int(phase * size);
 
 	float outMin, outMax;
 	float orange = params[OUTPUT_RANGE_PARAM].value;
@@ -178,14 +170,12 @@ struct ArrayDisplay : OpaqueWidget {
 		nvgLineTo(vg, px, box.size.y);
 		nvgStroke(vg);
 
-		int s = module->size;
+		int s = module->buffer.size();
 		float w = box.size.x * 1.f / s;
 		nvgBeginPath(vg);
 		for(int i = 0; i < s; i++) {
 			float x1 = i * w;
 			float x2 = (i + 1) * w;
-			//float y = (rescale(module->buffer[i], -10.f, 10.f, 1.f, 0.f) * 0.9f  + 0.05f) * box.size.y;
-			//float y = rescale(module->buffer[i], -10.f, 10.f, 1.f, 0.f) * box.size.y;
 			float y = (1.f - module->buffer[i]) * box.size.y;
 
 			if(i == 0) nvgMoveTo(vg, x1, y);
@@ -224,11 +214,14 @@ struct ArrayDisplay : OpaqueWidget {
 		OpaqueWidget::onDragMove(e);
 		//TODO: this results in erroneous behavior, use gRackWidget.lastMousePos? (then needs conversion to local coordinate frame). See e.g.
 		// https://github.com/jeremywen/JW-Modules/blob/master/src/XYPad.cpp
-		//TODO: figure out range of affected i's with mouseRel?
+		//TODO: figure out range of affected i's using mouseRel?
+		//int iMin = ..., iMax = ...
+		//for(int i = iMin; i < iMax; i++) { ... }
 		dragPosition = dragPosition.plus(e.mouseRel);
 
-		// int() rounds down, so the upper limit of rescale will be module->size without -1.
-		int i = clamp(int(rescale(dragPosition.x, 0, box.size.x, 0, module->size)), 0, module->size - 1);
+		// int() rounds down, so the upper limit of rescale is buffer.size() without -1.
+		int s = module->buffer.size();
+		int i = clamp(int(rescale(dragPosition.x, 0, box.size.x, 0, s)), 0, s - 1);
 		float y = clamp(rescale(dragPosition.y, 0, box.size.y, 1.f, 0.f), 0.f, 1.f);
 		module->buffer[i] = y;
 	}
@@ -247,7 +240,7 @@ struct NumberTextField : TextField {
 
 	NumberTextField(PDArrayModule *m) : TextField() {
 		module = m;
-		validText = stringf("%u", module->size);
+		validText = stringf("%u", module->buffer.size());
 		text = validText;
 	};
 
@@ -304,7 +297,7 @@ struct NumberTextField : TextField {
 		TextField::step();
 		// eh, kinda hacky - is there any way to do this just once after the module has been initialized? after fromJson?
 		if(gFocusedWidget != this) {
-			validText = stringf("%u", module->size);
+			validText = stringf("%u", module->buffer.size());
 			text = validText;
 		}
 	}
@@ -320,9 +313,9 @@ struct PDArrayModuleWidget : ModuleWidget {
 		setPanel(SVG::load(assetPlugin(plugin, "res/Array.svg"))); //TODO
 
 		addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
-		//addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
+		addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
 		addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
-		//addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+		addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
 		addInput(Port::create<PJ301MPort>(Vec(10.f, 50), Port::INPUT, module, PDArrayModule::PHASE_INPUT));
 		addOutput(Port::create<PJ301MPort>(Vec(10.f, 100), Port::OUTPUT, module, PDArrayModule::DIRECT_OUTPUT));
