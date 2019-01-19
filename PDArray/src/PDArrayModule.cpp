@@ -172,7 +172,7 @@ struct ArrayDisplay : OpaqueWidget {
 
 	ArrayDisplay(PDArrayModule *module): OpaqueWidget() {
 		this->module = module;
-		box.size = Vec(150, 100);
+		box.size = Vec(230, 205);
 	}
 
 	void draw(NVGcontext *vg) override {
@@ -182,19 +182,21 @@ struct ArrayDisplay : OpaqueWidget {
 		float px =  module->phase * box.size.x;
 		nvgBeginPath(vg);
 		nvgStrokeWidth(vg, 2.f);
-		nvgStrokeColor(vg, nvgRGB(0x23, 0x23, 0x53));
+		nvgStrokeColor(vg, nvgRGB(0x23, 0x23, 0x87));
 		nvgMoveTo(vg, px, 0);
 		nvgLineTo(vg, px, box.size.y);
 		nvgStroke(vg);
 
 		// phase of recording
-		float rpx = module->recPhase * box.size.x;
-		nvgBeginPath(vg);
-		nvgStrokeWidth(vg, 2.f);
-		nvgStrokeColor(vg, nvgRGB(0x23, 0x53, 0x23));
-		nvgMoveTo(vg, rpx, 0);
-		nvgLineTo(vg, rpx, box.size.y);
-		nvgStroke(vg);
+		if(module->inputs[PDArrayModule::REC_PHASE_INPUT].active) {
+			float rpx = module->recPhase * box.size.x;
+			nvgBeginPath(vg);
+			nvgStrokeWidth(vg, 2.f);
+			nvgStrokeColor(vg, nvgRGB(0x87, 0x23, 0x23));
+			nvgMoveTo(vg, rpx, 0);
+			nvgLineTo(vg, rpx, box.size.y);
+			nvgStroke(vg);
+		}
 
 		int s = module->buffer.size();
 		float w = box.size.x * 1.f / s;
@@ -222,8 +224,11 @@ struct ArrayDisplay : OpaqueWidget {
 	}
 
 	void onMouseDown(EventMouseDown &e) override {
-		OpaqueWidget::onMouseDown(e);
-		dragPosition = e.pos;
+		if(e.button == 0) {
+			e.target = this;
+			e.consumed = true;
+			dragPosition = e.pos;
+		}
 	}
 
 	void onDragStart(EventDragStart &e) override {
@@ -343,24 +348,26 @@ struct PDArrayModuleWidget : ModuleWidget {
 		addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 		addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-		addInput(Port::create<PJ301MPort>(Vec(10.f, 50), Port::INPUT, module, PDArrayModule::PHASE_INPUT));
-		addInput(Port::create<PJ301MPort>(Vec(10.f, 300), Port::INPUT, module, PDArrayModule::REC_PHASE_INPUT));
-		addInput(Port::create<PJ301MPort>(Vec(60.f, 300), Port::INPUT, module, PDArrayModule::REC_ENABLE_INPUT));
-		addInput(Port::create<PJ301MPort>(Vec(110.f, 300), Port::INPUT, module, PDArrayModule::REC_SIGNAL_INPUT));
-		addOutput(Port::create<PJ301MPort>(Vec(10.f, 100), Port::OUTPUT, module, PDArrayModule::DIRECT_OUTPUT));
-		addOutput(Port::create<PJ301MPort>(Vec(10.f, 150), Port::OUTPUT, module, PDArrayModule::INTERP_OUTPUT));
+		//TPort *createInputCentered(Vec pos, Module *module, int inputId) {
+		addInput(createInputCentered<PJ301MPort>(Vec(27.5f, 247.5f), module, PDArrayModule::PHASE_INPUT));
+		addOutput(createOutputCentered<PJ301MPort>(Vec(97.5f, 247.5f), module, PDArrayModule::DIRECT_OUTPUT));
+		addOutput(createOutputCentered<PJ301MPort>(Vec(175.f, 247.5f), module, PDArrayModule::INTERP_OUTPUT));
 
-		addParam(ParamWidget::create<CKSSThree>(Vec(50, 200), module, PDArrayModule::OUTPUT_RANGE_PARAM, 0, 2, 0));
-		addParam(ParamWidget::create<CKSSThree>(Vec(50, 250), module, PDArrayModule::PHASE_RANGE_PARAM, 0, 2, 2));
+		addInput(createInputCentered<PJ301MPort>(Vec(27.5f, 347.5f), module, PDArrayModule::REC_PHASE_INPUT));
+		addInput(createInputCentered<PJ301MPort>(Vec(97.5f, 347.5f), module, PDArrayModule::REC_SIGNAL_INPUT));
+		addInput(createInputCentered<PJ301MPort>(Vec(175.f, 347.5f), module, PDArrayModule::REC_ENABLE_INPUT));
 
-		addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(50, 300), module, PDArrayModule::REC_LIGHT));
+		addParam(ParamWidget::create<CKSSThree>(Vec(107.5f, 290), module, PDArrayModule::OUTPUT_RANGE_PARAM, 0, 2, 0));
+		addParam(ParamWidget::create<CKSSThree>(Vec(27.5f, 290), module, PDArrayModule::PHASE_RANGE_PARAM, 0, 2, 2));
+
+		addChild(createLightCentered<MediumLight<RedLight>>(Vec(207.5f, 355), module, PDArrayModule::REC_LIGHT));
 
 		display = new ArrayDisplay(module);
-		display->box.pos = Vec(50, 10);
+		display->box.pos = Vec(5, 20);
 		addChild(display);
 
 		sizeSelector = new NumberTextField(module);
-		sizeSelector->box.pos = Vec(50, 120);
+		sizeSelector->box.pos = Vec(175, 295);
 		sizeSelector->box.size.x = 50;
 		addChild(sizeSelector);
 	}
