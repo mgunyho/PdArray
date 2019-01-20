@@ -8,3 +8,4 @@ extern Plugin *plugin;
 
 // Forward-declare each Model, defined in each module source file
 extern Model *modelPDArray;
+extern Model *modelMiniRamp;
