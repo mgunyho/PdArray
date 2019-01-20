@@ -114,32 +114,34 @@ void PDArrayModule::step() {
 
 	int size = buffer.size();
 
+
+	float inOutMin, inOutMax;
+	float orange = params[OUTPUT_RANGE_PARAM].value;
+	if(orange > 1.5f) {
+		inOutMin = 0.f;
+		inOutMax = 10.f;
+	} else if(orange > 0.5f) {
+		inOutMin = -5.f;
+		inOutMax =  5.f;
+	} else {
+		inOutMin = -10.f;
+		inOutMax =  10.f;
+	}
+
 	// recording
 	int ri = int(recPhase * size);
 	recTrigger.process(rescale(inputs[REC_ENABLE_INPUT].value, 0.1f, 2.f, 0.f, 1.f));
 	bool rec = recTrigger.isHigh();
 	if(rec) {
-		//TODO: parametrize input scale like output/phase? or use outMin/max?
-		buffer[ri] = clamp(rescale(inputs[REC_SIGNAL_INPUT].value, -10.f, 10.f, 0.f, 1.f), 0.f, 1.f);
+		buffer[ri] = clamp(rescale(inputs[REC_SIGNAL_INPUT].value, inOutMin, inOutMax, 0.f, 1.f), 0.f, 1.f);
 	}
 	lights[REC_LIGHT].setBrightnessSmooth(rec);
 
-	float outMin, outMax;
-	float orange = params[OUTPUT_RANGE_PARAM].value;
-	if(orange > 1.5f) {
-		outMin = 0.f;
-		outMax = 10.f;
-	} else if(orange > 0.5f) {
-		outMin = -5.f;
-		outMax =  5.f;
-	} else {
-		outMin = -10.f;
-		outMax =  10.f;
-	}
+	// direct output
 	int i = int(phase * size);
-	outputs[DIRECT_OUTPUT].value = rescale(buffer[i], 0.f, 1.f, outMin, outMax);
+	outputs[DIRECT_OUTPUT].value = rescale(buffer[i], 0.f, 1.f, inOutMin, inOutMax);
 
-	// interpolation based on tabread4_tilde_perform() in
+	// interpolated output, based on tabread4_tilde_perform() in
 	// https://github.com/pure-data/pure-data/blob/master/src/d_array.c
 	float a, b, c, d;
 	// TODO: add right-click menu option to toggle periodic interpolation
@@ -161,7 +163,7 @@ void PDArrayModule::step() {
 				(d - a - 3.f * (c - b)) * frac + (d + 2.f * a - 3.f * b)
 			)
 		);
-	outputs[INTERP_OUTPUT].value = rescale(y, 0.f, 1.f, outMin, outMax);
+	outputs[INTERP_OUTPUT].value = rescale(y, 0.f, 1.f, inOutMin, inOutMax);
 
 }
 
