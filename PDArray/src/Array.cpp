@@ -1,15 +1,20 @@
 #include "PDArray.hpp"
 #include "window.hpp" // windowIsModPressed
+#include "osdialog.h"
 #include <GLFW/glfw3.h> // key codes
 #include "dsp/digital.hpp"
+#include <algorithm> // std::min
+#define DR_WAV_IMPLEMENTATION
+#include "dr_wav.h"
 
 #include <iostream>
 
 //TODO: preiodic interp right click menu
 //TODO: reinitialize buffer with onInitialize()
-//TODO: right-click load audio file
 //TODO: right-click option to 'lock editing', enable when an audio file is loaded
 //TODO: record
+//TODO: prevent clicking at the end of array
+//TODO: drawing when size > width in pixels
 
 struct PDArrayModule : Module {
 	enum ParamIds {
@@ -39,6 +44,7 @@ struct PDArrayModule : Module {
 	SchmittTrigger recTrigger;
 	bool periodicInterpolation = true; // TODO: implement in GUI
 	std::vector<float> buffer;
+	std::string lastLoadedPath;
 
 	void initBuffer() {
 		buffer.clear();
@@ -52,10 +58,12 @@ struct PDArrayModule : Module {
 	}
 
 	void step() override;
+
 	void resizeBuffer(unsigned int newSize) {
 		buffer.resize(newSize, 0.f);
-		//size = newSize;
 	}
+
+	void loadSample(std::string path);
 
 	// For more advanced Module features, read Rack's engine.hpp header file
 	// - toJson, fromJson: serialization of internal data
@@ -64,19 +72,6 @@ struct PDArrayModule : Module {
 
 	// TODO: if array is large enough (how large?) encode as base64?
 	// see https://stackoverflow.com/questions/45508360/quickest-way-to-encode-vector-of-floats-into-hex-or-base64binary
-	void fromJson(json_t *json) override {
-
-		json_t *arr = json_object_get(json, "arrayData");
-		if(arr) {
-			buffer.clear();
-			size_t i;
-			json_t *val;
-			json_array_foreach(arr, i, val) {
-				buffer.push_back(json_real_value(val));
-			}
-			//size = buffer.size();
-		}
-	}
 
 	json_t *toJson() override {
 		json_t *root = json_object();
@@ -88,10 +83,44 @@ struct PDArrayModule : Module {
 		return root;
 	}
 
+	void fromJson(json_t *root) override {
+		json_t *arr = json_object_get(root, "arrayData");
+		if(arr) {
+			buffer.clear();
+			size_t i;
+			json_t *val;
+			json_array_foreach(arr, i, val) {
+				buffer.push_back(json_real_value(val));
+			}
+			//size = buffer.size();
+		}
+	}
+
 	void onReset() override {
 		initBuffer();
 	}
 };
+
+void PDArrayModule::loadSample(std::string path) {
+	unsigned int channels, sampleRate;
+	drwav_uint64 totalPCMFrameCount;
+	float* pSampleData = drwav_open_file_and_read_pcm_frames_f32(path.c_str(), &channels, &sampleRate, &totalPCMFrameCount);
+
+	if (pSampleData != NULL) {
+		int newSize = std::min(totalPCMFrameCount, buffer.size());
+		buffer.clear();
+		buffer.reserve(newSize);
+		for(int i = 0; i < newSize * channels; i = i + channels) {
+			float s = pSampleData[i];
+			if(channels == 2) {
+				s = (s + pSampleData[i + 1]) * 0.5f; // mix stereo channels, good idea?
+			}
+			buffer.push_back((s + 1.f) * 0.5f); // rescale from -1 .. 1 to 0..1
+		}
+	}
+
+	drwav_free(pSampleData);
+}
 
 void PDArrayModule::step() {
 	float deltaTime = engineGetSampleTime();
@@ -337,6 +366,21 @@ struct NumberTextField : TextField {
 
 };
 
+// file selection dialog, based on PLAYERItem in cf
+// https://github.com/cfoulc/cf/blob/master/src/PLAYER.cpp
+struct ArrayFileSelectItem : MenuItem {
+	PDArrayModule *module;
+	void onAction(EventAction &e) override {
+		std::string dir = module->lastLoadedPath.empty() ? assetLocal("") : stringDirectory(module->lastLoadedPath);
+		char *path = osdialog_file(OSDIALOG_OPEN, dir.c_str(), NULL, NULL);
+		if(path) {
+			module->loadSample(path);
+			module->lastLoadedPath = path;
+			free(path);
+		}
+	}
+};
+
 struct PDArrayModuleWidget : ModuleWidget {
 	ArrayDisplay *display;
 	NumberTextField *sizeSelector;
@@ -372,6 +416,21 @@ struct PDArrayModuleWidget : ModuleWidget {
 		sizeSelector->box.pos = Vec(175, 295);
 		sizeSelector->box.size.x = 50;
 		addChild(sizeSelector);
+	}
+
+	Menu *createContextMenu() override {
+		Menu *menu = ModuleWidget::createContextMenu();
+
+		PDArrayModule *arr = dynamic_cast<PDArrayModule*>(module);
+		if(arr){
+			menu->addChild(new MenuLabel()); // spacer
+			ArrayFileSelectItem *fsItem = new ArrayFileSelectItem();
+			fsItem->text = "Load .wav file";
+			fsItem->module = arr;
+			menu->addChild(fsItem);
+		}
+
+		return menu;
 	}
 
 	//void draw(NVGcontext *vg) override {

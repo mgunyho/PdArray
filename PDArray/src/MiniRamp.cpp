@@ -12,7 +12,7 @@ const float MAX_EXPONENT = 1.0f;
 // TODO: move common modules to common folder
 // TODO: tweak gate/ramp port vertical positions
 // TODO: show sample count corresponding to duration (needs more space - remove CV?)
-//
+// TODO: add trigger buttton (another reason to remove cv)
 
 // based on PulseGeneraotr in include/util/digital.hpp
 struct CustomPulseGenerator {
