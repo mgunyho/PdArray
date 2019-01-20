@@ -11,9 +11,7 @@
 
 //TODO: preiodic interp right click menu
 //TODO: reinitialize buffer with onInitialize()
-//TODO: right-click option to 'lock editing', enable when an audio file is loaded
-//TODO: record
-//TODO: prevent clicking at the end of array
+//TODO: prevent audio clicking at the last sample
 //TODO: drawing when size > width in pixels
 
 struct PDArrayModule : Module {
@@ -45,6 +43,7 @@ struct PDArrayModule : Module {
 	bool periodicInterpolation = true; // TODO: implement in GUI
 	std::vector<float> buffer;
 	std::string lastLoadedPath;
+	bool enableEditing = true;
 
 	void initBuffer() {
 		buffer.clear();
@@ -75,6 +74,7 @@ struct PDArrayModule : Module {
 
 	json_t *toJson() override {
 		json_t *root = json_object();
+		json_object_set_new(root, "enableEditing", json_boolean(enableEditing));
 		json_t *arr = json_array();
 		for(float x : buffer) {
 			json_array_append_new(arr, json_real(x));
@@ -84,6 +84,10 @@ struct PDArrayModule : Module {
 	}
 
 	void fromJson(json_t *root) override {
+		json_t *editing = json_object_get(root, "enableEditing");
+		if(editing) {
+			enableEditing = json_boolean_value(editing);
+		}
 		json_t *arr = json_object_get(root, "arrayData");
 		if(arr) {
 			buffer.clear();
@@ -117,6 +121,7 @@ void PDArrayModule::loadSample(std::string path) {
 			}
 			buffer.push_back((s + 1.f) * 0.5f); // rescale from -1 .. 1 to 0..1
 		}
+		enableEditing = false;
 	}
 
 	drwav_free(pSampleData);
@@ -255,7 +260,7 @@ struct ArrayDisplay : OpaqueWidget {
 	}
 
 	void onMouseDown(EventMouseDown &e) override {
-		if(e.button == 0) {
+		if(e.button == 0 && module->enableEditing) {
 			e.target = this;
 			e.consumed = true;
 			dragPosition = e.pos;
@@ -274,6 +279,7 @@ struct ArrayDisplay : OpaqueWidget {
 
 	void onDragMove(EventDragMove &e) override {
 		OpaqueWidget::onDragMove(e);
+		if(!module->enableEditing) return;
 		//TODO: this results in erroneous behavior, use gRackWidget.lastMousePos? (then needs conversion to local coordinate frame). See e.g.
 		// https://github.com/jeremywen/JW-Modules/blob/master/src/XYPad.cpp
 		//TODO: figure out range of affected i's using mouseRel?
@@ -381,6 +387,14 @@ struct ArrayFileSelectItem : MenuItem {
 	}
 };
 
+struct ArrayEnableEditingMenuItem : MenuItem {
+	PDArrayModule *module;
+	bool valueToSet;
+	void onAction(EventAction &e) {
+		module->enableEditing = valueToSet;
+	}
+};
+
 struct PDArrayModuleWidget : ModuleWidget {
 	ArrayDisplay *display;
 	NumberTextField *sizeSelector;
@@ -424,10 +438,17 @@ struct PDArrayModuleWidget : ModuleWidget {
 		PDArrayModule *arr = dynamic_cast<PDArrayModule*>(module);
 		if(arr){
 			menu->addChild(new MenuLabel()); // spacer
-			ArrayFileSelectItem *fsItem = new ArrayFileSelectItem();
+			auto *fsItem = new ArrayFileSelectItem();
 			fsItem->text = "Load .wav file";
 			fsItem->module = arr;
 			menu->addChild(fsItem);
+
+			auto *edItem = new ArrayEnableEditingMenuItem();
+			edItem->text = "Disable drawing";
+			edItem->module = arr;
+			edItem->rightText = CHECKMARK(!arr->enableEditing);
+			edItem->valueToSet = !arr->enableEditing;
+			menu->addChild(edItem);
 		}
 
 		return menu;
