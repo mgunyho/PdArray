@@ -37,6 +37,14 @@ struct PDArrayModule : Module {
 		NUM_LIGHTS
 	};
 
+	// TODO
+	//enum InterpBoundaryMode {
+	//	CONSTANT_INTERP,
+	//	MIRROR_INTERP,
+	//	PERIODIC_INTERP,
+	//	NUM_INTERP_MODES
+	//};
+
 	float phase = 0.f;
 	float recPhase = 0.f;
 	SchmittTrigger recTrigger;
