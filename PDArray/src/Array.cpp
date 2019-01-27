@@ -37,13 +37,12 @@ struct PDArrayModule : Module {
 		NUM_LIGHTS
 	};
 
-	// TODO
-	//enum InterpBoundaryMode {
-	//	CONSTANT_INTERP,
-	//	MIRROR_INTERP,
-	//	PERIODIC_INTERP,
-	//	NUM_INTERP_MODES
-	//};
+	enum InterpBoundaryMode {
+		INTERP_CONSTANT,
+		INTERP_MIRROR,
+		INTERP_PERIODIC,
+		NUM_INTERP_MODES
+	};
 
 	float phase = 0.f;
 	float recPhase = 0.f;
@@ -52,6 +51,7 @@ struct PDArrayModule : Module {
 	std::vector<float> buffer;
 	std::string lastLoadedPath;
 	bool enableEditing = true;
+	InterpBoundaryMode boundaryMode = INTERP_PERIODIC;
 
 	void initBuffer() {
 		buffer.clear();
@@ -83,6 +83,7 @@ struct PDArrayModule : Module {
 	json_t *toJson() override {
 		json_t *root = json_object();
 		json_object_set_new(root, "enableEditing", json_boolean(enableEditing));
+		json_object_set_new(root, "boundaryMode", json_real(boundaryMode));
 		json_t *arr = json_array();
 		for(float x : buffer) {
 			json_array_append_new(arr, json_real(x));
@@ -92,11 +93,20 @@ struct PDArrayModule : Module {
 	}
 
 	void fromJson(json_t *root) override {
-		json_t *editing = json_object_get(root, "enableEditing");
-		if(editing) {
-			enableEditing = json_boolean_value(editing);
-		}
+		json_t *enableEditing_J = json_object_get(root, "enableEditing");
+		json_t *boundaryMode_J = json_object_get(root, "boundaryMode");
 		json_t *arr = json_object_get(root, "arrayData");
+
+		if(enableEditing_J) {
+			enableEditing = json_boolean_value(enableEditing_J);
+		}
+		if(boundaryMode_J) {
+			int bm = int(json_real_value(boundaryMode_J));
+			if(bm < NUM_INTERP_MODES) {
+				boundaryMode = static_cast<InterpBoundaryMode>(bm);
+			}
+		}
+
 		if(arr) {
 			buffer.clear();
 			size_t i;
@@ -104,7 +114,6 @@ struct PDArrayModule : Module {
 			json_array_foreach(arr, i, val) {
 				buffer.push_back(json_real_value(val));
 			}
-			//size = buffer.size();
 		}
 	}
 
@@ -180,24 +189,44 @@ void PDArrayModule::step() {
 	lights[REC_LIGHT].setBrightnessSmooth(rec);
 
 	// direct output
-	int i = int(phase * size);
+	int i = clamp(int(phase * size), 0, size - 1);
 	outputs[DIRECT_OUTPUT].value = rescale(buffer[i], 0.f, 1.f, inOutMin, inOutMax);
 
 	// interpolated output, based on tabread4_tilde_perform() in
 	// https://github.com/pure-data/pure-data/blob/master/src/d_array.c
-	float a, b, c, d;
 	// TODO: add right-click menu option to toggle periodic interpolation
-	if(periodicInterpolation) {
-		a = buffer[(i - 1 + size) % size];
-		b = buffer[i];
-		c = buffer[(i + 1) % size];
-		d = buffer[(i + 2) % size];
-	} else {
-		a = buffer[clamp(i - 1, 0, size)];
-		b = buffer[clamp(i - 0, 0, size)];
-		c = buffer[clamp(i + 1, 0, size)];
-		d = buffer[clamp(i + 2, 0, size)];
+	int ia, ib, ic, id;
+	switch(boundaryMode) {
+		case INTERP_CONSTANT:
+			{
+				ia = clamp(i - 1, 0, size - 1);
+				ib = clamp(i + 0, 0, size - 1);
+				ic = clamp(i + 1, 0, size - 1);
+				id = clamp(i + 2, 0, size - 1);
+				break;
+			}
+		case INTERP_MIRROR:
+			{
+				ia = i < 1 ? 1 : i - 1;
+				ib = i;
+				ic = i + 1 < size ? i + 1 : size - 1;
+				id = i + 2 < size ? i + 2 : 2*size - (i + 3);
+				break;
+			}
+		case INTERP_PERIODIC:
+		default:
+			{
+				ia = (i - 1 + size) % size;
+				ib = (i + 0) % size;
+				ic = (i + 1) % size;
+				id = (i + 2) % size;
+				break;
+			}
 	}
+	float a = buffer[ia];
+	float b = buffer[ib];
+	float c = buffer[ic];
+	float d = buffer[id];
 
 	float frac = phase * size - i; // fractional part of phase
 	float y = b + frac * (
@@ -403,11 +432,30 @@ struct ArrayEnableEditingMenuItem : MenuItem {
 	}
 };
 
+struct ArrayInterpModeMenuItem : MenuItem {
+	PDArrayModule *module;
+	PDArrayModule::InterpBoundaryMode mode;
+	ArrayInterpModeMenuItem(PDArrayModule *pModule,
+			PDArrayModule::InterpBoundaryMode pMode,
+			std::string label):
+		MenuItem() {
+			module = pModule;
+			mode = pMode;
+			text = label;
+			rightText = CHECKMARK(module->boundaryMode == mode);
+	}
+	void onAction(EventAction &e) {
+		module->boundaryMode = mode;
+	}
+};
+
 struct PDArrayModuleWidget : ModuleWidget {
 	ArrayDisplay *display;
 	NumberTextField *sizeSelector;
+	PDArrayModule *module;
 
 	PDArrayModuleWidget(PDArrayModule *module) : ModuleWidget(module) {
+		this->module = module;
 
 		setPanel(SVG::load(assetPlugin(plugin, "res/Array.svg"))); //TODO
 
@@ -457,6 +505,16 @@ struct PDArrayModuleWidget : ModuleWidget {
 			edItem->rightText = CHECKMARK(!arr->enableEditing);
 			edItem->valueToSet = !arr->enableEditing;
 			menu->addChild(edItem);
+
+			//TODO: replace with sub-menu
+			auto *interpModeLabel = new MenuLabel();
+			interpModeLabel->text = "Interpolation at boundary";
+			menu->addChild(new MenuLabel());
+			menu->addChild(interpModeLabel);
+			menu->addChild(new ArrayInterpModeMenuItem(this->module, PDArrayModule::INTERP_CONSTANT, "Constant"));
+			menu->addChild(new ArrayInterpModeMenuItem(this->module, PDArrayModule::INTERP_MIRROR, "Mirror"));
+			menu->addChild(new ArrayInterpModeMenuItem(this->module, PDArrayModule::INTERP_PERIODIC, "Periodic"));
+
 		}
 
 		return menu;
