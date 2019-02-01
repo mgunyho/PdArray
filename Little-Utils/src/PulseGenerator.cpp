@@ -5,8 +5,6 @@
 
 #include <algorithm> // std::replace
 
-// TODO: right click menu option to toggle realtime update of display
-
 const float MIN_EXPONENT = -3.0f;
 const float MAX_EXPONENT = 1.0f;
 
@@ -67,10 +65,14 @@ struct PulseGenModule : Module {
 
 	SchmittTrigger inputTrigger, finishTrigger;
 	CustomPulseGenerator gateGenerator, finishTriggerGenerator;
-	float gate_duration = 0.5f;
+	float gate_base_duration = 0.5f; // gate duration without CV
+	float gate_duration;
+	bool realtimeUpdate = true; // whether to display gate_duration or gate_base_duration
 	float cv_scale = 0.f; // cv_scale = +- 1 -> 10V CV changes duration by +-10s
 
-	PulseGenModule() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
+	PulseGenModule() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
+		gate_duration = gate_base_duration;
+	}
 
 	void step() override;
 
@@ -79,6 +81,19 @@ struct PulseGenModule : Module {
 	// - toJson, fromJson: serialization of internal data
 	// - onSampleRateChange: event triggered by a change of sample rate
 	// - onReset, onRandomize, onCreate, onDelete: implements special behavior when user clicks these from the context menu
+
+	json_t *toJson() override {
+		json_t *root = json_object();
+		json_object_set_new(root, "realtimeUpdate", json_boolean(realtimeUpdate));
+		return root;
+	}
+
+	void fromJson(json_t *root) override {
+		json_t *realtimeUpdate_J = json_object_get(root, "realtimeUpdate");
+		if(realtimeUpdate_J) {
+			realtimeUpdate = json_boolean_value(realtimeUpdate_J);
+		}
+	}
 
 };
 
@@ -96,7 +111,7 @@ void PulseGenModule::step() {
 	if(params[LIN_LOG_MODE_PARAM].value < 0.5f) {
 		// linear mode
 		cv_scale = cv_amt;
-		gate_duration = clamp(knob_value + cv_voltage * cv_amt, 0.f, 10.f);
+		gate_base_duration = knob_value;
 	} else {
 		// logarithmic mode
 		float exponent = rescale(knob_value,
@@ -108,10 +123,9 @@ void PulseGenModule::step() {
 		// decrease exponent by one so that 10V maps to 1.0 (100%) CV.
 		cv_scale = powf(10.0f, cv_exponent - 1.f) * signum(cv_amt); // take sign into account
 
-		gate_duration = clamp(
-				powf(10.0f, exponent) + cv_voltage * cv_scale,
-				0.f, 10.f);
+		gate_base_duration = powf(10.0f, exponent);
 	}
+	gate_duration = clamp(gate_base_duration + cv_voltage * cv_scale, 0.f, 10.f);
 
 	if(triggered && gate_duration > 0.f) {
 		gateGenerator.trigger(gate_duration);
@@ -151,9 +165,9 @@ struct MsDisplayWidget : TextBox {
 	}
 
 	void updateDisplayValue(float v) {
-		std::string s;
 		// only update/do stringf if value is changed
 		if(v != previous_displayed_value) {
+			std::string s;
 			previous_displayed_value = v;
 			if(v <= 0.0995) {
 				v *= 1e3f;
@@ -200,7 +214,11 @@ struct MsDisplayWidget : TextBox {
 	void step() override {
 		TextBox::step();
 		cvLabelStatus = cvDisplayTimer.process();
-		updateDisplayValue(cvLabelStatus ? fabs(module->cv_scale) * 10.f : module->gate_duration);
+		if(cvLabelStatus){
+			updateDisplayValue(fabs(module->cv_scale * 10.f));
+		}else{
+			updateDisplayValue(module->realtimeUpdate ? module->gate_duration : module->gate_base_duration);
+		}
 	}
 
 };
@@ -212,6 +230,14 @@ struct CustomTrimpot : Trimpot {
 	void onDragMove(EventDragMove &e) override {
 		Trimpot::onDragMove(e);
 		display->triggerCVDisplay();
+	}
+};
+
+struct PulseGeneratorToggleRealtimeMenuItem : MenuItem {
+	PulseGenModule *module;
+	PulseGeneratorToggleRealtimeMenuItem(): MenuItem() {}
+	void onAction(EventAction &e) override {
+		module->realtimeUpdate = !module->realtimeUpdate;
 	}
 };
 
@@ -260,6 +286,20 @@ struct PulseGeneratorWidget : ModuleWidget {
 		cvKnob->display = msDisplay;
 		addParam(cvKnob);
 
+	}
+
+	Menu *createContextMenu() override {
+		Menu *menu = ModuleWidget::createContextMenu();
+
+		menu->addChild(new MenuLabel());
+
+		auto *toggleItem = new PulseGeneratorToggleRealtimeMenuItem();
+		toggleItem->text = "Update display in real time";
+		toggleItem->rightText = CHECKMARK(this->module->realtimeUpdate);
+		toggleItem->module = this->module;
+		menu->addChild(toggleItem);
+
+		return menu;
 	}
 
 };
