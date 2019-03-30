@@ -1,6 +1,6 @@
 #include "rack.hpp"
 
-// same as in LittleUtils, unify somehow?
+// TODO: same as in LittleUtils, unify somehow?
 struct TextBox : TransparentWidget {
 	// Kinda like TextField except not editable. Using Roboto Mono Bold font,
 	// numbers look okay.

@@ -4,6 +4,8 @@
 
 #include <algorithm> // std::replace
 
+//TODO: remove A+B and A-B, replace with I/O scale buttons
+
 struct MulDiv : Module {
 	enum ParamIds {
 		A_SCALE_PARAM,
