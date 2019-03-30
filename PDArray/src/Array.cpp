@@ -322,6 +322,8 @@ struct ArrayDisplay : OpaqueWidget {
 		//TODO: figure out range of affected i's using mouseRel?
 		//int iMin = ..., iMax = ...
 		//for(int i = iMin; i < iMax; i++) { ... }
+		//if(mouseRel.x > 1) { ... }
+		// check out how it's done in pd?
 		dragPosition = dragPosition.plus(e.mouseRel);
 
 		// int() rounds down, so the upper limit of rescale is buffer.size() without -1.
@@ -356,7 +358,7 @@ struct NumberTextField : TextField {
 		return !s.empty() && it == s.end();
 	}
 
-	void onAction(EventAction &e) {
+	void onAction(EventAction &e) override {
 		if(text.size() > 0) {
 			int n = stoi(text); // text should always contain only digits
 			if(n > 0) {
@@ -427,7 +429,7 @@ struct ArrayFileSelectItem : MenuItem {
 struct ArrayEnableEditingMenuItem : MenuItem {
 	PDArrayModule *module;
 	bool valueToSet;
-	void onAction(EventAction &e) {
+	void onAction(EventAction &e) override {
 		module->enableEditing = valueToSet;
 	}
 };
@@ -444,7 +446,7 @@ struct ArrayInterpModeMenuItem : MenuItem {
 			text = label;
 			rightText = CHECKMARK(module->boundaryMode == mode);
 	}
-	void onAction(EventAction &e) {
+	void onAction(EventAction &e) override {
 		module->boundaryMode = mode;
 	}
 };
