@@ -120,7 +120,7 @@ struct MulDivWidget : ModuleWidget {
 		addParam(scaleSwitch);
 
 		scaleSwitch = new CKSSThreeH();
-		scaleSwitch->box.pos = Vec(7.5, 175);
+		scaleSwitch->box.pos = Vec(7.5, 177);
 		scaleSwitch->module = module;
 		scaleSwitch->paramId = MulDiv::OUT_SCALE_PARAM;
 		scaleSwitch->addFrames(plugin);
