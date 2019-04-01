@@ -137,3 +137,14 @@ struct ToggleLEDButton : SVGSwitch, ToggleSwitch {
 		addFrame(SVG::load(assetGlobal("res/ComponentLibrary/LEDButton.svg")));
 	}
 };
+
+// Same as CKSSThree but horizontal
+struct CKSSThreeH : SVGSwitch, ToggleSwitch {
+	CKSSThreeH() {};
+
+	void addFrames(Plugin *plugin) {
+		addFrame(SVG::load(assetPlugin(plugin, "./res/CKSSThreeH_0.svg")));
+		addFrame(SVG::load(assetPlugin(plugin, "./res/CKSSThreeH_1.svg")));
+		addFrame(SVG::load(assetPlugin(plugin, "./res/CKSSThreeH_2.svg")));
+	}
+};
