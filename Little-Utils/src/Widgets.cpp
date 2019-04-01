@@ -74,6 +74,10 @@ void EditableTextBox::onAction(EventAction &e) {
 }
 
 void EditableTextBox::onKey(EventKey &e) {
+	//TODO: shift+home/end to select until beginning / end
+	//std::cout << "windowIsShiftPressed():" << windowIsShiftPressed() << std::endl;
+	//std::cout << "e.key == GLFW_KEY_END:" << (e.key == GLFW_KEY_END) << std::endl;
+	//std::cout << "e.key == GLFW_KEY_HOME:" << (e.key == GLFW_KEY_HOME) << std::endl;
 	if(e.key == GLFW_KEY_V && windowIsModPressed()) {
 		// prevent pasting too long text
 		int pasteLength = maxTextLength - TextField::text.size();

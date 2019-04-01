@@ -371,8 +371,6 @@ struct TeleportOutModuleWidget : TeleportModuleWidget {
 		//addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 135), module, TeleportOutModule::OUTPUT_1));
 	}
 
-	//TODO: append source list to right click menu of entire modulewidget?
-
 };
 
 // Specify the Module and ModuleWidget subclass, human-readable
