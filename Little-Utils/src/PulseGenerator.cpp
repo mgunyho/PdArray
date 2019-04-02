@@ -5,6 +5,8 @@
 
 #include <algorithm> // std::replace
 
+//TODO: when cv has been recently adjusted, tweaking the main knob should switch the display to the non-cv view.
+
 const float MIN_EXPONENT = -3.0f;
 const float MAX_EXPONENT = 1.0f;
 

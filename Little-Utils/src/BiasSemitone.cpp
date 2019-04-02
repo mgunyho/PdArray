@@ -5,6 +5,8 @@
 
 #include <algorithm> // std::replace
 
+// TODO: add 'quantize output' option, quantize semitones to 1st and volts to 0.1V (?)
+
 const int N_KNOBS = 5;
 constexpr float KNOB_COLORS[N_KNOBS][3] = {
 	{0.0f, 1.0f, 0.0f},

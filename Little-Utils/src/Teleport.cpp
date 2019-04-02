@@ -26,7 +26,6 @@ struct TeleportInModule : Teleport {
 		NUM_OUTPUTS
 	};
 	enum LightIds {
-		//INPUT_1_LIGHT,
 		NUM_LIGHTS
 	};
 
@@ -119,9 +118,6 @@ struct TeleportOutModule : Teleport {
 		NUM_OUTPUTS
 	};
 	enum LightIds {
-		//STATUS_LIGHTG,
-		//STATUS_LIGHTR,
-
 		OUTPUT_1_LIGHTG,
 		OUTPUT_1_LIGHTR,
 		OUTPUT_2_LIGHTG,
