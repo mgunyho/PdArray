@@ -333,7 +333,7 @@ struct TeleportModuleWidget : ModuleWidget {
 	TeleportModuleWidget(Teleport *module, std::string panelFilename) {
 		setModule(module);
 		this->module = module;
-		setPanel(SVG::load(assetPlugin(pluginInstance, panelFilename)));
+		setPanel(APP->window->loadSvg(assetPlugin(pluginInstance, panelFilename)));
 
 		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
 		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
