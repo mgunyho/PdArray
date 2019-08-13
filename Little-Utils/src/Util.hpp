@@ -28,7 +28,7 @@ std::string randomString(size_t len);
 
 struct GUITimer {
 	// Kinda like PulseGenerator, but uses std::chrono for timing events, since
-	// we don't have engineGetSampleTime() for Widget::step().
+	// we don't have args.sampleTime for Widget::step().
 
 	bool status = false; // true == high, false == low
 	std::chrono::steady_clock::time_point finishTime;

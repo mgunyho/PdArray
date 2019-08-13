@@ -94,7 +94,7 @@ struct Bias_Semitone : Module {
 };
 
 void Bias_Semitone::process(const ProcessArgs &args) {
-	//float deltaTime = engineGetSampleTime();
+	//float deltaTime = args.sampleTime;
 
 	int li = 0; // index of the latest encountered active input
 	for(int i = 0; i < N_KNOBS; i++) {
