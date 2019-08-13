@@ -80,17 +80,17 @@ struct PulseGenModule : Module {
 
 
 	// For more advanced Module features, read Rack's engine.hpp header file
-	// - toJson, fromJson: serialization of internal data
+	// - dataToJson, dataFromJson: serialization of internal data
 	// - onSampleRateChange: event triggered by a change of sample rate
 	// - onReset, onRandomize, onCreate, onDelete: implements special behavior when user clicks these from the context menu
 
-	json_t *toJson() override {
+	json_t *dataToJson() override {
 		json_t *root = json_object();
 		json_object_set_new(root, "realtimeUpdate", json_boolean(realtimeUpdate));
 		return root;
 	}
 
-	void fromJson(json_t *root) override {
+	void dataFromJson(json_t *root) override {
 		json_t *realtimeUpdate_J = json_object_get(root, "realtimeUpdate");
 		if(realtimeUpdate_J) {
 			realtimeUpdate = json_boolean_value(realtimeUpdate_J);

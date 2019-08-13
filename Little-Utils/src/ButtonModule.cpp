@@ -53,11 +53,11 @@ struct ButtonModule : Module {
 
 
 	// For more advanced Module features, read Rack's engine.hpp header file
-	// - toJson, fromJson: serialization of internal data
+	// - dataToJson, dataFromJson: serialization of internal data
 	// - onSampleRateChange: event triggered by a change of sample rate
 	// - onReset, onRandomize, onCreate, onDelete: implements special behavior when user clicks these from the context menu
-	json_t* toJson() override {
-		//TODO: this or fromJson causes segfault sometimes (I think), consider using json_object_set_new instead of decref (or should reference even be decremented?)
+	json_t* dataToJson() override {
+		//TODO: this or dataFromJson causes segfault sometimes (I think), consider using json_object_set_new instead of decref (or should reference even be decremented?)
 		json_t *data, *toggle_value, *const_choice_value;
 		data = json_object();
 		toggle_value = json_boolean(toggle);
@@ -71,7 +71,7 @@ struct ButtonModule : Module {
 		return data;
 	}
 
-	void fromJson(json_t* root) override {
+	void dataFromJson(json_t* root) override {
 		json_t *toggle_value, *const_choice_value;
 		toggle_value = json_object_get(root, "toggle");
 		if(json_is_boolean(toggle_value)) {

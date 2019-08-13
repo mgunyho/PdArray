@@ -64,23 +64,23 @@ struct TeleportInModule : Teleport {
 	// step() is not needed for a teleport source, values are read directly from map
 
 	// For more advanced Module features, read Rack's engine.hpp header file
-	// - toJson, fromJson: serialization of internal data
+	// - dataToJson, dataFromJson: serialization of internal data
 	// - onSampleRateChange: event triggered by a change of sample rate
 	// - onReset, onRandomize, onCreate, onDelete: implements special behavior when user clicks these from the context menu
-	json_t* toJson() override {
+	json_t* dataToJson() override {
 		json_t *data = json_object();
 		json_object_set_new(data, "label", json_string(label.c_str()));
 		return data;
 	}
 
-	void fromJson(json_t* root) override {
+	void dataFromJson(json_t* root) override {
 		json_t *label_json = json_object_get(root, "label");
 		if(json_is_string(label_json)) {
 			// remove previous label randomly generated in constructor
 			sources.erase(label);
 			label = std::string(json_string_value(label_json));
 			if(sourceExists(label)) {
-				// Label already exists in sources, this means that fromJson()
+				// Label already exists in sources, this means that dataFromJson()
 				// was called due to duplication instead of loading from file.
 				// Generate new label.
 				label = getLabel();
@@ -176,13 +176,13 @@ struct TeleportOutModule : Teleport {
 		}
 	};
 
-	json_t* toJson() override {
+	json_t* dataToJson() override {
 		json_t *data = json_object();
 		json_object_set_new(data, "label", json_string(label.c_str()));
 		return data;
 	}
 
-	void fromJson(json_t* root) override {
+	void dataFromJson(json_t* root) override {
 		json_t *label_json = json_object_get(root, "label");
 		if(json_is_string(label_json)) {
 			label = json_string_value(label_json);
