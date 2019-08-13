@@ -1,5 +1,4 @@
 #include "LittleUtils.hpp"
-#include "dsp/digital.hpp"
 #include "Util.hpp"
 
 struct ButtonModule : Module {
