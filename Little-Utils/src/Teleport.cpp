@@ -328,7 +328,8 @@ struct TeleportModuleWidget : ModuleWidget {
 		return 57.f + 37.f * i;
 	}
 
-	TeleportModuleWidget(Teleport *module, std::string panelFilename) : ModuleWidget(module) {
+	TeleportModuleWidget(Teleport *module, std::string panelFilename) {
+		setModule(module);
 		this->module = module;
 		setPanel(SVG::load(assetPlugin(pluginInstance, panelFilename)));
 

@@ -81,7 +81,9 @@ struct Bias_Semitone : Module {
 
 	//SchmittTrigger oneToManyTrigger;
 	//bool oneToManyState;
-	Bias_Semitone() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
+	Bias_Semitone() {
+		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
+	}
 
 	void step() override;
 
@@ -123,7 +125,8 @@ struct Bias_SemitoneWidget : ModuleWidget {
 	Bias_Semitone *module;
 	TextBox *displays[N_KNOBS];
 
-	Bias_SemitoneWidget(Bias_Semitone *module) : ModuleWidget(module) {
+	Bias_SemitoneWidget(Bias_Semitone *module) {
+		setModule(module);
 		this->module = module;
 		setPanel(SVG::load(assetPlugin(pluginInstance, "res/Bias_Semitone.svg")));
 

@@ -30,7 +30,9 @@ struct MulDiv : Module {
 	// output this instead of NaN (when e.g. dividing by zero)
 	float valid_div_value = 0.f;
 
-	MulDiv() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
+	MulDiv() {
+		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
+	}
 
 	void step() override;
 
@@ -71,7 +73,8 @@ void MulDiv::step() {
 struct MulDivWidget : ModuleWidget {
 	MulDiv *module;
 
-	MulDivWidget(MulDiv *module) : ModuleWidget(module) {
+	MulDivWidget(MulDiv *module) {
+		setModule(module);
 		this->module = module;
 		setPanel(SVG::load(assetPlugin(pluginInstance, "res/MulDiv.svg")));
 

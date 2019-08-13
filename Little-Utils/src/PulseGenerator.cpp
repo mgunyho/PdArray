@@ -72,7 +72,8 @@ struct PulseGenModule : Module {
 	bool realtimeUpdate = true; // whether to display gate_duration or gate_base_duration
 	float cv_scale = 0.f; // cv_scale = +- 1 -> 10V CV changes duration by +-10s
 
-	PulseGenModule() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
+	PulseGenModule() {
+		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 		gate_duration = gate_base_duration;
 	}
 
@@ -247,7 +248,8 @@ struct PulseGeneratorWidget : ModuleWidget {
 	PulseGenModule *module;
 	MsDisplayWidget *msDisplay;
 
-	PulseGeneratorWidget(PulseGenModule *module) : ModuleWidget(module) {
+	PulseGeneratorWidget(PulseGenModule *module) {
+		setModule(module);
 		this->module = module;
 		setPanel(SVG::load(assetPlugin(pluginInstance, "res/PulseGenerator.svg")));
 

@@ -36,7 +36,8 @@ struct ButtonModule : Module {
 	SchmittTrigger inputTrigger;
 	PulseGenerator triggerGenerator;
 
-	ButtonModule() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
+	ButtonModule() {
+		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 		onReset();
 	}
 
@@ -151,7 +152,8 @@ struct ButtonWidget : SVGSwitch, MomentarySwitch {
 };
 
 struct ButtonModuleWidget : ModuleWidget {
-	ButtonModuleWidget(ButtonModule *module) : ModuleWidget(module) {
+	ButtonModuleWidget(ButtonModule *module) {
+		setModule(module);
 		setPanel(SVG::load(assetPlugin(pluginInstance, "res/ButtonModule.svg")));
 
 		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
