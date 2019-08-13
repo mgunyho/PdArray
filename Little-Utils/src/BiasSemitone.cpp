@@ -82,6 +82,11 @@ struct Bias_Semitone : Module {
 	//bool oneToManyState;
 	Bias_Semitone() {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
+		for(int i = 0; i < N_KNOBS; i++) {
+			configParam(Bias_Semitone::BIAS_1_PARAM + i, -1.f, 1.f, 0.f);
+		}
+
+		configParam(Bias_Semitone::MODE_PARAM, 0.f, 1.f, 1.f);
 	}
 
 	void process(const ProcessArgs &args) override;
@@ -139,7 +144,7 @@ struct Bias_SemitoneWidget : ModuleWidget {
 			float top_items_center_y = 30.f + i * elem_height;
 			float bot_items_center_y = 55.f + i * elem_height;
 			addParam(createParamCentered<Trimpot>(Vec(20., top_items_center_y),
-						module, Bias_Semitone::BIAS_1_PARAM + i, -1.f, 1.f, 0.f));
+						module, Bias_Semitone::BIAS_1_PARAM + i));
 
 			Vec input_pos = Vec(20., bot_items_center_y);
 			addInput(createInputCentered<PJ301MPort>(input_pos,
@@ -164,9 +169,7 @@ struct Bias_SemitoneWidget : ModuleWidget {
 			addChild(displays[i]);
 		}
 
-		addParam(createParam<CKSS>(Vec(15, 311), module, Bias_Semitone::MODE_PARAM,
-				0.f, 1.f, 1.f
-				));
+		addParam(createParam<CKSS>(Vec(15, 311), module, Bias_Semitone::MODE_PARAM));
 	}
 
 	void step() override {

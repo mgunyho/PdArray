@@ -73,7 +73,13 @@ struct PulseGenModule : Module {
 
 	PulseGenModule() {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
+		configParam(PulseGenModule::GATE_LENGTH_PARAM, 0.f, 10.f,
+					// 0.5s in log scale
+					//rescale(-0.30103f, MIN_EXPONENT, MAX_EXPONENT, 0.f,10.f)
+					5.f // 0.1s in log mode, 5s in lin mode
+					, ""); //TODO: descriptions/tooltips (?)
 		configParam(PulseGenModule::LIN_LOG_MODE_PARAM, 0.f, 1.f, 1.f, "");
+		configParam(PulseGenModule::CV_AMT_PARAM, -1.f, 1.f, 0.f);
 		gate_duration = gate_base_duration;
 	}
 
@@ -143,11 +149,13 @@ void PulseGenModule::process(const ProcessArgs &args) {
 		finishTriggerGenerator.trigger(1.e-3f);
 	}
 
-	outputs[GATE_OUTPUT].setVoltage(gate ? 10.0f : 0.0f);
-	outputs[FINISH_OUTPUT].setVoltage(finishTriggerGenerator.process(deltaTime) ? 10.f : 0.f);
+	float gate_v = gate ? 10.0f : 0.0f;
+	float finish_v = finishTriggerGenerator.process(deltaTime) ? 10.f : 0.f;
+	outputs[GATE_OUTPUT].setVoltage(gate_v);
+	outputs[FINISH_OUTPUT].setVoltage(finish_v);
 
-	lights[GATE_LIGHT].setSmoothBrightness(outputs[GATE_OUTPUT].value);
-	lights[FINISH_LIGHT].setSmoothBrightness(outputs[FINISH_OUTPUT].value);
+	lights[GATE_LIGHT].setSmoothBrightness(gate_v, deltaTime);
+	lights[FINISH_LIGHT].setSmoothBrightness(finish_v, deltaTime);
 
 }
 
@@ -256,13 +264,7 @@ struct PulseGeneratorWidget : ModuleWidget {
 		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
 		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-		addParam(createParamCentered<RoundBlackKnob>(
-					Vec(22.5, 37.5), module,
-					PulseGenModule::GATE_LENGTH_PARAM, 0.f, 10.f,
-					// 0.5s in log scale
-					//rescale(-0.30103f, MIN_EXPONENT, MAX_EXPONENT, 0.f,10.f)
-					5.f // 0.1s in log mode, 5s in lin mode
-					));
+		addParam(createParamCentered<RoundBlackKnob>(Vec(22.5, 37.5), module, PulseGenModule::GATE_LENGTH_PARAM));
 
 		//addParam(createParamCentered<CustomTrimpot>(
 		//			Vec(22.5, 133), module, PulseGenModule::CV_AMT_PARAM,
@@ -282,9 +284,7 @@ struct PulseGeneratorWidget : ModuleWidget {
 		msDisplay->box.pos = Vec(7.5, 308);
 		addChild(msDisplay);
 
-		auto cvKnob = createParamCentered<CustomTrimpot>(
-					Vec(22.5, 110), module, PulseGenModule::CV_AMT_PARAM,
-					-1.f, 1.f, 0.f);
+		auto cvKnob = createParamCentered<CustomTrimpot>(Vec(22.5, 110), module, PulseGenModule::CV_AMT_PARAM);
 		cvKnob->display = msDisplay;
 		addParam(cvKnob);
 

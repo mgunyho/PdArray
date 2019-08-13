@@ -45,6 +45,7 @@ struct MulDiv : Module {
 };
 
 void MulDiv::process(const ProcessArgs &args) {
+	float deltaTime = args.sampleTime;
 	bool clip = params[CLIP_ENABLE_PARAM].getValue() > 0.5f;
 	auto a_in = inputs[A_INPUT];
 	auto b_in = inputs[B_INPUT];
@@ -67,7 +68,7 @@ void MulDiv::process(const ProcessArgs &args) {
 		outputs[DIV_OUTPUT].setVoltage(clip ? clamp(a_in.value * os, -10.f, 10.f) : a_in.value * os);
 	}
 
-	lights[CLIP_ENABLE_LIGHT].setBrightnessSmooth(clip);
+	lights[CLIP_ENABLE_LIGHT].setSmoothBrightness(clip, deltaTime);
 }
 
 struct MulDivWidget : ModuleWidget {

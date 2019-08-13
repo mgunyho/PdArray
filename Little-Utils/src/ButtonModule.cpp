@@ -107,32 +107,32 @@ void ButtonModule::process(const ProcessArgs &args) {
 	}
 
 	outputs[TRIG_OUTPUT].setVoltage(trigger ? 10.0f : 0.0f);
-	lights[TRIG_LIGHT].setBrightnessSmooth(trigger);
+	lights[TRIG_LIGHT].setSmoothBrightness(trigger, deltaTime);
 
 	outputs[GATE_OUTPUT].setVoltage(gate ? 10.0f : 0.0f);
-	lights[GATE_LIGHT].setBrightnessSmooth(gate);
+	lights[GATE_LIGHT].setSmoothBrightness(gate, deltaTime);
 
 	outputs[TOGGLE_OUTPUT].setVoltage(toggle ? 10.0f : 0.0f);
-	lights[TOGGLE_LIGHT].setBrightnessSmooth(toggle);
+	lights[TOGGLE_LIGHT].setSmoothBrightness(toggle, deltaTime);
 
 	bool sign = const_choice >= 3;
 	switch(const_choice % 3) {
 		case 0: {
-			lights[CONST_10_LIGHTP + !sign].setBrightnessSmooth(0.0f);
-			lights[CONST_1_LIGHTP + sign].setBrightnessSmooth(1.0f);
+			lights[CONST_10_LIGHTP + !sign].setSmoothBrightness(0.0f, deltaTime);
+			lights[CONST_1_LIGHTP + sign].setSmoothBrightness(1.0f, deltaTime);
 			outputs[CONST_OUTPUT].setVoltage(1.f);
 			break;
 		};
 		case 1: {
-			lights[CONST_1_LIGHTP + sign].setBrightnessSmooth(0.f);
-			lights[CONST_5_LIGHTP + sign].setBrightnessSmooth(1.f);
+			lights[CONST_1_LIGHTP + sign].setSmoothBrightness(0.f, deltaTime);
+			lights[CONST_5_LIGHTP + sign].setSmoothBrightness(1.f, deltaTime);
 			outputs[CONST_OUTPUT].setVoltage(5.f);
 			break;
 		};
 		case 2:
 		default: {
-			lights[CONST_5_LIGHTP + sign].setBrightnessSmooth(0.f);
-			lights[CONST_10_LIGHTP + sign].setBrightnessSmooth(1.f);
+			lights[CONST_5_LIGHTP + sign].setSmoothBrightness(0.f, deltaTime);
+			lights[CONST_10_LIGHTP + sign].setSmoothBrightness(1.f, deltaTime);
 			outputs[CONST_OUTPUT].setVoltage(10.f);
 			break;
 		}
