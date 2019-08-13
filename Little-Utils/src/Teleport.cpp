@@ -332,8 +332,8 @@ struct TeleportModuleWidget : ModuleWidget {
 		this->module = module;
 		setPanel(SVG::load(assetPlugin(pluginInstance, panelFilename)));
 
-		addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
-		addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
+		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
 	}
 };
@@ -370,5 +370,5 @@ struct TeleportOutModuleWidget : TeleportModuleWidget {
 };
 
 
-Model *modelTeleportInModule = Model::create<TeleportInModule, TeleportInModuleWidget>("TeleportIn");
-Model *modelTeleportOutModule = Model::create<TeleportOutModule, TeleportOutModuleWidget>("TeleportOut");
+Model *modelTeleportInModule = createModel<TeleportInModule, TeleportInModuleWidget>("TeleportIn");
+Model *modelTeleportOutModule = createModel<TeleportOutModule, TeleportOutModuleWidget>("TeleportOut");

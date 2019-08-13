@@ -127,10 +127,10 @@ struct Bias_SemitoneWidget : ModuleWidget {
 		this->module = module;
 		setPanel(SVG::load(assetPlugin(pluginInstance, "res/Bias_Semitone.svg")));
 
-		addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
-		addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
-		addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 2*RACK_GRID_WIDTH, 0)));
-		addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 2*RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
+		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+		addChild(createWidget<ScrewSilver>(Vec(box.size.x - 2*RACK_GRID_WIDTH, 0)));
+		addChild(createWidget<ScrewSilver>(Vec(box.size.x - 2*RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
 		float elem_height = 58.f;
 		for(int i = 0; i < N_KNOBS; i++) {
@@ -185,4 +185,4 @@ struct Bias_SemitoneWidget : ModuleWidget {
 };
 
 
-Model *modelBias_Semitone = Model::create<Bias_Semitone, Bias_SemitoneWidget>("BiasSemitone");
+Model *modelBias_Semitone = createModel<Bias_Semitone, Bias_SemitoneWidget>("BiasSemitone");

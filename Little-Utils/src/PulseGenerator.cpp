@@ -251,8 +251,8 @@ struct PulseGeneratorWidget : ModuleWidget {
 		this->module = module;
 		setPanel(SVG::load(assetPlugin(pluginInstance, "res/PulseGenerator.svg")));
 
-		addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
-		addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
+		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
 		addParam(createParamCentered<RoundBlackKnob>(
 					Vec(22.5, 37.5), module,
@@ -291,7 +291,7 @@ struct PulseGeneratorWidget : ModuleWidget {
 	}
 
 	Menu *createContextMenu() override {
-		Menu *menu = ModuleWidget::createContextMenu();
+		Menu *menu = ModuleWidget::createContextMenu(); //TODO: update to v1.0 API
 
 		menu->addChild(new MenuLabel());
 
@@ -307,4 +307,4 @@ struct PulseGeneratorWidget : ModuleWidget {
 };
 
 
-Model *modelPulseGenerator = Model::create<PulseGenModule, PulseGeneratorWidget>("PulseGenerator");
+Model *modelPulseGenerator = createModel<PulseGenModule, PulseGeneratorWidget>("PulseGenerator");

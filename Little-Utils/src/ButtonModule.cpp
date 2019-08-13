@@ -154,10 +154,10 @@ struct ButtonModuleWidget : ModuleWidget {
 	ButtonModuleWidget(ButtonModule *module) : ModuleWidget(module) {
 		setPanel(SVG::load(assetPlugin(pluginInstance, "res/ButtonModule.svg")));
 
-		addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
-		addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
+		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-		addChild(ParamWidget::create<ButtonWidget>(Vec(7.5, 7.5 + RACK_GRID_WIDTH), module, ButtonModule::BUTTON_PARAM, 0.0f, 1.0f, 0.0f));
+		addChild(createParam<ButtonWidget>(Vec(7.5, 7.5 + RACK_GRID_WIDTH), module, ButtonModule::BUTTON_PARAM, 0.0f, 1.0f, 0.0f));
 
 		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 87), module, ButtonModule::TRIG_INPUT));
 
@@ -178,4 +178,4 @@ struct ButtonModuleWidget : ModuleWidget {
 };
 
 
-Model *modelButtonModule = Model::create<ButtonModule, ButtonModuleWidget>("Button");
+Model *modelButtonModule = createModel<ButtonModule, ButtonModuleWidget>("Button");

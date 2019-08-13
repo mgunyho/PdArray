@@ -75,8 +75,8 @@ struct MulDivWidget : ModuleWidget {
 		this->module = module;
 		setPanel(SVG::load(assetPlugin(pluginInstance, "res/MulDiv.svg")));
 
-		addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
-		addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
+		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
 		addInput(createInputCentered<PJ301MPort>(Vec(22.5,  46), module, MulDiv::A_INPUT));
 
@@ -121,4 +121,4 @@ struct MulDivWidget : ModuleWidget {
 };
 
 
-Model *modelMulDiv = Model::create<MulDiv, MulDivWidget>("MultiplyDivide");
+Model *modelMulDiv = createModel<MulDiv, MulDivWidget>("MultiplyDivide");
