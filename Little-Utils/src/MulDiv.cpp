@@ -73,7 +73,7 @@ struct MulDivWidget : ModuleWidget {
 
 	MulDivWidget(MulDiv *module) : ModuleWidget(module) {
 		this->module = module;
-		setPanel(SVG::load(assetPlugin(plugin, "res/MulDiv.svg")));
+		setPanel(SVG::load(assetPlugin(pluginInstance, "res/MulDiv.svg")));
 
 		addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
 		addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
@@ -85,7 +85,7 @@ struct MulDivWidget : ModuleWidget {
 		scaleSwitch->box.pos = Vec(7.5, 63);
 		scaleSwitch->module = module;
 		scaleSwitch->paramId = MulDiv::A_SCALE_PARAM;
-		scaleSwitch->addFrames(plugin);
+		scaleSwitch->addFrames(pluginInstance);
 		scaleSwitch->setLimits(0.f, 2.f);
 		scaleSwitch->setDefaultValue(0.f);
 		addParam(scaleSwitch);
@@ -96,7 +96,7 @@ struct MulDivWidget : ModuleWidget {
 		scaleSwitch->box.pos = Vec(7.5, 136);
 		scaleSwitch->module = module;
 		scaleSwitch->paramId = MulDiv::B_SCALE_PARAM;
-		scaleSwitch->addFrames(plugin);
+		scaleSwitch->addFrames(pluginInstance);
 		scaleSwitch->setLimits(0.f, 2.f);
 		scaleSwitch->setDefaultValue(0.f);
 		addParam(scaleSwitch);
@@ -105,7 +105,7 @@ struct MulDivWidget : ModuleWidget {
 		scaleSwitch->box.pos = Vec(7.5, 177);
 		scaleSwitch->module = module;
 		scaleSwitch->paramId = MulDiv::OUT_SCALE_PARAM;
-		scaleSwitch->addFrames(plugin);
+		scaleSwitch->addFrames(pluginInstance);
 		scaleSwitch->setLimits(0.f, 2.f);
 		scaleSwitch->setDefaultValue(0.f);
 		addParam(scaleSwitch);

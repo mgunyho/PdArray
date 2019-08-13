@@ -145,14 +145,14 @@ void ButtonModule::step() {
 
 struct ButtonWidget : SVGSwitch, MomentarySwitch {
 	ButtonWidget() {
-		addFrame(SVG::load(assetPlugin(plugin, "res/Button_button_0.svg")));
-		addFrame(SVG::load(assetPlugin(plugin, "res/Button_button_1.svg")));
+		addFrame(SVG::load(assetPlugin(pluginInstance, "res/Button_button_0.svg")));
+		addFrame(SVG::load(assetPlugin(pluginInstance, "res/Button_button_1.svg")));
 	}
 };
 
 struct ButtonModuleWidget : ModuleWidget {
 	ButtonModuleWidget(ButtonModule *module) : ModuleWidget(module) {
-		setPanel(SVG::load(assetPlugin(plugin, "res/ButtonModule.svg")));
+		setPanel(SVG::load(assetPlugin(pluginInstance, "res/ButtonModule.svg")));
 
 		addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
 		addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));

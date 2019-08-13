@@ -16,7 +16,7 @@ struct TextBox : TransparentWidget {
 
 	//TODO: create<...>() thing with position as argument?
 	TextBox() {
-		font = Font::load(assetPlugin(plugin, "res/RobotoMono-Bold.ttf"));
+		font = Font::load(assetPlugin(pluginInstance, "res/RobotoMono-Bold.ttf"));
 		defaultTextColor = nvgRGB(0x23, 0x23, 0x23);
 		textColor = defaultTextColor;
 		backgroundColor = nvgRGB(0xc8, 0xc8, 0xc8);
@@ -142,9 +142,9 @@ struct ToggleLEDButton : SVGSwitch, ToggleSwitch {
 struct CKSSThreeH : SVGSwitch, ToggleSwitch {
 	CKSSThreeH() {};
 
-	void addFrames(Plugin *plugin) {
-		addFrame(SVG::load(assetPlugin(plugin, "./res/CKSSThreeH_0.svg")));
-		addFrame(SVG::load(assetPlugin(plugin, "./res/CKSSThreeH_1.svg")));
-		addFrame(SVG::load(assetPlugin(plugin, "./res/CKSSThreeH_2.svg")));
+	void addFrames(Plugin *pluginInstance) {
+		addFrame(SVG::load(assetPlugin(pluginInstance, "./res/CKSSThreeH_0.svg")));
+		addFrame(SVG::load(assetPlugin(pluginInstance, "./res/CKSSThreeH_1.svg")));
+		addFrame(SVG::load(assetPlugin(pluginInstance, "./res/CKSSThreeH_2.svg")));
 	}
 };

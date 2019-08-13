@@ -125,7 +125,7 @@ struct Bias_SemitoneWidget : ModuleWidget {
 
 	Bias_SemitoneWidget(Bias_Semitone *module) : ModuleWidget(module) {
 		this->module = module;
-		setPanel(SVG::load(assetPlugin(plugin, "res/Bias_Semitone.svg")));
+		setPanel(SVG::load(assetPlugin(pluginInstance, "res/Bias_Semitone.svg")));
 
 		addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
 		addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
