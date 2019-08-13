@@ -1,5 +1,7 @@
 #include "plugin.hpp"
 
+#include <stdio.h>
+
 struct TextBox : TransparentWidget {
 	// Kinda like TextField except not editable. Using Roboto Mono Bold font,
 	// numbers look okay.
@@ -82,19 +84,22 @@ struct EditableTextBox : HoverableTextBox, TextField {
 
 	void draw(const DrawArgs &args) override;
 
-	void onButton(const event::Button &e) override {
-		TextField::onButton(e);
-	}
+	void onButton(const event::Button &e) override;
+	//void onButton(const event::Button &e) override {
+	//	TextField::onButton(e);
+	//	e.consume(this);
+	//}
 
 	void onHover(const event::Hover &e) override {
 		TextField::onHover(e);
+		HoverableTextBox::onHover(e);
 	}
 
 	void onHoverScroll(const event::HoverScroll &e) override {
 		TextField::onHoverScroll(e);
 	}
 
-	//void onAction(const event::Action &e) override;
+	void onAction(const event::Action &e) override;
 
 	void onSelectText(const event::SelectText &e) override { //TODO: check that this is the correct event
 		if(TextField::text.size() < maxTextLength) {
@@ -105,15 +110,9 @@ struct EditableTextBox : HoverableTextBox, TextField {
 
 	void onSelectKey(const event::SelectKey &e) override; //TODO: check that this is the correct event
 
-	void onSelect(const event::Select) {
-		isFocused = true;
-	}
-	void onDeselect(const event::Deselect &e) override { //TODO: check that this is correct / works
-		isFocused = false;
-		HoverableTextBox::setText(TextField::text);
-		e.consume(NULL); //TODO: null correct here?
-	}
+	void onSelect(const event::Select &e) override;
 
+	void onDeselect(const event::Deselect &e) override;
 
 	void step() override {
 		TextField::step();

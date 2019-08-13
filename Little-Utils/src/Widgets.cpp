@@ -78,7 +78,18 @@ void EditableTextBox::draw(const DrawArgs &args) {
 //	e.consume(NULL); // TODO: null correct?
 //}
 
+void EditableTextBox::onAction(const event::Action &e) {
+	printf("onAction()\n");
+	TextField::onAction(e);
+	e.consume(e);
+}
+
+void EditableTextBox::onButton(const event::Button &e) {
+	TextField::onButton(e); // textField consumes the event
+}
+
 void EditableTextBox::onSelectKey(const event::SelectKey &e) {
+	//printf("onSelectKey()\n");
 	//TODO: check that this works
 	//TODO: shift+home/end to select until beginning / end
 	//std::cout << "windowIsShiftPressed():" << windowIsShiftPressed() << std::endl;
@@ -103,4 +114,16 @@ void EditableTextBox::onSelectKey(const event::SelectKey &e) {
 	} else {
 		TextField::onSelectKey(e);
 	}
+}
+
+void EditableTextBox::onSelect(const event::Select &e) {
+	printf("onSelect()\n");
+	isFocused = true;
+	//e.consume(NULL);
+}
+
+void EditableTextBox::onDeselect(const event::Deselect &e) {
+	isFocused = false;
+	HoverableTextBox::setText(TextField::text);
+	e.consume(NULL); //TODO: null correct here?
 }
