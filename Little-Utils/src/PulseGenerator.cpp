@@ -311,4 +311,4 @@ struct PulseGeneratorWidget : ModuleWidget {
 // author name for categorization per plugin, module slug (should never
 // change), human-readable module name, and any number of tags
 // (found in `include/tags.hpp`) separated by commas.
-Model *modelPulseGenerator = Model::create<PulseGenModule, PulseGeneratorWidget>("Little Utils", "PulseGenerator", "Pulse Generator", UTILITY_TAG, ENVELOPE_GENERATOR_TAG);
+Model *modelPulseGenerator = Model::create<PulseGenModule, PulseGeneratorWidget>("PulseGenerator");

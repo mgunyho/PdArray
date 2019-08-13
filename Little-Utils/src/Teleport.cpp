@@ -373,6 +373,6 @@ struct TeleportOutModuleWidget : TeleportModuleWidget {
 // author name for categorization per plugin, module slug (should never
 // change), human-readable module name, and any number of tags
 // (found in `include/tags.hpp`) separated by commas.
-Model *modelTeleportInModule = Model::create<TeleportInModule, TeleportInModuleWidget>("Little Utils", "TeleportIn", "Teleport In", UTILITY_TAG);
+Model *modelTeleportInModule = Model::create<TeleportInModule, TeleportInModuleWidget>("TeleportIn");
 
-Model *modelTeleportOutModule = Model::create<TeleportOutModule, TeleportOutModuleWidget>("Little Utils", "TeleportOut", "Teleport Out", UTILITY_TAG);
+Model *modelTeleportOutModule = Model::create<TeleportOutModule, TeleportOutModuleWidget>("TeleportOut");

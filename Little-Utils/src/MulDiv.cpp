@@ -125,4 +125,4 @@ struct MulDivWidget : ModuleWidget {
 // author name for categorization per plugin, module slug (should never
 // change), human-readable module name, and any number of tags
 // (found in `include/tags.hpp`) separated by commas.
-Model *modelMulDiv = Model::create<MulDiv, MulDivWidget>("Little Utils", "MultiplyDivide", "Multiply/Divide", UTILITY_TAG);
+Model *modelMulDiv = Model::create<MulDiv, MulDivWidget>("MultiplyDivide");

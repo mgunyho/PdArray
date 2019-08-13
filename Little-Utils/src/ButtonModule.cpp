@@ -182,4 +182,4 @@ struct ButtonModuleWidget : ModuleWidget {
 // author name for categorization per plugin, module slug (should never
 // change), human-readable module name, and any number of tags
 // (found in `include/tags.hpp`) separated by commas.
-Model *modelButtonModule = Model::create<ButtonModule, ButtonModuleWidget>("Little Utils", "Button", "Button", UTILITY_TAG);
+Model *modelButtonModule = Model::create<ButtonModule, ButtonModuleWidget>("Button");

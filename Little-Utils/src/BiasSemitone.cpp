@@ -189,4 +189,4 @@ struct Bias_SemitoneWidget : ModuleWidget {
 // author name for categorization per plugin, module slug (should never
 // change), human-readable module name, and any number of tags
 // (found in `include/tags.hpp`) separated by commas.
-Model *modelBias_Semitone = Model::create<Bias_Semitone, Bias_SemitoneWidget>("Little Utils", "BiasSemitone", "Bias/Semitone", UTILITY_TAG);
+Model *modelBias_Semitone = Model::create<Bias_Semitone, Bias_SemitoneWidget>("BiasSemitone");

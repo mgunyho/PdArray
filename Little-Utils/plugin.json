@@ -1,0 +1,65 @@
+{
+  "slug": "LittleUtils",
+  "name": "Little Utils",
+  "version": "1.0.0",
+  "license": "MIT",
+  "brand": "Little Utils",
+  "author": "mgunyho",
+  "authorEmail": "",
+  "authorUrl": "",
+  "pluginUrl": "",
+  "manualUrl": "",
+  "sourceUrl": "",
+  "donateUrl": "",
+  "modules": [
+    {
+      "slug": "Button",
+      "name": "Button",
+      "description": "",
+      "tags": [
+        "utility"
+      ]
+    },
+    {
+      "slug": "BiasSemitone",
+      "name": "Bias/Semitone",
+      "description": "",
+      "tags": [
+        "utility"
+      ]
+    },
+    {
+      "slug": "MultiplyDivide",
+      "name": "Multiply/Divide",
+      "description": "",
+      "tags": [
+        "utility"
+      ]
+    },
+    {
+      "slug": "PulseGenerator",
+      "name": "Pulse Generator",
+      "description": "",
+      "tags": [
+        "utility",
+        "envelope generator"
+      ]
+    },
+    {
+      "slug": "TeleportIn",
+      "name": "Teleport In",
+      "description": "",
+      "tags": [
+        "utility"
+      ]
+    },
+    {
+      "slug": "TeleportOut",
+      "name": "Teleport Out",
+      "description": "",
+      "tags": [
+        "utility"
+      ]
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 // some utility functions
 
-#include "rack.hpp"
+#include "rack0.hpp"
 #include <algorithm> // std::generate_n
 
 using namespace rack;
