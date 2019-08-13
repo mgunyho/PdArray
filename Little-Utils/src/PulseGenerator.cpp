@@ -187,8 +187,8 @@ struct MsDisplayWidget : TextBox {
 	}
 
 	void draw(const DrawArgs &args) override {
-		TextBox::draw(args.vg);
-		nvgScissor(args.vg, 0, 0, box.size.x, box.size.y);
+		TextBox::draw(args);
+		nvgScissor(args.vg, 0, 0, box.size.x, box.size.y); //TODO: use just vg instead of args.vg
 
 		if(font->handle >= 0) {
 			nvgFillColor(args.vg, textColor);
@@ -250,7 +250,7 @@ struct PulseGeneratorWidget : ModuleWidget {
 	PulseGeneratorWidget(PulseGenModule *module) {
 		setModule(module);
 		this->module = module;
-		setPanel(APP->window->loadSvg(assetPlugin(pluginInstance, "res/PulseGenerator.svg")));
+		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/PulseGenerator.svg")));
 
 		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
 		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));

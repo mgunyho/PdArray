@@ -15,7 +15,7 @@ struct TextBox : TransparentWidget {
 
 	//TODO: create<...>() thing with position as argument?
 	TextBox() {
-		font = APP->window->loadFont(assetPlugin(pluginInstance, "res/RobotoMono-Bold.ttf"));
+		font = APP->window->loadFont(asset::plugin(pluginInstance, "res/RobotoMono-Bold.ttf"));
 		defaultTextColor = nvgRGB(0x23, 0x23, 0x23);
 		textColor = defaultTextColor;
 		backgroundColor = nvgRGB(0xc8, 0xc8, 0xc8);
@@ -127,16 +127,16 @@ struct ToggleLEDButton : SVGSwitch { //TODO: removed 'ToggleSwitch', check that 
 	NVGcolor hoverColor;
 
 	ToggleLEDButton() {
-		addFrame(APP->window->loadSvg(assetGlobal("res/ComponentLibrary/LEDButton.svg")));
+		addFrame(APP->window->loadSvg(asset::system("res/ComponentLibrary/LEDButton.svg")));
 	}
 };
 
 // Same as CKSSThree but horizontal
 struct CKSSThreeH : SVGSwitch { //TODO: removed 'ToggleSwitch', check that this is correct
 	CKSSThreeH() {
-		addFrame(APP->window->loadSvg(assetPlugin(pluginInstance, "./res/CKSSThreeH_0.svg")));
-		addFrame(APP->window->loadSvg(assetPlugin(pluginInstance, "./res/CKSSThreeH_1.svg")));
-		addFrame(APP->window->loadSvg(assetPlugin(pluginInstance, "./res/CKSSThreeH_2.svg")));
+		addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, "./res/CKSSThreeH_0.svg")));
+		addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, "./res/CKSSThreeH_1.svg")));
+		addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, "./res/CKSSThreeH_2.svg")));
 	};
 
 };
