@@ -39,8 +39,8 @@ void EditableTextBox::draw(const DrawArgs &args) {
 		NVGcolor highlightColor = nvgRGB(0x0, 0x90, 0xd8);
 		highlightColor.a = 0.5;
 
-		int begin = min(cursor, selection);
-		int end = max(cursor, selection);
+		int begin = std::min(cursor, selection);
+		int end = std::max(cursor, selection);
 		int len = end - begin;
 
 		// font face, size, alignment etc should be the same as for TextBox after the above draw call

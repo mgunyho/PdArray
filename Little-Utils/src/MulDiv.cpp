@@ -31,6 +31,7 @@ struct MulDiv : Module {
 
 	MulDiv() {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
+		configParam(MulDiv::CLIP_ENABLE_PARAM, 0.f, 1.f, 0.f, "");
 	}
 
 	void process(const ProcessArgs &args) override;
@@ -118,7 +119,7 @@ struct MulDivWidget : ModuleWidget {
 		addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 236), module, MulDiv::MUL_OUTPUT));
 		addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 286), module, MulDiv::DIV_OUTPUT));
 
-		addParam(createParamCentered<ToggleLEDButton>(Vec(22.5, 315), module, MulDiv::CLIP_ENABLE_PARAM, 0.f, 1.f, 0.f));
+		addParam(createParamCentered<ToggleLEDButton>(Vec(22.5, 315), module, MulDiv::CLIP_ENABLE_PARAM));
 
 		addChild(createLightCentered<MediumLight<GreenLight>>(Vec(22.5, 315), module, MulDiv::CLIP_ENABLE_LIGHT));
 	}

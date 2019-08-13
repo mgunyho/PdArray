@@ -73,6 +73,7 @@ struct PulseGenModule : Module {
 
 	PulseGenModule() {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
+		configParam(PulseGenModule::LIN_LOG_MODE_PARAM, 0.f, 1.f, 1.f, "");
 		gate_duration = gate_base_duration;
 	}
 
@@ -267,9 +268,7 @@ struct PulseGeneratorWidget : ModuleWidget {
 		//			Vec(22.5, 133), module, PulseGenModule::CV_AMT_PARAM,
 		//			-1.f, 1.f, 0.f));
 
-
-		//addParam(createParam<CKSS>(Vec(7.5, 69), module, PulseGenModule::LIN_LOG_MODE_PARAM, 0.f, 1.f, 1.f));
-		addParam(createParam<CKSS>(Vec(7.5, 60), module, PulseGenModule::LIN_LOG_MODE_PARAM, 0.f, 1.f, 1.f));
+		addParam(createParam<CKSS>(Vec(7.5, 60), module, PulseGenModule::LIN_LOG_MODE_PARAM));
 
 		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 151), module, PulseGenModule::GATE_LENGTH_INPUT));
 		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 192), module, PulseGenModule::TRIG_INPUT));

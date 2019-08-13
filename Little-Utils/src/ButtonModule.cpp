@@ -37,6 +37,7 @@ struct ButtonModule : Module {
 
 	ButtonModule() {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
+		configParam(ButtonModule::BUTTON_PARAM, 0.0f, 1.0f, 0.0f, "");
 		onReset();
 	}
 
@@ -159,7 +160,7 @@ struct ButtonModuleWidget : ModuleWidget {
 		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
 		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-		addChild(createParam<ButtonWidget>(Vec(7.5, 7.5 + RACK_GRID_WIDTH), module, ButtonModule::BUTTON_PARAM, 0.0f, 1.0f, 0.0f));
+		addChild(createParam<ButtonWidget>(Vec(7.5, 7.5 + RACK_GRID_WIDTH), module, ButtonModule::BUTTON_PARAM));
 
 		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 87), module, ButtonModule::TRIG_INPUT));
 
