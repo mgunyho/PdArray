@@ -118,6 +118,7 @@ void ButtonModule::process(const ProcessArgs &args) {
 	bool sign = const_choice >= 3;
 	switch(const_choice % 3) {
 		case 0: {
+			//TODO: if button is pressed twice in quick succession, not all lights are properly dimmed
 			lights[CONST_10_LIGHTP + !sign].setSmoothBrightness(0.0f, deltaTime);
 			lights[CONST_1_LIGHTP + sign].setSmoothBrightness(1.0f, deltaTime);
 			outputs[CONST_OUTPUT].setVoltage(1.f);
@@ -174,6 +175,7 @@ struct ButtonModuleWidget : ModuleWidget {
 
 		addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 320), module, ButtonModule::CONST_OUTPUT));
 
+		//TODO: lights for module == NULL
 		addChild(createLightCentered<SmallLight<GreenRedLight>>(Vec(15, 281), module, ButtonModule::CONST_1_LIGHTP));
 		addChild(createLightCentered<SmallLight<GreenRedLight>>(Vec(15, 291), module, ButtonModule::CONST_5_LIGHTP));
 		addChild(createLightCentered<SmallLight<GreenRedLight>>(Vec(15, 301), module, ButtonModule::CONST_10_LIGHTP));
