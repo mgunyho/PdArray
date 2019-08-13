@@ -40,7 +40,7 @@ struct CustomPulseGenerator {
 };
 
 
-// the module is called PulseGenModule because PulseGenerator is already taken
+// the module is called PulseGenModule because PulseGenerator is already taken //TODO: not true anymore, rename
 struct PulseGenModule : Module {
 	enum ParamIds {
 		GATE_LENGTH_PARAM,
@@ -64,7 +64,7 @@ struct PulseGenModule : Module {
 		NUM_LIGHTS
 	};
 
-	SchmittTrigger inputTrigger, finishTrigger;
+	dsp::SchmittTrigger inputTrigger, finishTrigger;
 	CustomPulseGenerator gateGenerator, finishTriggerGenerator;
 	float gate_base_duration = 0.5f; // gate duration without CV
 	float gate_duration;

@@ -32,8 +32,8 @@ struct ButtonModule : Module {
 
 	bool toggle = false;
 	int const_choice = 0;
-	SchmittTrigger inputTrigger;
-	PulseGenerator triggerGenerator;
+	dsp::SchmittTrigger inputTrigger;
+	dsp::PulseGenerator triggerGenerator;
 
 	ButtonModule() {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);

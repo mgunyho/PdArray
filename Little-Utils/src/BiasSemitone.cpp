@@ -78,7 +78,7 @@ struct Bias_Semitone : Module {
 		NUM_LIGHTS
 	};
 
-	//SchmittTrigger oneToManyTrigger;
+	//dsp::SchmittTrigger oneToManyTrigger;
 	//bool oneToManyState;
 	Bias_Semitone() {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
