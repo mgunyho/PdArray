@@ -369,10 +369,6 @@ struct TeleportOutModuleWidget : TeleportModuleWidget {
 
 };
 
-// Specify the Module and ModuleWidget subclass, human-readable
-// author name for categorization per plugin, module slug (should never
-// change), human-readable module name, and any number of tags
-// (found in `include/tags.hpp`) separated by commas.
-Model *modelTeleportInModule = Model::create<TeleportInModule, TeleportInModuleWidget>("TeleportIn");
 
+Model *modelTeleportInModule = Model::create<TeleportInModule, TeleportInModuleWidget>("TeleportIn");
 Model *modelTeleportOutModule = Model::create<TeleportOutModule, TeleportOutModuleWidget>("TeleportOut");
