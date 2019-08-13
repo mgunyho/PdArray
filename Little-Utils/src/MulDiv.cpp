@@ -33,7 +33,7 @@ struct MulDiv : Module {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 	}
 
-	void step() override;
+	void process(const ProcessArgs &args) override;
 
 
 	// For more advanced Module features, read Rack's engine.hpp header file
@@ -43,7 +43,7 @@ struct MulDiv : Module {
 
 };
 
-void MulDiv::step() {
+void MulDiv::process(const ProcessArgs &args) {
 	bool clip = params[CLIP_ENABLE_PARAM].value > 0.5f;
 	auto a_in = inputs[A_INPUT];
 	auto b_in = inputs[B_INPUT];

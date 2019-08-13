@@ -84,7 +84,7 @@ struct Bias_Semitone : Module {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 	}
 
-	void step() override;
+	void process(const ProcessArgs &args) override;
 
 	// For more advanced Module features, read Rack's engine.hpp header file
 	// - dataToJson, dataFromJson: serialization of internal data
@@ -93,7 +93,7 @@ struct Bias_Semitone : Module {
 
 };
 
-void Bias_Semitone::step() {
+void Bias_Semitone::process(const ProcessArgs &args) {
 	//float deltaTime = engineGetSampleTime();
 
 	int li = 0; // index of the latest encountered active input

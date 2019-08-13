@@ -154,7 +154,7 @@ struct TeleportOutModule : Teleport {
 		}
 	}
 
-	void step() override {
+	void process(const ProcessArgs &args) override {
 
 		if(sourceExists(label)){
 			TeleportInModule *src = sources[label];

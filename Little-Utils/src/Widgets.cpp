@@ -2,37 +2,37 @@
 #include "window.hpp" // WINDOW_MOD_CTRL
 #include <GLFW/glfw3.h> // key codes
 
-void TextBox::draw(NVGcontext *vg) {
+void TextBox::draw(const DrawArgs &args) {
 	// based on LedDisplayChoice::draw() in Rack/src/app/LedDisplay.cpp
-	nvgScissor(vg, 0, 0, box.size.x, box.size.y);
+	nvgScissor(args.vg, 0, 0, box.size.x, box.size.y); //TODO: replace args.vg with just vg (?)
 
-	nvgBeginPath(vg);
-	nvgRoundedRect(vg, 0, 0, box.size.x, box.size.y, 3.0);
-	nvgFillColor(vg, backgroundColor);
-	nvgFill(vg);
+	nvgBeginPath(args.vg);
+	nvgRoundedRect(args.vg, 0, 0, box.size.x, box.size.y, 3.0);
+	nvgFillColor(args.vg, backgroundColor);
+	nvgFill(args.vg);
 
 	if (font->handle >= 0) {
 
-		nvgFillColor(vg, textColor);
-		nvgFontFaceId(vg, font->handle);
+		nvgFillColor(args.vg, textColor);
+		nvgFontFaceId(args.vg, font->handle);
 
-		nvgFontSize(vg, font_size);
-		nvgTextLetterSpacing(vg, letter_spacing);
-		nvgTextAlign(vg, NVG_ALIGN_CENTER | NVG_ALIGN_TOP);
-		nvgText(vg, textOffset.x, textOffset.y, text.c_str(), NULL);
+		nvgFontSize(args.vg, font_size);
+		nvgTextLetterSpacing(args.vg, letter_spacing);
+		nvgTextAlign(args.vg, NVG_ALIGN_CENTER | NVG_ALIGN_TOP);
+		nvgText(args.vg, textOffset.x, textOffset.y, text.c_str(), NULL);
 	}
 
-	nvgResetScissor(vg);
+	nvgResetScissor(args.vg);
 }
 
-void EditableTextBox::draw(NVGcontext *vg) {
+void EditableTextBox::draw(const DrawArgs &args) {
 
 	std::string tmp = HoverableTextBox::text;
 	if(isFocused) {
 		HoverableTextBox::setText(TextField::text);
 	}
 
-	HoverableTextBox::draw(vg);
+	HoverableTextBox::draw(args);
 	HoverableTextBox::setText(tmp);
 
 	if(isFocused) {
@@ -47,20 +47,20 @@ void EditableTextBox::draw(NVGcontext *vg) {
 
 		// hacky way of measuring character width
 		NVGglyphPosition glyphs[4];
-		nvgTextGlyphPositions(vg, 0.f, 0.f, "a", NULL, glyphs, 4);
+		nvgTextGlyphPositions(args.vg, 0.f, 0.f, "a", NULL, glyphs, 4); //TODO: replace args.vg with just vg
 		float char_width = -2*glyphs[0].x;
 
 		float ymargin = 2.f;
-		nvgBeginPath(vg);
-		nvgFillColor(vg, highlightColor);
+		nvgBeginPath(args.vg);
+		nvgFillColor(args.vg, highlightColor);
 
 		// TODO: fix (box is ambiguous)
-		//nvgRect(vg,
+		//nvgRect(args.vg,
 		//		textOffset.x + (begin - 0.5f * TextField::text.size()) * char_width - 1,
 		//		ymargin,
 		//		(len > 0 ? char_width * len : 1) + 1,
 		//		box.size.y - 2.f * ymargin);
-		//nvgFill(vg);
+		//nvgFill(args.vg);
 
 	}
 }

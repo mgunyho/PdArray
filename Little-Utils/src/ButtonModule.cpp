@@ -49,7 +49,7 @@ struct ButtonModule : Module {
 		const_choice = 0;
 	}
 
-	void step() override;
+	void process(const ProcessArgs &args) override;
 
 
 	// For more advanced Module features, read Rack's engine.hpp header file
@@ -86,7 +86,7 @@ struct ButtonModule : Module {
 };
 
 
-void ButtonModule::step() {
+void ButtonModule::process(const ProcessArgs &args) {
 	float deltaTime = engineGetSampleTime();
 
 	float gateVoltage = rescale(inputs[TRIG_INPUT].value, 0.1f, 2.f, 0.f, 1.f);

@@ -76,7 +76,7 @@ struct PulseGenModule : Module {
 		gate_duration = gate_base_duration;
 	}
 
-	void step() override;
+	void process(const ProcessArgs &args) override;
 
 
 	// For more advanced Module features, read Rack's engine.hpp header file
@@ -99,7 +99,7 @@ struct PulseGenModule : Module {
 
 };
 
-void PulseGenModule::step() {
+void PulseGenModule::process(const ProcessArgs &args) {
 	float deltaTime = engineGetSampleTime();
 
 	bool triggered = inputTrigger.process(rescale(inputs[TRIG_INPUT].value,
@@ -186,27 +186,27 @@ struct MsDisplayWidget : TextBox {
 		}
 	}
 
-	void draw(NVGcontext *vg) override {
-		TextBox::draw(vg);
-		nvgScissor(vg, 0, 0, box.size.x, box.size.y);
+	void draw(const DrawArgs &args) override {
+		TextBox::draw(args.vg);
+		nvgScissor(args.vg, 0, 0, box.size.x, box.size.y);
 
 		if(font->handle >= 0) {
-			nvgFillColor(vg, textColor);
-			nvgFontFaceId(vg, font->handle);
+			nvgFillColor(args.vg, textColor);
+			nvgFontFaceId(args.vg, font->handle);
 
 			// draw 'ms' or 's' on bottom, depending on msLabelStatus
-			nvgFontSize(vg, 12);
-			nvgTextLetterSpacing(vg, 0.f);
-			nvgTextAlign(vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
-			nvgText(vg, textOffset.x + 2, textOffset.y + 14,
+			nvgFontSize(args.vg, 12);
+			nvgTextLetterSpacing(args.vg, 0.f);
+			nvgTextAlign(args.vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
+			nvgText(args.vg, textOffset.x + 2, textOffset.y + 14,
 					msLabelStatus ? " s" : "ms", NULL);
 
 			if(cvLabelStatus) {
-				nvgText(vg, 3, textOffset.y + 14, "cv", NULL);
+				nvgText(args.vg, 3, textOffset.y + 14, "cv", NULL);
 			}
 		}
 
-		nvgResetScissor(vg);
+		nvgResetScissor(args.vg);
 	}
 
 	void triggerCVDisplay() {

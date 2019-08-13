@@ -1,4 +1,3 @@
-#include "rack.hpp"
 #include "plugin.hpp"
 
 struct TextBox : TransparentWidget {
@@ -29,7 +28,7 @@ struct TextBox : TransparentWidget {
 
 	virtual void setText(std::string s) { text = s; }
 
-	virtual void draw(NVGcontext *vg) override;
+	virtual void draw(const DrawArgs &args) override;
 
 };
 
@@ -57,9 +56,9 @@ struct HoverableTextBox : TextBox {
 		state = BND_DEFAULT;
 	}
 
-	void draw(NVGcontext *vg) override {
+	void draw(const DrawArgs &args) override {
 		backgroundColor = state == BND_HOVER ? hoverColor : defaultColor;
-		TextBox::draw(vg);
+		TextBox::draw(args);
 	}
 };
 
@@ -81,7 +80,7 @@ struct EditableTextBox : HoverableTextBox, TextField {
 		maxTextLength = defaultMaxTextLength;
 	}
 
-	void draw(NVGcontext *vg) override;
+	void draw(const DrawArgs &args) override;
 
 	void onButton(const event::Button &e) override {
 		TextField::onButton(e);
