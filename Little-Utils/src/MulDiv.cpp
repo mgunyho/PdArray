@@ -31,6 +31,9 @@ struct MulDiv : Module {
 
 	MulDiv() {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
+		configParam(MulDiv::A_SCALE_PARAM,   0.f, 2.f, 0.f, ""); //TODO: tooltips
+		configParam(MulDiv::B_SCALE_PARAM,   0.f, 2.f, 0.f, "");
+		configParam(MulDiv::OUT_SCALE_PARAM, 0.f, 2.f, 0.f, "");
 		configParam(MulDiv::CLIP_ENABLE_PARAM, 0.f, 1.f, 0.f, "");
 	}
 
@@ -84,38 +87,12 @@ struct MulDivWidget : ModuleWidget {
 
 		addInput(createInputCentered<PJ301MPort>(Vec(22.5,  46), module, MulDiv::A_INPUT));
 
-		// this has to be done manually instead of createParam to add plugin assets before setDefaultvalue()
-		//TODO: fix / reimplement this
-		/*
-		auto scaleSwitch = new CKSSThreeH();
-		scaleSwitch->box.pos = Vec(7.5, 63);
-		scaleSwitch->module = module;
-		scaleSwitch->paramId = MulDiv::A_SCALE_PARAM;
-		scaleSwitch->addFrames(pluginInstance);
-		scaleSwitch->setLimits(0.f, 2.f);
-		scaleSwitch->setDefaultValue(0.f);
-		addParam(scaleSwitch);
+		addChild(createParam<CKSSThreeH>(Vec(7.5,  63), module, MulDiv::A_SCALE_PARAM));
 
 		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 119), module, MulDiv::B_INPUT));
 
-		scaleSwitch = new CKSSThreeH();
-		scaleSwitch->setPosition(Vec(7.5, 136));
-		scaleSwitch->setModule(module);
-		scaleSwitch->paramId = MulDiv::B_SCALE_PARAM;
-		scaleSwitch->addFrames(pluginInstance);
-		scaleSwitch->setLimits(0.f, 2.f);
-		scaleSwitch->setDefaultValue(0.f);
-		addParam(scaleSwitch);
-
-		scaleSwitch = new CKSSThreeH();
-		scaleSwitch->box.pos = Vec(7.5, 177);
-		scaleSwitch->module = module;
-		scaleSwitch->paramId = MulDiv::OUT_SCALE_PARAM;
-		scaleSwitch->addFrames(pluginInstance);
-		scaleSwitch->setLimits(0.f, 2.f);
-		scaleSwitch->setDefaultValue(0.f);
-		addParam(scaleSwitch);
-		*/
+		addChild(createParam<CKSSThreeH>(Vec(7.5, 136), module, MulDiv::B_SCALE_PARAM));
+		addChild(createParam<CKSSThreeH>(Vec(7.5, 177), module, MulDiv::OUT_SCALE_PARAM));
 
 		addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 236), module, MulDiv::MUL_OUTPUT));
 		addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 286), module, MulDiv::DIV_OUTPUT));
