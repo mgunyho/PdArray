@@ -1,4 +1,4 @@
-#include "LittleUtils.hpp"
+#include "plugin.hpp"
 #include "Util.hpp"
 
 struct ButtonModule : Module {
@@ -143,8 +143,9 @@ void ButtonModule::step() {
 
 }
 
-struct ButtonWidget : SVGSwitch, MomentarySwitch {
+struct ButtonWidget : SVGSwitch {
 	ButtonWidget() {
+		momentary = true;
 		addFrame(SVG::load(assetPlugin(pluginInstance, "res/Button_button_0.svg")));
 		addFrame(SVG::load(assetPlugin(pluginInstance, "res/Button_button_1.svg")));
 	}

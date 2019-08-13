@@ -1,4 +1,4 @@
-#include "LittleUtils.hpp"
+#include "plugin.hpp"
 #include "Widgets.hpp"
 
 #include <algorithm> // std::replace
@@ -59,7 +59,7 @@ void MulDiv::step() {
 
 	if(b_in.active) {
 		float d = (a_in.active ? a_in.value : 1.f) / b_in.value * os;
-		valid_div_value = isfinite(d) ? d : valid_div_value;
+		valid_div_value = std::isfinite(d) ? d : valid_div_value;
 		if(clip) valid_div_value = clamp(valid_div_value, -10.f, 10.f);
 		outputs[DIV_OUTPUT].value = valid_div_value;
 	} else {
@@ -83,6 +83,8 @@ struct MulDivWidget : ModuleWidget {
 		addInput(createInputCentered<PJ301MPort>(Vec(22.5,  46), module, MulDiv::A_INPUT));
 
 		// this has to be done manually instead of createParam to add plugin assets before setDefaultvalue()
+		//TODO: fix / reimplement this
+		/*
 		auto scaleSwitch = new CKSSThreeH();
 		scaleSwitch->box.pos = Vec(7.5, 63);
 		scaleSwitch->module = module;
@@ -95,8 +97,8 @@ struct MulDivWidget : ModuleWidget {
 		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 119), module, MulDiv::B_INPUT));
 
 		scaleSwitch = new CKSSThreeH();
-		scaleSwitch->box.pos = Vec(7.5, 136);
-		scaleSwitch->module = module;
+		scaleSwitch->setPosition(Vec(7.5, 136));
+		scaleSwitch->setModule(module);
 		scaleSwitch->paramId = MulDiv::B_SCALE_PARAM;
 		scaleSwitch->addFrames(pluginInstance);
 		scaleSwitch->setLimits(0.f, 2.f);
@@ -111,6 +113,7 @@ struct MulDivWidget : ModuleWidget {
 		scaleSwitch->setLimits(0.f, 2.f);
 		scaleSwitch->setDefaultValue(0.f);
 		addParam(scaleSwitch);
+		*/
 
 		addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 236), module, MulDiv::MUL_OUTPUT));
 		addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 286), module, MulDiv::DIV_OUTPUT));

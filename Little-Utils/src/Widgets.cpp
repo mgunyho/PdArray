@@ -1,5 +1,5 @@
 #include "Widgets.hpp"
-#include "window.hpp" // windowIsModPressed
+#include "window.hpp" // WINDOW_MOD_CTRL
 #include <GLFW/glfw3.h> // key codes
 
 void TextBox::draw(NVGcontext *vg) {
@@ -53,47 +53,53 @@ void EditableTextBox::draw(NVGcontext *vg) {
 		float ymargin = 2.f;
 		nvgBeginPath(vg);
 		nvgFillColor(vg, highlightColor);
-		nvgRect(vg,
-				textOffset.x + (begin - 0.5f * TextField::text.size()) * char_width - 1,
-				ymargin,
-				(len > 0 ? char_width * len : 1) + 1,
-				box.size.y - 2.f * ymargin);
-		nvgFill(vg);
+
+		// TODO: fix (box is ambiguous)
+		//nvgRect(vg,
+		//		textOffset.x + (begin - 0.5f * TextField::text.size()) * char_width - 1,
+		//		ymargin,
+		//		(len > 0 ? char_width * len : 1) + 1,
+		//		box.size.y - 2.f * ymargin);
+		//nvgFill(vg);
+
 	}
 }
 
-void EditableTextBox::onAction(EventAction &e) {
-	// this should only be called by TextField when enter is pressed
+//TODO: check if necessary
+//void EditableTextBox::onAction(const event::Action &e) {
+//	// this should only be called by TextField when enter is pressed
+//
+//	if(this == gFocusedWidget) {
+//		gFocusedWidget = NULL;
+//		EventAction e;
+//		//onDefocus(); // gets called anyway
+//	}
+//	e.consumed = true;
+//}
 
-	if(this == gFocusedWidget) {
-		gFocusedWidget = NULL;
-		EventAction e;
-		//onDefocus(); // gets called anyway
-	}
-	e.consumed = true;
-}
-
-void EditableTextBox::onKey(EventKey &e) {
+void EditableTextBox::onSelectKey(const event::SelectKey &e) {
+	//TODO: check that this works
 	//TODO: shift+home/end to select until beginning / end
 	//std::cout << "windowIsShiftPressed():" << windowIsShiftPressed() << std::endl;
 	//std::cout << "e.key == GLFW_KEY_END:" << (e.key == GLFW_KEY_END) << std::endl;
 	//std::cout << "e.key == GLFW_KEY_HOME:" << (e.key == GLFW_KEY_HOME) << std::endl;
-	if(e.key == GLFW_KEY_V && windowIsModPressed()) {
+	if(false /*e.key == GLFW_KEY_V && (e.mods & WINDOW_MOD_MASK) == WINDOW_MOD_CTRL TODO: check*/) {
 		// prevent pasting too long text
-		int pasteLength = maxTextLength - TextField::text.size();
-		if(pasteLength > 0) {
-			std::string newText(glfwGetClipboardString(gWindow));
-			if(newText.size() > pasteLength) newText.erase(pasteLength);
-			insertText(newText);
-		}
-		e.consumed = true;
+		//int pasteLength = maxTextLength - TextField::text.size();
+		//if(pasteLength > 0) {
+		//	std::string newText(glfwGetClipboardString(gWindow));
+		//	if(newText.size() > pasteLength) newText.erase(pasteLength);
+		//	insertText(newText);
+		//}
+		//e.consume(NULL); //TODO: null correct?
 
 	} else if(e.key == GLFW_KEY_ESCAPE && isFocused) {
 		// defocus on escape
-		gFocusedWidget = NULL;
-		e.consumed = true;
+		//gFocusedWidget = NULL;
+		//e.consumed = true;
+		//TODO: check if this works
 
 	} else {
-		TextField::onKey(e);
+		TextField::onSelectKey(e);
 	}
 }

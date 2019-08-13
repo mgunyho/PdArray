@@ -1,4 +1,4 @@
-#include "LittleUtils.hpp"
+#include "plugin.hpp"
 #include "Util.hpp"
 #include "Widgets.hpp"
 
@@ -149,8 +149,8 @@ struct Bias_SemitoneWidget : ModuleWidget {
 			addOutput(createOutputCentered<PJ301MPort>(output_pos,
 						module, Bias_Semitone::OUTPUT_1 + i));
 
-			addChild(createTinyLightForPort<RGBLight>(input_pos,  module, Bias_Semitone::INPUT_1_LIGHTR  + 3*i));
-			addChild(createTinyLightForPort<RGBLight>(output_pos, module, Bias_Semitone::OUTPUT_1_LIGHTR + 3*i));
+			addChild(createTinyLightForPort<RedGreenBlueLight>(input_pos,  module, Bias_Semitone::INPUT_1_LIGHTR  + 3*i));
+			addChild(createTinyLightForPort<RedGreenBlueLight>(output_pos, module, Bias_Semitone::OUTPUT_1_LIGHTR + 3*i));
 
 			TextBox *display = new TextBox();
 			//display->font_size = 18;

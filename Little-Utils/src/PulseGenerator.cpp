@@ -1,4 +1,4 @@
-#include "LittleUtils.hpp"
+#include "plugin.hpp"
 #include "Widgets.hpp"
 #include "Util.hpp"
 
@@ -229,7 +229,7 @@ struct CustomTrimpot : Trimpot {
 	MsDisplayWidget *display;
 	CustomTrimpot(): Trimpot() {};
 
-	void onDragMove(EventDragMove &e) override {
+	void onDragMove(const event::DragMove &e) override {
 		Trimpot::onDragMove(e);
 		display->triggerCVDisplay();
 	}
@@ -238,7 +238,7 @@ struct CustomTrimpot : Trimpot {
 struct PulseGeneratorToggleRealtimeMenuItem : MenuItem {
 	PulseGenModule *module;
 	PulseGeneratorToggleRealtimeMenuItem(): MenuItem() {}
-	void onAction(EventAction &e) override {
+	void onAction(const event::Action &e) override {
 		module->realtimeUpdate = !module->realtimeUpdate;
 	}
 };
@@ -291,8 +291,7 @@ struct PulseGeneratorWidget : ModuleWidget {
 
 	}
 
-	Menu *createContextMenu() override {
-		Menu *menu = ModuleWidget::createContextMenu(); //TODO: update to v1.0 API
+	void appendContextMenu(ui::Menu* menu) override {
 
 		menu->addChild(new MenuLabel());
 
@@ -301,8 +300,6 @@ struct PulseGeneratorWidget : ModuleWidget {
 		toggleItem->rightText = CHECKMARK(this->module->realtimeUpdate);
 		toggleItem->module = this->module;
 		menu->addChild(toggleItem);
-
-		return menu;
 	}
 
 };

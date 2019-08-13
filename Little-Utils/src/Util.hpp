@@ -1,6 +1,7 @@
 // some utility functions
 
 #include "rack0.hpp"
+#include <chrono> // std::chrono
 #include <algorithm> // std::generate_n
 
 using namespace rack;

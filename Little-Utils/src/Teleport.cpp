@@ -1,4 +1,3 @@
-#include "LittleUtils.hpp"
 #include "Teleport.hpp"
 #include "Widgets.hpp"
 #include "Util.hpp"
@@ -216,12 +215,13 @@ struct EditableTeleportLabelTextbox : EditableTextBox, TeleportLabelDisplay {
 		module = m;
 	}
 
-	void onDefocus() override {
+	void onDeselect(const event::Deselect &e) override {
 		if(module->updateLabel(TextField::text) || module->label.compare(TextField::text) == 0) {
 			errorDisplayTimer.reset();
 		} else {
 			errorDisplayTimer.trigger(errorDuration);
 		}
+		e.consume(NULL); //TODO: null correct?
 	}
 
 	void step() override {
@@ -243,7 +243,7 @@ struct EditableTeleportLabelTextbox : EditableTextBox, TeleportLabelDisplay {
 struct TeleportLabelMenuItem : MenuItem {
 	TeleportOutModule *module;
 	std::string label;
-	void onAction(EventAction &e) override {
+	void onAction(const event::Action &e) override {
 		module->label = label;
 	}
 };
@@ -253,9 +253,9 @@ struct TeleportSourceSelectorTextBox : HoverableTextBox, TeleportLabelDisplay {
 
 	TeleportSourceSelectorTextBox() : HoverableTextBox() {}
 
-	void onAction(EventAction &e) override {
+	void onAction(const event::Action &e) override {
 		// based on AudioDeviceChoice::onAction in src/app/AudioWidget.cpp
-		Menu *menu = gScene->createMenu();
+		Menu *menu = createMenu();
 		menu->addChild(construct<MenuLabel>(&MenuLabel::text, "Select source"));
 
 		{
@@ -289,12 +289,14 @@ struct TeleportSourceSelectorTextBox : HoverableTextBox, TeleportLabelDisplay {
 		}
 	}
 
-	void onMouseDown(EventMouseDown &e) override {
-		if(e.button == 0 || e.button == 1) {
-			EventAction eAction;
+	void onButton(const event::Button &e) override {
+		bool l = e.button == GLFW_MOUSE_BUTTON_LEFT;
+		bool r = e.button == GLFW_MOUSE_BUTTON_RIGHT;
+		bool a = e.action == GLFW_PRESS;
+		if((l || r) && a) {
+			event::Action eAction;
 			onAction(eAction);
-			e.consumed = true;
-			e.target = this;
+			e.consume(this);
 		}
 	}
 

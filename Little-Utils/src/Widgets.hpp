@@ -1,5 +1,5 @@
 #include "rack.hpp"
-#include "LittleUtils.hpp"
+#include "plugin.hpp"
 
 struct TextBox : TransparentWidget {
 	// Kinda like TextField except not editable. Using Roboto Mono Bold font,
@@ -44,19 +44,16 @@ struct HoverableTextBox : TextBox {
 		hoverColor = nvgRGB(0xd8, 0xd8, 0xd8);
 	}
 
-	void onMouseMove(EventMouseMove &e) override {
-		// onMouseMove from OpaqueWidget, needed to catch hover events
-		Widget::onMouseMove(e);
-		if(!e.target) {
-			e.target = this;
-		}
-		e.consumed = true;
+	void onHover(const event::Hover &e) override {
+		// onHover from OpaqueWidget, needed to catch hover events //TODO: check
+		Widget::onHover(e);
+		e.consume(this);
 	}
 
-	void onMouseEnter(EventMouseEnter &e) override {
+	void onEnter(const event::Enter &e) override {
 		state = BND_HOVER;
 	}
-	void onMouseLeave(EventMouseLeave &e) override {
+	void onLeave(const event::Leave &e) override {
 		state = BND_DEFAULT;
 	}
 
@@ -70,7 +67,7 @@ struct HoverableTextBox : TextBox {
  * Basically a custom version of TextField.
  * TextField::text holds the string being edited and HoverableTextBox::text
  * holds the string being displayed. When the user stops editing (by pressing
- * enter or clicking away), onDefocus() is called, which by default just sets
+ * enter or clicking away), onDeselect() is called, which by default just sets
  * the display text to the edited text. Override this to e.g. validate the text
  * content.
  */
@@ -86,49 +83,46 @@ struct EditableTextBox : HoverableTextBox, TextField {
 
 	void draw(NVGcontext *vg) override;
 
-	void onMouseDown(EventMouseDown &e) override {
-		TextField::onMouseDown(e);
+	void onButton(const event::Button &e) override {
+		TextField::onButton(e);
 	}
 
-	void onMouseUp(EventMouseUp &e) override {
-		TextField::onMouseUp(e);
+	void onHover(const event::Hover &e) override {
+		TextField::onHover(e);
 	}
 
-	void onMouseMove(EventMouseMove &e) override {
-		TextField::onMouseMove(e);
+	void onHoverScroll(const event::HoverScroll &e) override {
+		TextField::onHoverScroll(e);
 	}
 
-	void onScroll(EventScroll &e) override {
-		TextField::onScroll(e);
-	}
+	void onAction(const event::Action &e) override;
 
-	void onAction(EventAction &e) override;
-
-	void onText(EventText &e) override {
+	void onSelectText(const event::SelectText &e) override { //TODO: check that this is the correct event
 		if(TextField::text.size() < maxTextLength) {
-			TextField::onText(e);
+			TextField::onSelectText(e);
 		}
+		//TODO: consume?
 	}
 
-	void onKey(EventKey &e) override;
+	void onSelectKey(const event::SelectKey &e) override; //TODO: check that this is the correct event
 
-	virtual void onDefocus() {
+	void onSelect(const event::Select) {
+		isFocused = true;
+	}
+	void onDeselect(const event::Deselect &e) { //TODO: check that this is correct / works
+		isFocused = false;
 		HoverableTextBox::setText(TextField::text);
+		e.consume(NULL); //TODO: null correct here?
 	}
+
 
 	void step() override {
 		TextField::step();
-		bool wasFocused = isFocused;
-		isFocused = gFocusedWidget == this; // should maybe use onFocus instead
-		if(wasFocused && !isFocused) {
-			// hacky
-			onDefocus();
-		}
 	}
 
 };
 
-struct ToggleLEDButton : SVGSwitch, ToggleSwitch {
+struct ToggleLEDButton : SVGSwitch { //TODO: removed 'ToggleSwitch', check that this is correct
 	BNDwidgetState state = BND_DEFAULT;
 	NVGcolor defaultColor;
 	NVGcolor hoverColor;
@@ -139,12 +133,11 @@ struct ToggleLEDButton : SVGSwitch, ToggleSwitch {
 };
 
 // Same as CKSSThree but horizontal
-struct CKSSThreeH : SVGSwitch, ToggleSwitch {
-	CKSSThreeH() {};
-
-	void addFrames(Plugin *pluginInstance) {
+struct CKSSThreeH : SVGSwitch { //TODO: removed 'ToggleSwitch', check that this is correct
+	CKSSThreeH() {
 		addFrame(SVG::load(assetPlugin(pluginInstance, "./res/CKSSThreeH_0.svg")));
 		addFrame(SVG::load(assetPlugin(pluginInstance, "./res/CKSSThreeH_1.svg")));
 		addFrame(SVG::load(assetPlugin(pluginInstance, "./res/CKSSThreeH_2.svg")));
-	}
+	};
+
 };
