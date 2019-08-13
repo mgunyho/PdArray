@@ -229,6 +229,7 @@ struct MsDisplayWidget : TextBox {
 		if(cvLabelStatus){
 			updateDisplayValue(fabs(module->cv_scale * 10.f));
 		}else{
+			//TODO: disable realtimeUpdate if main knob is being turned
 			updateDisplayValue(module->realtimeUpdate ? module->gate_duration : module->gate_base_duration);
 		}
 	}
