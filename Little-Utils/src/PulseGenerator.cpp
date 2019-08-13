@@ -225,6 +225,7 @@ struct MsDisplayWidget : TextBox {
 	void step() override {
 		TextBox::step();
 		cvLabelStatus = cvDisplayTimer.process();
+		if(!module) return; //TODO: add dummy display
 		if(cvLabelStatus){
 			updateDisplayValue(fabs(module->cv_scale * 10.f));
 		}else{

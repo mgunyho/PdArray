@@ -69,12 +69,13 @@ void EditableTextBox::draw(const DrawArgs &args) {
 //void EditableTextBox::onAction(const event::Action &e) {
 //	// this should only be called by TextField when enter is pressed
 //
-//	if(this == gFocusedWidget) {
+//	if(isFocused) {
 //		gFocusedWidget = NULL;
 //		EventAction e;
 //		//onDefocus(); // gets called anyway
 //	}
-//	e.consumed = true;
+//	//e.consumed = true;
+//	e.consume(NULL); // TODO: null correct?
 //}
 
 void EditableTextBox::onSelectKey(const event::SelectKey &e) {

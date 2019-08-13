@@ -91,11 +91,6 @@ struct Bias_Semitone : Module {
 
 	void process(const ProcessArgs &args) override;
 
-	// For more advanced Module features, read Rack's engine.hpp header file
-	// - dataToJson, dataFromJson: serialization of internal data
-	// - onSampleRateChange: event triggered by a change of sample rate
-	// - onReset, onRandomize, onCreate, onDelete: implements special behavior when user clicks these from the context menu
-
 };
 
 void Bias_Semitone::process(const ProcessArgs &args) {
@@ -126,12 +121,11 @@ void Bias_Semitone::process(const ProcessArgs &args) {
 }
 
 struct Bias_SemitoneWidget : ModuleWidget {
-	Bias_Semitone *module;
+	//Bias_Semitone *module; //TODO: check if needed
 	TextBox *displays[N_KNOBS];
 
 	Bias_SemitoneWidget(Bias_Semitone *module) {
 		setModule(module);
-		this->module = module;
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Bias_Semitone.svg")));
 
 		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
@@ -170,10 +164,13 @@ struct Bias_SemitoneWidget : ModuleWidget {
 		}
 
 		addParam(createParam<CKSS>(Vec(15, 311), module, Bias_Semitone::MODE_PARAM));
+
 	}
 
 	void step() override {
 		ModuleWidget::step();
+		if(!module) return; //TODO: dummy values
+
 		for(int i = 0; i < N_KNOBS; i++) {
 			float bias = module->params[Bias_Semitone::BIAS_1_PARAM + i].getValue();
 			std::string s;

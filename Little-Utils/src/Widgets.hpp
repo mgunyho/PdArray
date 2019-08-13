@@ -94,7 +94,7 @@ struct EditableTextBox : HoverableTextBox, TextField {
 		TextField::onHoverScroll(e);
 	}
 
-	void onAction(const event::Action &e) override;
+	//void onAction(const event::Action &e) override;
 
 	void onSelectText(const event::SelectText &e) override { //TODO: check that this is the correct event
 		if(TextField::text.size() < maxTextLength) {
