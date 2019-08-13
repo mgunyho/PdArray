@@ -98,16 +98,16 @@ void Bias_Semitone::process(const ProcessArgs &args) {
 
 	int li = 0; // index of the latest encountered active input
 	for(int i = 0; i < N_KNOBS; i++) {
-		float bias = params[BIAS_1_PARAM + i].value;
-		li = inputs[INPUT_1 + i].active ? i : li;
-		if(params[MODE_PARAM].value < 0.5f) {
+		float bias = params[BIAS_1_PARAM + i].getValue();
+		li = inputs[INPUT_1 + i].isConnected() ? i : li;
+		if(params[MODE_PARAM].getValue() < 0.5f) {
 			// shift input CV by semitones
 			bias = int(bias * MAX_SEMITONES) / 12.f;
 		} else {
 			// output volts
 			bias *= 10.f;
 		}
-		outputs[OUTPUT_1 + i].value = inputs[INPUT_1 + li].value + bias;
+		outputs[OUTPUT_1 + i].setVoltage(inputs[INPUT_1 + li].getVoltage() + bias);
 
 		// use setBrigthness instead of setBrightnessSmooth to reduce power usage
 		lights[INPUT_1_LIGHTR + 3*i].setBrightness(KNOB_COLORS[i][0]);
@@ -172,9 +172,9 @@ struct Bias_SemitoneWidget : ModuleWidget {
 	void step() override {
 		ModuleWidget::step();
 		for(int i = 0; i < N_KNOBS; i++) {
-			float bias = module->params[Bias_Semitone::BIAS_1_PARAM + i].value;
+			float bias = module->params[Bias_Semitone::BIAS_1_PARAM + i].getValue();
 			std::string s;
-			if(module->params[Bias_Semitone::MODE_PARAM].value < 0.5f) {
+			if(module->params[Bias_Semitone::MODE_PARAM].getValue() < 0.5f) {
 				int st = bias * MAX_SEMITONES;
 				s = stringf("%+3dst", st);
 			} else {

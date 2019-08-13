@@ -103,15 +103,15 @@ struct PulseGenModule : Module {
 void PulseGenModule::process(const ProcessArgs &args) {
 	float deltaTime = args.sampleTime;
 
-	bool triggered = inputTrigger.process(rescale(inputs[TRIG_INPUT].value,
+	bool triggered = inputTrigger.process(rescale(inputs[TRIG_INPUT].getVoltage(),
 												  0.1f, 2.f, 0.f, 1.f));
 
 	// handle duration knob and CV
-	float knob_value = params[GATE_LENGTH_PARAM].value;
-	float cv_amt = params[CV_AMT_PARAM].value;
-	float cv_voltage = inputs[GATE_LENGTH_INPUT].value;
+	float knob_value = params[GATE_LENGTH_PARAM].getValue();
+	float cv_amt = params[CV_AMT_PARAM].getValue();
+	float cv_voltage = inputs[GATE_LENGTH_INPUT].getVoltage();
 
-	if(params[LIN_LOG_MODE_PARAM].value < 0.5f) {
+	if(params[LIN_LOG_MODE_PARAM].getValue() < 0.5f) {
 		// linear mode
 		cv_scale = cv_amt;
 		gate_base_duration = knob_value;
@@ -143,11 +143,11 @@ void PulseGenModule::process(const ProcessArgs &args) {
 		finishTriggerGenerator.trigger(1.e-3f);
 	}
 
-	outputs[GATE_OUTPUT].value = gate ? 10.0f : 0.0f;
-	outputs[FINISH_OUTPUT].value = finishTriggerGenerator.process(deltaTime) ? 10.f : 0.f;
+	outputs[GATE_OUTPUT].setVoltage(gate ? 10.0f : 0.0f);
+	outputs[FINISH_OUTPUT].setVoltage(finishTriggerGenerator.process(deltaTime) ? 10.f : 0.f);
 
-	lights[GATE_LIGHT].setBrightnessSmooth(outputs[GATE_OUTPUT].value);
-	lights[FINISH_LIGHT].setBrightnessSmooth(outputs[FINISH_OUTPUT].value);
+	lights[GATE_LIGHT].setSmoothBrightness(outputs[GATE_OUTPUT].value);
+	lights[FINISH_LIGHT].setSmoothBrightness(outputs[FINISH_OUTPUT].value);
 
 }
 

@@ -8,8 +8,9 @@ struct TeleportInModule;
 
 struct Teleport : Module {
 	std::string label;
-	Teleport(int numParams, int numInputs, int numOutputs, int numLights = 0):
-		Module(numParams, numInputs, numOutputs, numLights) {}
+	Teleport(int numParams, int numInputs, int numOutputs, int numLights = 0) {
+		config(numParams, numInputs, numOutputs, numLights);
+	}
 
 	// This static map is used for keeping track of all existing Teleport instances.
 	// We're using a map instead of a set because it's easier to search.

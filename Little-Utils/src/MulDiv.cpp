@@ -45,26 +45,26 @@ struct MulDiv : Module {
 };
 
 void MulDiv::process(const ProcessArgs &args) {
-	bool clip = params[CLIP_ENABLE_PARAM].value > 0.5f;
+	bool clip = params[CLIP_ENABLE_PARAM].getValue() > 0.5f;
 	auto a_in = inputs[A_INPUT];
 	auto b_in = inputs[B_INPUT];
 
-	float as = int(params[A_SCALE_PARAM].value) == 0 ? 1.0 : 1./(params[A_SCALE_PARAM].value * 5.0);
-	float bs = int(params[B_SCALE_PARAM].value) == 0 ? 1.0 : 1./(params[B_SCALE_PARAM].value * 5.0);
-	float os = int(params[OUT_SCALE_PARAM].value) == 0 ? 1.0 : params[OUT_SCALE_PARAM].value * 5.0;
+	float as = int(params[A_SCALE_PARAM].getValue()) == 0 ? 1.0 : 1./(params[A_SCALE_PARAM].getValue() * 5.0);
+	float bs = int(params[B_SCALE_PARAM].getValue()) == 0 ? 1.0 : 1./(params[B_SCALE_PARAM].getValue() * 5.0);
+	float os = int(params[OUT_SCALE_PARAM].getValue()) == 0 ? 1.0 : params[OUT_SCALE_PARAM].getValue() * 5.0;
 
 	float m = (a_in.active ? a_in.value * as : 1.f) * (b_in.active ? b_in.value * bs : 1.f);
 	m *= os;
 
-	outputs[MUL_OUTPUT].value = clip ? clamp(m, -10.f, 10.f) : m;
+	outputs[MUL_OUTPUT].setVoltage(clip ? clamp(m, -10.f, 10.f) : m);
 
 	if(b_in.active) {
 		float d = (a_in.active ? a_in.value : 1.f) / b_in.value * os;
 		valid_div_value = std::isfinite(d) ? d : valid_div_value;
 		if(clip) valid_div_value = clamp(valid_div_value, -10.f, 10.f);
-		outputs[DIV_OUTPUT].value = valid_div_value;
+		outputs[DIV_OUTPUT].setVoltage(valid_div_value);
 	} else {
-		outputs[DIV_OUTPUT].value = clip ? clamp(a_in.value * os, -10.f, 10.f) : a_in.value * os;
+		outputs[DIV_OUTPUT].setVoltage(clip ? clamp(a_in.value * os, -10.f, 10.f) : a_in.value * os);
 	}
 
 	lights[CLIP_ENABLE_LIGHT].setBrightnessSmooth(clip);

@@ -108,7 +108,7 @@ struct EditableTextBox : HoverableTextBox, TextField {
 	void onSelect(const event::Select) {
 		isFocused = true;
 	}
-	void onDeselect(const event::Deselect &e) { //TODO: check that this is correct / works
+	void onDeselect(const event::Deselect &e) override { //TODO: check that this is correct / works
 		isFocused = false;
 		HoverableTextBox::setText(TextField::text);
 		e.consume(NULL); //TODO: null correct here?

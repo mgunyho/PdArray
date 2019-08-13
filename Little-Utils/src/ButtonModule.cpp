@@ -90,9 +90,9 @@ struct ButtonModule : Module {
 void ButtonModule::process(const ProcessArgs &args) {
 	float deltaTime = args.sampleTime;
 
-	float gateVoltage = rescale(inputs[TRIG_INPUT].value, 0.1f, 2.f, 0.f, 1.f);
+	float gateVoltage = rescale(inputs[TRIG_INPUT].getVoltage(), 0.1f, 2.f, 0.f, 1.f);
 
-	bool gate = (bool(params[BUTTON_PARAM].value)
+	bool gate = (bool(params[BUTTON_PARAM].getValue())
 	             || gateVoltage >= 1.f);
 
 	bool triggered = inputTrigger.process(gate ? 1.0f : 0.0f);
@@ -106,13 +106,13 @@ void ButtonModule::process(const ProcessArgs &args) {
 		const_choice %= 6;
 	}
 
-	outputs[TRIG_OUTPUT].value = trigger ? 10.0f : 0.0f;
+	outputs[TRIG_OUTPUT].setVoltage(trigger ? 10.0f : 0.0f);
 	lights[TRIG_LIGHT].setBrightnessSmooth(trigger);
 
-	outputs[GATE_OUTPUT].value = gate ? 10.0f : 0.0f;
+	outputs[GATE_OUTPUT].setVoltage(gate ? 10.0f : 0.0f);
 	lights[GATE_LIGHT].setBrightnessSmooth(gate);
 
-	outputs[TOGGLE_OUTPUT].value = toggle ? 10.0f : 0.0f;
+	outputs[TOGGLE_OUTPUT].setVoltage(toggle ? 10.0f : 0.0f);
 	lights[TOGGLE_LIGHT].setBrightnessSmooth(toggle);
 
 	bool sign = const_choice >= 3;
@@ -120,20 +120,20 @@ void ButtonModule::process(const ProcessArgs &args) {
 		case 0: {
 			lights[CONST_10_LIGHTP + !sign].setBrightnessSmooth(0.0f);
 			lights[CONST_1_LIGHTP + sign].setBrightnessSmooth(1.0f);
-			outputs[CONST_OUTPUT].value = 1.f;
+			outputs[CONST_OUTPUT].setVoltage(1.f);
 			break;
 		};
 		case 1: {
 			lights[CONST_1_LIGHTP + sign].setBrightnessSmooth(0.f);
 			lights[CONST_5_LIGHTP + sign].setBrightnessSmooth(1.f);
-			outputs[CONST_OUTPUT].value = 5.f;
+			outputs[CONST_OUTPUT].setVoltage(5.f);
 			break;
 		};
 		case 2:
 		default: {
 			lights[CONST_5_LIGHTP + sign].setBrightnessSmooth(0.f);
 			lights[CONST_10_LIGHTP + sign].setBrightnessSmooth(1.f);
-			outputs[CONST_OUTPUT].value = 10.f;
+			outputs[CONST_OUTPUT].setVoltage(10.f);
 			break;
 		}
 	}

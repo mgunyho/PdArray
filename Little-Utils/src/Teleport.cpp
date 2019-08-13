@@ -160,14 +160,14 @@ struct TeleportOutModule : Teleport {
 			TeleportInModule *src = sources[label];
 			for(int i = 0; i < NUM_TELEPORT_INPUTS; i++) {
 				Input input = src->inputs[TeleportInModule::INPUT_1 + i];
-				outputs[OUTPUT_1 + i].value = input.value;
+				outputs[OUTPUT_1 + i].setVoltage(input.value);
 				lights[OUTPUT_1_LIGHTG + 2*i].setBrightness( input.active);
 				lights[OUTPUT_1_LIGHTR + 2*i].setBrightness(!input.active);
 			}
 			sourceIsValid = true;
 		} else {
 			for(int i = 0; i < NUM_TELEPORT_INPUTS; i++) {
-				outputs[OUTPUT_1 + i].value = 0.f;
+				outputs[OUTPUT_1 + i].setVoltage(0.f);
 				lights[OUTPUT_1_LIGHTG + 2*i].setBrightness(0.f);
 				lights[OUTPUT_1_LIGHTR + 2*i].setBrightness(0.f);
 			}
