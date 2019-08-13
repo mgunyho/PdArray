@@ -4,10 +4,9 @@
 Plugin *pluginInstance;
 
 
-void init(rack::Plugin *p) {
+void init(Plugin *p) {
 	pluginInstance = p;
 
-	// Add all Models defined throughout the plugin
 	p->addModel(modelButtonModule);
 	p->addModel(modelPulseGenerator);
 	p->addModel(modelBias_Semitone);
