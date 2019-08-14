@@ -109,11 +109,12 @@ void Bias_Semitone::process(const ProcessArgs &args) {
 			// output volts
 			bias *= 10.f;
 		}
-		int channels = inputs[INPUT_1 + li].getChannels();
+		auto input = inputs[INPUT_1 + li];
+		int channels = std::max(input.getChannels(), 1);
 		outputs[OUTPUT_1 + i].setChannels(channels);
 		for(int c = 0; c < channels; c++) {
 			//TODO: SIMD?
-			outputs[OUTPUT_1 + i].setVoltage(inputs[INPUT_1 + li].getVoltage(c) + bias, c);
+			outputs[OUTPUT_1 + i].setVoltage(input.getPolyVoltage(c) + bias, c);
 		}
 
 		// use setBrigthness instead of setBrightnessSmooth to reduce power usage

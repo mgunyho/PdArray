@@ -53,7 +53,7 @@ struct ButtonModule : Module {
 	void process(const ProcessArgs &args) override;
 
 	json_t* dataToJson() override {
-		//TODO: this or dataFromJson causes segfault sometimes (I think), consider using json_object_set_new instead of decref (or should reference even be decremented?)
+		//TODO: this or dataFromJson causes segfault sometimes (?), consider using json_object_set_new instead of decref (or should reference even be decremented?)
 		json_t *data, *toggle_value, *const_choice_value;
 		data = json_object();
 		toggle_value = json_boolean(toggle);
@@ -87,8 +87,7 @@ void ButtonModule::process(const ProcessArgs &args) {
 
 	float gateVoltage = rescale(inputs[TRIG_INPUT].getVoltage(), 0.1f, 2.f, 0.f, 1.f);
 
-	bool gate = (bool(params[BUTTON_PARAM].getValue())
-	             || gateVoltage >= 1.f);
+	bool gate = bool(params[BUTTON_PARAM].getValue()) || gateVoltage >= 1.f;
 
 	bool triggered = inputTrigger.process(gate ? 1.0f : 0.0f);
 
