@@ -46,9 +46,7 @@ struct HoverableTextBox : TextBox {
 	}
 
 	void onHover(const event::Hover &e) override {
-		// onHover from OpaqueWidget, needed to catch hover events //TODO: check
-		Widget::onHover(e);
-		e.consume(this);
+		e.consume(this); // to catch onEnter and onLeave
 	}
 
 	void onEnter(const event::Enter &e) override {
@@ -85,10 +83,6 @@ struct EditableTextBox : HoverableTextBox, TextField {
 	void draw(const DrawArgs &args) override;
 
 	void onButton(const event::Button &e) override;
-	//void onButton(const event::Button &e) override {
-	//	TextField::onButton(e);
-	//	e.consume(this);
-	//}
 
 	void onHover(const event::Hover &e) override {
 		TextField::onHover(e);
@@ -101,17 +95,9 @@ struct EditableTextBox : HoverableTextBox, TextField {
 
 	void onAction(const event::Action &e) override;
 
-	void onSelectText(const event::SelectText &e) override { //TODO: check that this is the correct event
-		if(TextField::text.size() < maxTextLength) {
-			TextField::onSelectText(e);
-		}
-		//TODO: consume?
-	}
-
+	void onSelectText(const event::SelectText &e) override;
 	void onSelectKey(const event::SelectKey &e) override; //TODO: check that this is the correct event
-
 	void onSelect(const event::Select &e) override;
-
 	void onDeselect(const event::Deselect &e) override;
 
 	void step() override {

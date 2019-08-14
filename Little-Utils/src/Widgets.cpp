@@ -54,47 +54,42 @@ void EditableTextBox::draw(const DrawArgs &args) {
 		nvgBeginPath(args.vg);
 		nvgFillColor(args.vg, highlightColor);
 
-		// TODO: fix (box is ambiguous)
-		//nvgRect(args.vg,
-		//		textOffset.x + (begin - 0.5f * TextField::text.size()) * char_width - 1,
-		//		ymargin,
-		//		(len > 0 ? char_width * len : 1) + 1,
-		//		box.size.y - 2.f * ymargin);
-		//nvgFill(args.vg);
+		nvgRect(args.vg,
+				textOffset.x + (begin - 0.5f * TextField::text.size()) * char_width - 1,
+				ymargin,
+				(len > 0 ? char_width * len : 1) + 1,
+				HoverableTextBox::box.size.y - 2.f * ymargin);
+		nvgFill(args.vg);
 
 	}
 }
 
-//TODO: check if necessary
-//void EditableTextBox::onAction(const event::Action &e) {
-//	// this should only be called by TextField when enter is pressed
-//
-//	if(isFocused) {
-//		gFocusedWidget = NULL;
-//		EventAction e;
-//		//onDefocus(); // gets called anyway
-//	}
-//	//e.consumed = true;
-//	e.consume(NULL); // TODO: null correct?
-//}
-
 void EditableTextBox::onAction(const event::Action &e) {
 	printf("onAction()\n");
-	TextField::onAction(e);
-	e.consume(e);
+	//TextField::onAction(e);
+	//e.consume(dynamic_cast<HoverableTextBox*>(this));
 }
 
+void EditableTextBox::onSelectText(const event::SelectText &e) {
+	printf("onSelectText()\n");
+	if(TextField::text.size() < maxTextLength) {
+		TextField::onSelectText(e);
+	} else {
+		e.consume(NULL);
+	}
+}
+
+
 void EditableTextBox::onButton(const event::Button &e) {
-	TextField::onButton(e); // textField consumes the event
+	printf("onButton()\n");
+	//TextField::onButton(e); // textField consumes the event (?)
+	e.consume(dynamic_cast<HoverableTextBox*>(this));
 }
 
 void EditableTextBox::onSelectKey(const event::SelectKey &e) {
 	//printf("onSelectKey()\n");
-	//TODO: check that this works
+
 	//TODO: shift+home/end to select until beginning / end
-	//std::cout << "windowIsShiftPressed():" << windowIsShiftPressed() << std::endl;
-	//std::cout << "e.key == GLFW_KEY_END:" << (e.key == GLFW_KEY_END) << std::endl;
-	//std::cout << "e.key == GLFW_KEY_HOME:" << (e.key == GLFW_KEY_HOME) << std::endl;
 	if(false /*e.key == GLFW_KEY_V && (e.mods & WINDOW_MOD_MASK) == WINDOW_MOD_CTRL TODO: check*/) {
 		// prevent pasting too long text
 		//int pasteLength = maxTextLength - TextField::text.size();
@@ -105,7 +100,7 @@ void EditableTextBox::onSelectKey(const event::SelectKey &e) {
 		//}
 		//e.consume(NULL); //TODO: null correct?
 
-	} else if(e.key == GLFW_KEY_ESCAPE && isFocused) {
+	} else if(false /*e.key == GLFW_KEY_ESCAPE && isFocused*/) {
 		// defocus on escape
 		//gFocusedWidget = NULL;
 		//e.consumed = true;
@@ -114,16 +109,19 @@ void EditableTextBox::onSelectKey(const event::SelectKey &e) {
 	} else {
 		TextField::onSelectKey(e);
 	}
+	//e.consume(dynamic_cast<HoverableTextBox*>(this));
 }
 
 void EditableTextBox::onSelect(const event::Select &e) {
 	printf("onSelect()\n");
 	isFocused = true;
-	//e.consume(NULL);
+	//e.consume(dynamic_cast<HoverableTextBox*>(this));
+	e.consume(dynamic_cast<TextField*>(this));
 }
 
 void EditableTextBox::onDeselect(const event::Deselect &e) {
+	printf("onDeselect()\n");
 	isFocused = false;
-	HoverableTextBox::setText(TextField::text);
-	e.consume(NULL); //TODO: null correct here?
+	//HoverableTextBox::setText(TextField::text);
+	//e.consume(dynamic_cast<HoverableTextBox*>(this));
 }
