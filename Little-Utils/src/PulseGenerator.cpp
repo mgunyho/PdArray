@@ -77,9 +77,9 @@ struct PulseGenModule : Module {
 					// 0.5s in log scale
 					//rescale(-0.30103f, MIN_EXPONENT, MAX_EXPONENT, 0.f,10.f)
 					5.f // 0.1s in log mode, 5s in lin mode
-					, ""); //TODO: descriptions/tooltips (?)
-		configParam(PulseGenModule::LIN_LOG_MODE_PARAM, 0.f, 1.f, 1.f, "");
-		configParam(PulseGenModule::CV_AMT_PARAM, -1.f, 1.f, 0.f);
+					, "Pulse duration");
+		configParam(PulseGenModule::LIN_LOG_MODE_PARAM, 0.f, 1.f, 1.f, "Mode");
+		configParam(PulseGenModule::CV_AMT_PARAM, -1.f, 1.f, 0.f, "CV amount");
 		gate_duration = gate_base_duration;
 	}
 
@@ -226,12 +226,15 @@ struct MsDisplayWidget : TextBox {
 	void step() override {
 		TextBox::step();
 		cvLabelStatus = cvDisplayTimer.process();
-		if(!module) return; //TODO: add dummy display
-		if(cvLabelStatus){
-			updateDisplayValue(fabs(module->cv_scale * 10.f));
-		}else{
-			//TODO: disable realtimeUpdate if main knob is being turned
-			updateDisplayValue(module->realtimeUpdate ? module->gate_duration : module->gate_base_duration);
+		if(module) {
+			if(cvLabelStatus){
+				updateDisplayValue(fabs(module->cv_scale * 10.f));
+			}else{
+				//TODO: disable realtimeUpdate if main knob is being turned
+				updateDisplayValue(module->realtimeUpdate ? module->gate_duration : module->gate_base_duration);
+			}
+		} else {
+			updateDisplayValue(0.f);
 		}
 	}
 

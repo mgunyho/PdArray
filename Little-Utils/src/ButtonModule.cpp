@@ -37,7 +37,7 @@ struct ButtonModule : Module {
 
 	ButtonModule() {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
-		configParam(ButtonModule::BUTTON_PARAM, 0.0f, 1.0f, 0.0f, "");
+		configParam(ButtonModule::BUTTON_PARAM, 0.0f, 1.0f, 0.0f, "Button");
 		onReset();
 	}
 

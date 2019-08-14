@@ -31,10 +31,10 @@ struct MulDiv : Module {
 
 	MulDiv() {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
-		configParam(MulDiv::A_SCALE_PARAM,   0.f, 2.f, 0.f, ""); //TODO: tooltips
-		configParam(MulDiv::B_SCALE_PARAM,   0.f, 2.f, 0.f, "");
-		configParam(MulDiv::OUT_SCALE_PARAM, 0.f, 2.f, 0.f, "");
-		configParam(MulDiv::CLIP_ENABLE_PARAM, 0.f, 1.f, 0.f, "");
+		configParam(MulDiv::A_SCALE_PARAM,   0.f, 2.f, 0.f, "A scale");
+		configParam(MulDiv::B_SCALE_PARAM,   0.f, 2.f, 0.f, "B scale");
+		configParam(MulDiv::OUT_SCALE_PARAM, 0.f, 2.f, 0.f, "Output scale");
+		configParam(MulDiv::CLIP_ENABLE_PARAM, 0.f, 1.f, 0.f, "Clip");
 	}
 
 	void process(const ProcessArgs &args) override;
