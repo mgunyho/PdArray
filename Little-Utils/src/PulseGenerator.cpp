@@ -9,6 +9,8 @@
 const float MIN_EXPONENT = -3.0f;
 const float MAX_EXPONENT = 1.0f;
 
+const int MAX_POLY_CHANNELS = 16;
+
 // based on PulseGeneraotr in include/util/digital.hpp
 struct CustomPulseGenerator {
 	float time;
@@ -65,8 +67,8 @@ struct PulseGenModule : Module {
 	};
 
 	// not using SIMD here, doesn't seem to affect performance much
-	dsp::SchmittTrigger inputTrigger[16], finishTrigger[16];
-	CustomPulseGenerator gateGenerator[16], finishTriggerGenerator[16];
+	dsp::SchmittTrigger inputTrigger[MAX_POLY_CHANNELS], finishTrigger[MAX_POLY_CHANNELS];
+	CustomPulseGenerator gateGenerator[MAX_POLY_CHANNELS], finishTriggerGenerator[MAX_POLY_CHANNELS];
 	float gate_base_duration = 0.5f; // gate duration without CV
 	float gate_duration;
 	bool realtimeUpdate = true; // whether to display gate_duration or gate_base_duration

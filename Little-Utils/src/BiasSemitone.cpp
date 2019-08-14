@@ -7,6 +7,8 @@
 // TODO: add 'quantize output' option, quantize semitones to 1st and volts to 0.1V (?)
 
 const int N_KNOBS = 5;
+const int MAX_POLY_CHANNELS = 16;
+
 constexpr float KNOB_COLORS[N_KNOBS][3] = {
 	{0.0f, 1.0f, 0.0f},
 	{1.0f, 0.5f, 0.0f},
@@ -107,7 +109,12 @@ void Bias_Semitone::process(const ProcessArgs &args) {
 			// output volts
 			bias *= 10.f;
 		}
-		outputs[OUTPUT_1 + i].setVoltage(inputs[INPUT_1 + li].getVoltage() + bias);
+		int channels = inputs[INPUT_1 + li].getChannels();
+		outputs[OUTPUT_1 + i].setChannels(channels);
+		for(int c = 0; c < channels; c++) {
+			//TODO: SIMD?
+			outputs[OUTPUT_1 + i].setVoltage(inputs[INPUT_1 + li].getVoltage(c) + bias, c);
+		}
 
 		// use setBrigthness instead of setBrightnessSmooth to reduce power usage
 		lights[INPUT_1_LIGHTR + 3*i].setBrightness(KNOB_COLORS[i][0]);
