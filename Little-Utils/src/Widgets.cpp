@@ -73,7 +73,7 @@ void EditableTextBox::onAction(const event::Action &e) {
 }
 
 void EditableTextBox::onSelectText(const event::SelectText &e) {
-	if(TextField::text.size() < maxTextLength) {
+	if(TextField::text.size() < maxTextLength || cursor != selection) {
 		TextField::onSelectText(e);
 	} else {
 		e.consume(NULL);
@@ -91,7 +91,7 @@ void EditableTextBox::onSelectKey(const event::SelectKey &e) {
 	bool act = e.action == GLFW_PRESS || e.action == GLFW_REPEAT;
 	if(act && e.key == GLFW_KEY_V && (e.mods & RACK_MOD_MASK) == RACK_MOD_CTRL) {
 		// prevent pasting too long text
-		int pasteLength = maxTextLength - TextField::text.size();
+		int pasteLength = maxTextLength - TextField::text.size() + abs(selection - cursor);
 		if(pasteLength > 0) {
 			std::string newText(glfwGetClipboardString(APP->window->win));
 			if(newText.size() > pasteLength) newText.erase(pasteLength);
