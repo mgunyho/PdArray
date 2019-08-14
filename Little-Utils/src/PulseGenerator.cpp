@@ -131,30 +131,30 @@ void PulseGenModule::process(const ProcessArgs &args) {
 
 	for(int c = 0; c < channels; c++) {
 
-	bool triggered = inputTrigger[c].process(rescale(inputs[TRIG_INPUT].getVoltage(c),
-												  0.1f, 2.f, 0.f, 1.f));
+		bool triggered = inputTrigger[c].process(rescale(inputs[TRIG_INPUT].getVoltage(c),
+					0.1f, 2.f, 0.f, 1.f));
 
-	if(triggered && gate_duration > 0.f) {
-		gateGenerator[c].trigger(gate_duration);
-	}
+		if(triggered && gate_duration > 0.f) {
+			gateGenerator[c].trigger(gate_duration);
+		}
 
-	// update trigger duration even in the middle of a trigger
-	gateGenerator[c].triggerDuration = gate_duration;
+		// update trigger duration even in the middle of a trigger
+		gateGenerator[c].triggerDuration = gate_duration;
 
-	bool gate = gateGenerator[c].process(deltaTime);
+		bool gate = gateGenerator[c].process(deltaTime);
 
-	if(finishTrigger[c].process(gate ? 0.f : 1.f)) {
-		finishTriggerGenerator[c].trigger(1.e-3f);
-	}
+		if(finishTrigger[c].process(gate ? 0.f : 1.f)) {
+			finishTriggerGenerator[c].trigger(1.e-3f);
+		}
 
-	float gate_v = gate ? 10.0f : 0.0f;
-	float finish_v = finishTriggerGenerator[c].process(deltaTime) ? 10.f : 0.f;
-	outputs[GATE_OUTPUT].setVoltage(gate_v, c);
-	outputs[FINISH_OUTPUT].setVoltage(finish_v, c);
+		float gate_v = gate ? 10.0f : 0.0f;
+		float finish_v = finishTriggerGenerator[c].process(deltaTime) ? 10.f : 0.f;
+		outputs[GATE_OUTPUT].setVoltage(gate_v, c);
+		outputs[FINISH_OUTPUT].setVoltage(finish_v, c);
 
-	//TODO: fix lights for polyphonic mode...
-	lights[GATE_LIGHT].setSmoothBrightness(gate_v, deltaTime);
-	lights[FINISH_LIGHT].setSmoothBrightness(finish_v, deltaTime);
+		//TODO: fix lights for polyphonic mode...
+		lights[GATE_LIGHT].setSmoothBrightness(gate_v, deltaTime);
+		lights[FINISH_LIGHT].setSmoothBrightness(finish_v, deltaTime);
 
 	}
 
