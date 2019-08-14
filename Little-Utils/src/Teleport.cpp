@@ -6,6 +6,8 @@
 // modules //
 /////////////
 
+//TODO: when editing the label of a teleport in and then clicking on a teleport out, the edited label doesn't appear in the list
+
 struct TeleportInModule : Teleport {
 	enum ParamIds {
 		NUM_PARAMS
@@ -221,7 +223,9 @@ struct EditableTeleportLabelTextbox : EditableTextBox, TeleportLabelDisplay {
 		} else {
 			errorDisplayTimer.trigger(errorDuration);
 		}
-		e.consume(NULL); //TODO: null correct?
+
+		isFocused = false;
+		e.consume(NULL);
 	}
 
 	void step() override {

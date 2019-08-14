@@ -65,13 +65,14 @@ void EditableTextBox::draw(const DrawArgs &args) {
 }
 
 void EditableTextBox::onAction(const event::Action &e) {
-	printf("onAction()\n");
-	//TextField::onAction(e);
-	//e.consume(dynamic_cast<HoverableTextBox*>(this));
+	// this gets fired when the user types 'enter'
+	event::Deselect eDeselect;
+	onDeselect(eDeselect);
+	APP->event->selectedWidget = NULL;
+	e.consume(NULL);
 }
 
 void EditableTextBox::onSelectText(const event::SelectText &e) {
-	printf("onSelectText()\n");
 	if(TextField::text.size() < maxTextLength) {
 		TextField::onSelectText(e);
 	} else {
@@ -81,47 +82,44 @@ void EditableTextBox::onSelectText(const event::SelectText &e) {
 
 
 void EditableTextBox::onButton(const event::Button &e) {
-	printf("onButton()\n");
-	//TextField::onButton(e); // textField consumes the event (?)
-	e.consume(dynamic_cast<HoverableTextBox*>(this));
+	TextField::onButton(e); // this handles consuming the event
 }
 
 void EditableTextBox::onSelectKey(const event::SelectKey &e) {
-	//printf("onSelectKey()\n");
 
 	//TODO: shift+home/end to select until beginning / end
-	if(false /*e.key == GLFW_KEY_V && (e.mods & WINDOW_MOD_MASK) == WINDOW_MOD_CTRL TODO: check*/) {
+	if(e.key == GLFW_KEY_V && (e.mods & RACK_MOD_MASK) == RACK_MOD_CTRL) {
 		// prevent pasting too long text
-		//int pasteLength = maxTextLength - TextField::text.size();
-		//if(pasteLength > 0) {
-		//	std::string newText(glfwGetClipboardString(gWindow));
-		//	if(newText.size() > pasteLength) newText.erase(pasteLength);
-		//	insertText(newText);
-		//}
-		//e.consume(NULL); //TODO: null correct?
+		int pasteLength = maxTextLength - TextField::text.size();
+		if(pasteLength > 0) {
+			std::string newText(glfwGetClipboardString(APP->window->win));
+			if(newText.size() > pasteLength) newText.erase(pasteLength);
+			insertText(newText);
+		}
+		// e is consumed below
 
-	} else if(false /*e.key == GLFW_KEY_ESCAPE && isFocused*/) {
-		// defocus on escape
-		//gFocusedWidget = NULL;
-		//e.consumed = true;
-		//TODO: check if this works
+	} else if(e.key == GLFW_KEY_ESCAPE) {
+		// deselect on escape
+		event::Deselect eDeselect;
+		onDeselect(eDeselect);
+		APP->event->selectedWidget = NULL;
+		// e is consumed below
 
 	} else {
 		TextField::onSelectKey(e);
 	}
-	//e.consume(dynamic_cast<HoverableTextBox*>(this));
+
+	if(!e.isConsumed())
+		e.consume(dynamic_cast<TextField*>(this));
 }
 
 void EditableTextBox::onSelect(const event::Select &e) {
-	printf("onSelect()\n");
 	isFocused = true;
-	//e.consume(dynamic_cast<HoverableTextBox*>(this));
 	e.consume(dynamic_cast<TextField*>(this));
 }
 
 void EditableTextBox::onDeselect(const event::Deselect &e) {
-	printf("onDeselect()\n");
 	isFocused = false;
-	//HoverableTextBox::setText(TextField::text);
-	//e.consume(dynamic_cast<HoverableTextBox*>(this));
+	HoverableTextBox::setText(TextField::text);
+	e.consume(NULL);
 }

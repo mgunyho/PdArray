@@ -1,7 +1,5 @@
 #include "plugin.hpp"
 
-#include <stdio.h>
-
 struct TextBox : TransparentWidget {
 	// Kinda like TextField except not editable. Using Roboto Mono Bold font,
 	// numbers look okay.
