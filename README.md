@@ -1,5 +1,5 @@
-This repository contains plugins I've made for [VCV Rack](https://vcvrack.com/).
-See the plugin folders for further details on each plugin.
+This repository contains plugins I've made for the [VCV Rack](https://vcvrack.com/)
+virtual modular synthesizer. See the plugin folders for details on each plugin.
 
 ## Building
 
