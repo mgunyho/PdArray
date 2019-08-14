@@ -44,12 +44,6 @@ struct MulDiv : Module {
 
 	void process(const ProcessArgs &args) override;
 
-
-	// For more advanced Module features, read Rack's engine.hpp header file
-	// - dataToJson, dataFromJson: serialization of internal data
-	// - onSampleRateChange: event triggered by a change of sample rate
-	// - onReset, onRandomize, onCreate, onDelete: implements special behavior when user clicks these from the context menu
-
 };
 
 void MulDiv::process(const ProcessArgs &args) {

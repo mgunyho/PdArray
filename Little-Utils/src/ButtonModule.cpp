@@ -52,11 +52,6 @@ struct ButtonModule : Module {
 
 	void process(const ProcessArgs &args) override;
 
-
-	// For more advanced Module features, read Rack's engine.hpp header file
-	// - dataToJson, dataFromJson: serialization of internal data
-	// - onSampleRateChange: event triggered by a change of sample rate
-	// - onReset, onRandomize, onCreate, onDelete: implements special behavior when user clicks these from the context menu
 	json_t* dataToJson() override {
 		//TODO: this or dataFromJson causes segfault sometimes (I think), consider using json_object_set_new instead of decref (or should reference even be decremented?)
 		json_t *data, *toggle_value, *const_choice_value;

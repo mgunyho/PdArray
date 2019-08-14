@@ -61,13 +61,8 @@ struct TeleportInModule : Teleport {
 		sources.erase(label);
 	}
 
+	// process() is not needed for a teleport source, values are read directly from inputs by teleport out
 
-	// step() is not needed for a teleport source, values are read directly from map
-
-	// For more advanced Module features, read Rack's engine.hpp header file
-	// - dataToJson, dataFromJson: serialization of internal data
-	// - onSampleRateChange: event triggered by a change of sample rate
-	// - onReset, onRandomize, onCreate, onDelete: implements special behavior when user clicks these from the context menu
 	json_t* dataToJson() override {
 		json_t *data = json_object();
 		json_object_set_new(data, "label", json_string(label.c_str()));
@@ -162,13 +157,18 @@ struct TeleportOutModule : Teleport {
 			TeleportInModule *src = sources[label];
 			for(int i = 0; i < NUM_TELEPORT_INPUTS; i++) {
 				Input input = src->inputs[TeleportInModule::INPUT_1 + i];
-				outputs[OUTPUT_1 + i].setVoltage(input.value);
-				lights[OUTPUT_1_LIGHTG + 2*i].setBrightness( input.active);
-				lights[OUTPUT_1_LIGHTR + 2*i].setBrightness(!input.active);
+				const int channels = input.getChannels();
+				outputs[OUTPUT_1 + i].setChannels(channels);
+				for(int c = 0; c < channels; c++) {
+					outputs[OUTPUT_1 + i].setVoltage(input.getVoltage(c), c);
+				}
+				lights[OUTPUT_1_LIGHTG + 2*i].setBrightness( input.isConnected());
+				lights[OUTPUT_1_LIGHTR + 2*i].setBrightness(!input.isConnected());
 			}
 			sourceIsValid = true;
 		} else {
 			for(int i = 0; i < NUM_TELEPORT_INPUTS; i++) {
+				outputs[i].setChannels(1);
 				outputs[OUTPUT_1 + i].setVoltage(0.f);
 				lights[OUTPUT_1_LIGHTG + 2*i].setBrightness(0.f);
 				lights[OUTPUT_1_LIGHTR + 2*i].setBrightness(0.f);
