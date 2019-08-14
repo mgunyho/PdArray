@@ -34,9 +34,12 @@ while the pulse is on, and FIN outputs a trigger when the pulse finishes.
 
 [picture]
 
-You can chain multiple these together by wiring the FIN output to the trigger
-input of an another Pulse Generator. This way, you can create interesting drum
-patterns, or even make a really clunky PWM oscillator by creating a loop!
+You can chain several of these together by wiring the FIN output to the trigger
+input TRG IN of an another Pulse Generator. This way, you can create interesting
+drum patterns, or even make a really clunky PWM oscillator by creating a loop!
+When the trigger is polyphonic, the output will be polyphonic with one gate
+signal for each trigger. Note, however, that the gate duration is the same for
+all of them.
 
 
 ## Bias/Semitone
