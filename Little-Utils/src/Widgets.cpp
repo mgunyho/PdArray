@@ -88,7 +88,8 @@ void EditableTextBox::onButton(const event::Button &e) {
 void EditableTextBox::onSelectKey(const event::SelectKey &e) {
 
 	//TODO: shift+home/end to select until beginning / end
-	if(e.key == GLFW_KEY_V && (e.mods & RACK_MOD_MASK) == RACK_MOD_CTRL) {
+	bool act = e.action == GLFW_PRESS || e.action == GLFW_REPEAT;
+	if(act && e.key == GLFW_KEY_V && (e.mods & RACK_MOD_MASK) == RACK_MOD_CTRL) {
 		// prevent pasting too long text
 		int pasteLength = maxTextLength - TextField::text.size();
 		if(pasteLength > 0) {
@@ -98,7 +99,7 @@ void EditableTextBox::onSelectKey(const event::SelectKey &e) {
 		}
 		// e is consumed below
 
-	} else if(e.key == GLFW_KEY_ESCAPE) {
+	} else if(act && e.key == GLFW_KEY_ESCAPE) {
 		// deselect on escape
 		event::Deselect eDeselect;
 		onDeselect(eDeselect);

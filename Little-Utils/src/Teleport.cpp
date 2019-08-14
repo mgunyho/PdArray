@@ -295,10 +295,10 @@ struct TeleportSourceSelectorTextBox : HoverableTextBox, TeleportLabelDisplay {
 	}
 
 	void onButton(const event::Button &e) override {
+		HoverableTextBox::onButton(e);
 		bool l = e.button == GLFW_MOUSE_BUTTON_LEFT;
 		bool r = e.button == GLFW_MOUSE_BUTTON_RIGHT;
-		bool a = e.action == GLFW_PRESS;
-		if((l || r) && a) {
+		if(e.action == GLFW_PRESS && (l || r)) {
 			event::Action eAction;
 			onAction(eAction);
 			e.consume(this);
