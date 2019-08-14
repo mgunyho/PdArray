@@ -6,8 +6,6 @@
 // modules //
 /////////////
 
-//TODO: when editing the label of a teleport in and then clicking on a teleport out, the edited label doesn't appear in the list
-
 struct TeleportInModule : Teleport {
 	enum ParamIds {
 		NUM_PARAMS
@@ -298,7 +296,7 @@ struct TeleportSourceSelectorTextBox : HoverableTextBox, TeleportLabelDisplay {
 		HoverableTextBox::onButton(e);
 		bool l = e.button == GLFW_MOUSE_BUTTON_LEFT;
 		bool r = e.button == GLFW_MOUSE_BUTTON_RIGHT;
-		if(e.action == GLFW_PRESS && (l || r)) {
+		if(e.action == GLFW_RELEASE && (l || r)) {
 			event::Action eAction;
 			onAction(eAction);
 			e.consume(this);
