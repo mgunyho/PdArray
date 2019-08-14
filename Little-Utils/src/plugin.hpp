@@ -4,7 +4,6 @@
 //TODO: polyphony support
 //TODO: see phase 3 of porting
 //TODO: undo stuff... (some are added automatically but not everything)
-//TODO: tooltips
 
 using namespace rack;
 

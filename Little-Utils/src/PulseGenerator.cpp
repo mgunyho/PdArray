@@ -64,8 +64,9 @@ struct PulseGenModule : Module {
 		NUM_LIGHTS
 	};
 
-	dsp::SchmittTrigger inputTrigger, finishTrigger;
-	CustomPulseGenerator gateGenerator, finishTriggerGenerator;
+	// not using SIMD here, doesn't seem to affect performance much
+	dsp::SchmittTrigger inputTrigger[16], finishTrigger[16];
+	CustomPulseGenerator gateGenerator[16], finishTriggerGenerator[16];
 	float gate_base_duration = 0.5f; // gate duration without CV
 	float gate_duration;
 	bool realtimeUpdate = true; // whether to display gate_duration or gate_base_duration
@@ -85,12 +86,6 @@ struct PulseGenModule : Module {
 
 	void process(const ProcessArgs &args) override;
 
-
-	// For more advanced Module features, read Rack's engine.hpp header file
-	// - dataToJson, dataFromJson: serialization of internal data
-	// - onSampleRateChange: event triggered by a change of sample rate
-	// - onReset, onRandomize, onCreate, onDelete: implements special behavior when user clicks these from the context menu
-
 	json_t *dataToJson() override {
 		json_t *root = json_object();
 		json_object_set_new(root, "realtimeUpdate", json_boolean(realtimeUpdate));
@@ -108,9 +103,7 @@ struct PulseGenModule : Module {
 
 void PulseGenModule::process(const ProcessArgs &args) {
 	float deltaTime = args.sampleTime;
-
-	bool triggered = inputTrigger.process(rescale(inputs[TRIG_INPUT].getVoltage(),
-												  0.1f, 2.f, 0.f, 1.f));
+	const int channels = inputs[TRIG_INPUT].getChannels();
 
 	// handle duration knob and CV
 	float knob_value = params[GATE_LENGTH_PARAM].getValue();
@@ -136,26 +129,37 @@ void PulseGenModule::process(const ProcessArgs &args) {
 	}
 	gate_duration = clamp(gate_base_duration + cv_voltage * cv_scale, 0.f, 10.f);
 
+	for(int c = 0; c < channels; c++) {
+
+	bool triggered = inputTrigger[c].process(rescale(inputs[TRIG_INPUT].getVoltage(c),
+												  0.1f, 2.f, 0.f, 1.f));
+
 	if(triggered && gate_duration > 0.f) {
-		gateGenerator.trigger(gate_duration);
+		gateGenerator[c].trigger(gate_duration);
 	}
 
 	// update trigger duration even in the middle of a trigger
-	gateGenerator.triggerDuration = gate_duration;
+	gateGenerator[c].triggerDuration = gate_duration;
 
-	bool gate = gateGenerator.process(deltaTime);
+	bool gate = gateGenerator[c].process(deltaTime);
 
-	if(finishTrigger.process(gate ? 0.f : 1.f)) {
-		finishTriggerGenerator.trigger(1.e-3f);
+	if(finishTrigger[c].process(gate ? 0.f : 1.f)) {
+		finishTriggerGenerator[c].trigger(1.e-3f);
 	}
 
 	float gate_v = gate ? 10.0f : 0.0f;
-	float finish_v = finishTriggerGenerator.process(deltaTime) ? 10.f : 0.f;
-	outputs[GATE_OUTPUT].setVoltage(gate_v);
-	outputs[FINISH_OUTPUT].setVoltage(finish_v);
+	float finish_v = finishTriggerGenerator[c].process(deltaTime) ? 10.f : 0.f;
+	outputs[GATE_OUTPUT].setVoltage(gate_v, c);
+	outputs[FINISH_OUTPUT].setVoltage(finish_v, c);
 
+	//TODO: fix lights for polyphonic mode...
 	lights[GATE_LIGHT].setSmoothBrightness(gate_v, deltaTime);
 	lights[FINISH_LIGHT].setSmoothBrightness(finish_v, deltaTime);
+
+	}
+
+	outputs[GATE_OUTPUT].setChannels(channels);
+	outputs[FINISH_OUTPUT].setChannels(channels);
 
 }
 

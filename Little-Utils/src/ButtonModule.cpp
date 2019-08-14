@@ -175,7 +175,6 @@ struct ButtonModuleWidget : ModuleWidget {
 
 		addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 320), module, ButtonModule::CONST_OUTPUT));
 
-		//TODO: lights for module == NULL
 		addChild(createLightCentered<SmallLight<GreenRedLight>>(Vec(15, 281), module, ButtonModule::CONST_1_LIGHTP));
 		addChild(createLightCentered<SmallLight<GreenRedLight>>(Vec(15, 291), module, ButtonModule::CONST_5_LIGHTP));
 		addChild(createLightCentered<SmallLight<GreenRedLight>>(Vec(15, 301), module, ButtonModule::CONST_10_LIGHTP));
