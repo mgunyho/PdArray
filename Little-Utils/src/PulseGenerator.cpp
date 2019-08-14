@@ -40,7 +40,7 @@ struct CustomPulseGenerator {
 };
 
 
-// the module is called PulseGenModule because PulseGenerator is already taken //TODO: not true anymore, rename
+// the module is called PulseGenModule to avoid confusion with dsp::PulseGenerator
 struct PulseGenModule : Module {
 	enum ParamIds {
 		GATE_LENGTH_PARAM,
@@ -164,7 +164,7 @@ struct MsDisplayWidget : TextBox {
 	PulseGenModule *module;
 	bool msLabelStatus = false; // 0 = 'ms', 1 = 's'
 	bool cvLabelStatus = false; // whether to show 'cv'
-	float previous_displayed_value = 0.f;
+	float previous_displayed_value = -1.f;
 	float cvDisplayTime = 2.f;
 
 	GUITimer cvDisplayTimer;

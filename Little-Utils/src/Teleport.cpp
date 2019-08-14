@@ -228,7 +228,7 @@ struct EditableTeleportLabelTextbox : EditableTextBox, TeleportLabelDisplay {
 
 	void step() override {
 		EditableTextBox::step();
-		if(!module) return; //TODO: add dummy display
+		if(!module) return;
 		if(errorDisplayTimer.process()) {
 			textColor = isFocused ? defaultTextColor : errorTextColor;
 			HoverableTextBox::setText(errorText);
@@ -305,7 +305,7 @@ struct TeleportSourceSelectorTextBox : HoverableTextBox, TeleportLabelDisplay {
 
 	void step() override {
 		HoverableTextBox::step();
-		if(!module) return; //TODO: dummy value
+		if(!module) return;
 		setText(module->label);
 		textColor = module->sourceIsValid ? defaultTextColor : errorTextColor;
 	}
