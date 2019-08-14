@@ -13,7 +13,6 @@ struct TextBox : TransparentWidget {
 	NVGcolor textColor; // This can be used to temporarily override text color
 	NVGcolor backgroundColor;
 
-	//TODO: create<...>() thing with position as argument?
 	TextBox() {
 		font = APP->window->loadFont(asset::plugin(pluginInstance, "res/RobotoMono-Bold.ttf"));
 		defaultTextColor = nvgRGB(0x23, 0x23, 0x23);
@@ -114,7 +113,7 @@ struct EditableTextBox : HoverableTextBox, TextField {
 
 };
 
-struct ToggleLEDButton : SVGSwitch { //TODO: removed 'ToggleSwitch', check that this is correct
+struct ToggleLEDButton : SVGSwitch {
 	BNDwidgetState state = BND_DEFAULT;
 	NVGcolor defaultColor;
 	NVGcolor hoverColor;
@@ -125,7 +124,7 @@ struct ToggleLEDButton : SVGSwitch { //TODO: removed 'ToggleSwitch', check that 
 };
 
 // Same as CKSSThree but horizontal
-struct CKSSThreeH : SVGSwitch { //TODO: removed 'ToggleSwitch', check that this is correct
+struct CKSSThreeH : SVGSwitch {
 	CKSSThreeH() {
 		addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, "./res/CKSSThreeH_0.svg")));
 		addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, "./res/CKSSThreeH_1.svg")));

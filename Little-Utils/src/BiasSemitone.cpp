@@ -121,7 +121,6 @@ void Bias_Semitone::process(const ProcessArgs &args) {
 }
 
 struct Bias_SemitoneWidget : ModuleWidget {
-	//Bias_Semitone *module; //TODO: check if needed
 	TextBox *displays[N_KNOBS];
 
 	Bias_SemitoneWidget(Bias_Semitone *module) {

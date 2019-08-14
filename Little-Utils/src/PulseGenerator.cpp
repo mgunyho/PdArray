@@ -197,25 +197,26 @@ struct MsDisplayWidget : TextBox {
 
 	void draw(const DrawArgs &args) override {
 		TextBox::draw(args);
-		nvgScissor(args.vg, 0, 0, box.size.x, box.size.y); //TODO: use just vg instead of args.vg
+		auto vg = args.vg;
+		nvgScissor(vg, 0, 0, box.size.x, box.size.y);
 
 		if(font->handle >= 0) {
-			nvgFillColor(args.vg, textColor);
-			nvgFontFaceId(args.vg, font->handle);
+			nvgFillColor(vg, textColor);
+			nvgFontFaceId(vg, font->handle);
 
 			// draw 'ms' or 's' on bottom, depending on msLabelStatus
-			nvgFontSize(args.vg, 12);
-			nvgTextLetterSpacing(args.vg, 0.f);
-			nvgTextAlign(args.vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
-			nvgText(args.vg, textOffset.x + 2, textOffset.y + 14,
+			nvgFontSize(vg, 12);
+			nvgTextLetterSpacing(vg, 0.f);
+			nvgTextAlign(vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
+			nvgText(vg, textOffset.x + 2, textOffset.y + 14,
 					msLabelStatus ? " s" : "ms", NULL);
 
 			if(cvLabelStatus) {
-				nvgText(args.vg, 3, textOffset.y + 14, "cv", NULL);
+				nvgText(vg, 3, textOffset.y + 14, "cv", NULL);
 			}
 		}
 
-		nvgResetScissor(args.vg);
+		nvgResetScissor(vg);
 	}
 
 	void triggerCVDisplay() {

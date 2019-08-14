@@ -4,28 +4,30 @@
 
 void TextBox::draw(const DrawArgs &args) {
 	// based on LedDisplayChoice::draw() in Rack/src/app/LedDisplay.cpp
-	nvgScissor(args.vg, 0, 0, box.size.x, box.size.y); //TODO: replace args.vg with just vg (?)
+	auto vg = args.vg;
+	nvgScissor(vg, 0, 0, box.size.x, box.size.y);
 
-	nvgBeginPath(args.vg);
-	nvgRoundedRect(args.vg, 0, 0, box.size.x, box.size.y, 3.0);
-	nvgFillColor(args.vg, backgroundColor);
-	nvgFill(args.vg);
+	nvgBeginPath(vg);
+	nvgRoundedRect(vg, 0, 0, box.size.x, box.size.y, 3.0);
+	nvgFillColor(vg, backgroundColor);
+	nvgFill(vg);
 
 	if (font->handle >= 0) {
 
-		nvgFillColor(args.vg, textColor);
-		nvgFontFaceId(args.vg, font->handle);
+		nvgFillColor(vg, textColor);
+		nvgFontFaceId(vg, font->handle);
 
-		nvgFontSize(args.vg, font_size);
-		nvgTextLetterSpacing(args.vg, letter_spacing);
-		nvgTextAlign(args.vg, NVG_ALIGN_CENTER | NVG_ALIGN_TOP);
-		nvgText(args.vg, textOffset.x, textOffset.y, text.c_str(), NULL);
+		nvgFontSize(vg, font_size);
+		nvgTextLetterSpacing(vg, letter_spacing);
+		nvgTextAlign(vg, NVG_ALIGN_CENTER | NVG_ALIGN_TOP);
+		nvgText(vg, textOffset.x, textOffset.y, text.c_str(), NULL);
 	}
 
-	nvgResetScissor(args.vg);
+	nvgResetScissor(vg);
 }
 
 void EditableTextBox::draw(const DrawArgs &args) {
+	auto vg = args.vg;
 
 	std::string tmp = HoverableTextBox::text;
 	if(isFocused) {
@@ -47,19 +49,19 @@ void EditableTextBox::draw(const DrawArgs &args) {
 
 		// hacky way of measuring character width
 		NVGglyphPosition glyphs[4];
-		nvgTextGlyphPositions(args.vg, 0.f, 0.f, "a", NULL, glyphs, 4); //TODO: replace args.vg with just vg
+		nvgTextGlyphPositions(vg, 0.f, 0.f, "a", NULL, glyphs, 4);
 		float char_width = -2*glyphs[0].x;
 
 		float ymargin = 2.f;
-		nvgBeginPath(args.vg);
-		nvgFillColor(args.vg, highlightColor);
+		nvgBeginPath(vg);
+		nvgFillColor(vg, highlightColor);
 
-		nvgRect(args.vg,
+		nvgRect(vg,
 				textOffset.x + (begin - 0.5f * TextField::text.size()) * char_width - 1,
 				ymargin,
 				(len > 0 ? char_width * len : 1) + 1,
 				HoverableTextBox::box.size.y - 2.f * ymargin);
-		nvgFill(args.vg);
+		nvgFill(vg);
 
 	}
 }
