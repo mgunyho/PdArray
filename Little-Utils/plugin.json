@@ -25,7 +25,8 @@
       "name": "Bias/Semitone",
       "description": "",
       "tags": [
-        "utility"
+        "utility",
+        "polyphonic"
       ]
     },
     {
@@ -33,7 +34,8 @@
       "name": "Multiply/Divide",
       "description": "",
       "tags": [
-        "utility"
+        "utility",
+        "polyphonic"
       ]
     },
     {
@@ -51,7 +53,8 @@
       "name": "Teleport In",
       "description": "",
       "tags": [
-        "utility"
+        "utility",
+        "polyphonic"
       ]
     },
     {
@@ -59,7 +62,8 @@
       "name": "Teleport Out",
       "description": "",
       "tags": [
-        "utility"
+        "utility",
+        "polyphonic"
       ]
     }
   ]
