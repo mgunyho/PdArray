@@ -87,7 +87,6 @@ void EditableTextBox::onButton(const event::Button &e) {
 
 void EditableTextBox::onSelectKey(const event::SelectKey &e) {
 
-	//TODO: shift+home/end to select until beginning / end
 	bool act = e.action == GLFW_PRESS || e.action == GLFW_REPEAT;
 	if(act && e.key == GLFW_KEY_V && (e.mods & RACK_MOD_MASK) == RACK_MOD_CTRL) {
 		// prevent pasting too long text
@@ -99,6 +98,11 @@ void EditableTextBox::onSelectKey(const event::SelectKey &e) {
 		}
 		// e is consumed below
 
+	} else if(act && (e.mods & RACK_MOD_MASK) == GLFW_MOD_SHIFT && e.key == GLFW_KEY_HOME) {
+		// don't move selection
+		cursor = 0;
+	} else if(act && (e.mods & RACK_MOD_MASK) == GLFW_MOD_SHIFT && e.key == GLFW_KEY_END) {
+		cursor = TextField::text.size();
 	} else if(act && e.key == GLFW_KEY_ESCAPE) {
 		// deselect on escape
 		event::Deselect eDeselect;
@@ -107,6 +111,7 @@ void EditableTextBox::onSelectKey(const event::SelectKey &e) {
 		// e is consumed below
 
 	} else {
+		//TODO: support for non-ascii characters?
 		TextField::onSelectKey(e);
 	}
 
