@@ -1,10 +1,6 @@
 #pragma once
 #include <rack.hpp>
 
-//TODO: polyphony support
-//TODO: see phase 3 of porting
-//TODO: undo stuff... (some are added automatically but not everything)
-
 using namespace rack;
 
 // Declare the Plugin, defined in plugin.cpp

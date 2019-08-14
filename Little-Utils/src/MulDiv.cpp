@@ -64,21 +64,21 @@ void MulDiv::process(const ProcessArgs &args) {
 
 	for(int c = 0; c < channels; c++) {
 
-	float a_cond = (c < ac) || ac == 1;
-	float b_cond = (c < bc) || bc == 1;
-	float m = (a_cond ? a_in.getPolyVoltage(c) * as : 1.f) * (b_cond ? b_in.getPolyVoltage(c) * bs : 1.f);
-	m *= os;
+		float a_cond = (c < ac) || ac == 1;
+		float b_cond = (c < bc) || bc == 1;
+		float m = (a_cond ? a_in.getPolyVoltage(c) * as : 1.f) * (b_cond ? b_in.getPolyVoltage(c) * bs : 1.f);
+		m *= os;
 
-	outputs[MUL_OUTPUT].setVoltage(clip ? clamp(m, -10.f, 10.f) : m, c);
+		outputs[MUL_OUTPUT].setVoltage(clip ? clamp(m, -10.f, 10.f) : m, c);
 
-	if(b_cond) {
-		float d = (a_cond ? a_in.getPolyVoltage(c) : 1.f) / b_in.getPolyVoltage(c) * os;
-		valid_div_value[c] = std::isfinite(d) ? d : valid_div_value[c];
-		if(clip) valid_div_value[c] = clamp(valid_div_value[c], -10.f, 10.f);
-		outputs[DIV_OUTPUT].setVoltage(valid_div_value[c], c);
-	} else {
-		outputs[DIV_OUTPUT].setVoltage(clip ? clamp(a_in.getPolyVoltage(c) * os, -10.f, 10.f) : a_in.getPolyVoltage(c) * os, c);
-	}
+		if(b_cond) {
+			float d = (a_cond ? a_in.getPolyVoltage(c) : 1.f) / b_in.getPolyVoltage(c) * os;
+			valid_div_value[c] = std::isfinite(d) ? d : valid_div_value[c];
+			if(clip) valid_div_value[c] = clamp(valid_div_value[c], -10.f, 10.f);
+			outputs[DIV_OUTPUT].setVoltage(valid_div_value[c], c);
+		} else {
+			outputs[DIV_OUTPUT].setVoltage(clip ? clamp(a_in.getPolyVoltage(c) * os, -10.f, 10.f) : a_in.getPolyVoltage(c) * os, c);
+		}
 
 	}
 
