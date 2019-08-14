@@ -80,7 +80,9 @@ struct EditableTextBox : HoverableTextBox, TextField {
 
 	void draw(const DrawArgs &args) override;
 
-	void onButton(const event::Button &e) override;
+	void onButton(const event::Button &e) override {
+		TextField::onButton(e); // this handles consuming the event
+	}
 
 	void onHover(const event::Hover &e) override {
 		TextField::onHover(e);
@@ -94,9 +96,17 @@ struct EditableTextBox : HoverableTextBox, TextField {
 	void onAction(const event::Action &e) override;
 
 	void onSelectText(const event::SelectText &e) override;
-	void onSelectKey(const event::SelectKey &e) override; //TODO: check that this is the correct event
-	void onSelect(const event::Select &e) override;
-	void onDeselect(const event::Deselect &e) override;
+	void onSelectKey(const event::SelectKey &e) override;
+
+	void onSelect(const event::Select &e) override {
+		isFocused = true;
+		e.consume(dynamic_cast<TextField*>(this));
+	}
+	void onDeselect(const event::Deselect &e) override {
+		isFocused = false;
+		HoverableTextBox::setText(TextField::text);
+		e.consume(NULL);
+	}
 
 	void step() override {
 		TextField::step();

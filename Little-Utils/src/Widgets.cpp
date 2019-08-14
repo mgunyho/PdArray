@@ -80,11 +80,6 @@ void EditableTextBox::onSelectText(const event::SelectText &e) {
 	}
 }
 
-
-void EditableTextBox::onButton(const event::Button &e) {
-	TextField::onButton(e); // this handles consuming the event
-}
-
 void EditableTextBox::onSelectKey(const event::SelectKey &e) {
 
 	bool act = e.action == GLFW_PRESS || e.action == GLFW_REPEAT;
@@ -117,15 +112,4 @@ void EditableTextBox::onSelectKey(const event::SelectKey &e) {
 
 	if(!e.isConsumed())
 		e.consume(dynamic_cast<TextField*>(this));
-}
-
-void EditableTextBox::onSelect(const event::Select &e) {
-	isFocused = true;
-	e.consume(dynamic_cast<TextField*>(this));
-}
-
-void EditableTextBox::onDeselect(const event::Deselect &e) {
-	isFocused = false;
-	HoverableTextBox::setText(TextField::text);
-	e.consume(NULL);
 }
