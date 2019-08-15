@@ -19,7 +19,7 @@ This module has a button. When you press the button, TRG outputs a 1ms 10V
 trigger, GAT outputs 10V while the button is being held and TGL toggles between
 0V and 10V on each button press.
 
-[picture]
+![button](screenshots/button.png)
 
 There was some space left at the bottom so I added a constant voltage source for
 good measure. You can toggle the voltage by pressing the button. Sending a gate
@@ -32,7 +32,7 @@ the base pulse duration and the small knob to adjust the CV amount. The pulse
 duration or CV amount are shown on the bottom screen. The output of GAT is high
 while the pulse is on, and FIN outputs a trigger when the pulse finishes.
 
-[picture]
+![pulse generator](screenshots/pulse_generator.png)
 
 You can chain several of these together by wiring the FIN output to the trigger
 input TRG IN of another Pulse Generator. This way, you can create interesting
@@ -47,7 +47,7 @@ The Bias/Semitone module can offset incoming signals, or it can act as a
 constant voltage source. Use the button at the bottom to switch between whether
 the offset is in volts or semitones. It can be useful to create e.g. chords.
 
-[picture]
+![bias/semitone](screenshots/bias_semitone.png)
 
 If an output is disconnected but an input above it is connected, the input
 signal is propagated downwards, much like with 8Vert from Fundamental. The LED
@@ -60,7 +60,7 @@ switches to scale an input in e.g. the range 0-5V to the range 0-1, so that the
 output is sensible. There's also a button clip the output to +/-10V, just in
 case.
 
-[picture]
+![multiply/divide](screenshots/multiply_divide.png)
 
 If A is disconnected, A×B will output 1×B and A/B will output 1/B. If B is
 disconnected, A×B will output A×1 and A/B will output A/1.
@@ -71,18 +71,19 @@ Create wireless links between a pair of inputs/outputs. Click on the label of
 an input and type any 4-letter case-sensitive label, and select it from the list
 of available inputs on an output.
 
-[picture]
+![teleport](screenshots/teleport.png)
 
 The LEDs indicate which inputs are active on the other end. Multiple outputs
 can read signals from a single input, but each input must have an unique label.
 Note that if you have multithreading enabled, you __might__ run into audio
-glitches since there's no synchronization between the inputs and outputs, but I
-haven't come across this myself.
+glitches since there's no thread synchronization between the inputs and outputs,
+but I haven't come across this myself.
+
 
 
 ## Contributing
-If you have feedback or find a bug or whatever, don't hesitate to open an issue
-or a pull request in this repo!
+If you have suggestions or feedback or find a bug or whatever, feel free to open
+an issue or a pull request in this repository!
 
 Building the modules follows the [standard procedure](https://vcvrack.com/manual/PluginDevelopmentTutorial.html#creating-the-template-plugin):
 `RACK_DIR=/path/to/Rack_SDK/ make install`.
