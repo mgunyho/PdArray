@@ -80,11 +80,10 @@ struct Bias_Semitone : Module {
 		NUM_LIGHTS
 	};
 
-	//dsp::SchmittTrigger oneToManyTrigger;
-	//bool oneToManyState;
 	Bias_Semitone() {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 		for(int i = 0; i < N_KNOBS; i++) {
+			//TODO: see https://community.vcvrack.com/t/can-we-add-precision-to-createparam-labeling/3822/5
 			configParam(Bias_Semitone::BIAS_1_PARAM + i, -1.f, 1.f, 0.f, stringf("Bias %d", i + 1));
 		}
 
@@ -96,7 +95,6 @@ struct Bias_Semitone : Module {
 };
 
 void Bias_Semitone::process(const ProcessArgs &args) {
-	//float deltaTime = args.sampleTime;
 
 	int li = 0; // index of the latest encountered active input
 	for(int i = 0; i < N_KNOBS; i++) {
@@ -159,8 +157,6 @@ struct Bias_SemitoneWidget : ModuleWidget {
 			addChild(createTinyLightForPort<RedGreenBlueLight>(output_pos, module, Bias_Semitone::OUTPUT_1_LIGHTR + 3*i));
 
 			TextBox *display = new TextBox();
-			//display->font_size = 18;
-			//display->box.size.x = 45;
 			display->font_size = 14;
 			display->box.size.x = 35;
 			display->box.size.y = 14;

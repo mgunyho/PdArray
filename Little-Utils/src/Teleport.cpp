@@ -45,7 +45,7 @@ struct TeleportInModule : Teleport {
 		if(lbl.empty() || sourceExists(lbl)) {
 			return false;
 		}
-		sources.erase(label);
+		sources.erase(label); //TODO: mutex for this and erase() calls below?
 		label = lbl;
 		addSource(this);
 		return true;
@@ -193,7 +193,7 @@ struct TeleportOutModule : Teleport {
 
 void Teleport::addSource(TeleportInModule *t) {
 	std::string key = t->label;
-	sources[key] = t;
+	sources[key] = t; //TODO: mutex?
 	lastInsertedKey = key;
 }
 
@@ -373,7 +373,6 @@ struct TeleportOutModuleWidget : TeleportModuleWidget {
 			addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, y), module, TeleportOutModule::OUTPUT_1 + i));
 			addChild(createTinyLightForPort<GreenRedLight>(Vec(22.5, y), module, TeleportOutModule::OUTPUT_1_LIGHTG + 2*i));
 		}
-		//addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 135), module, TeleportOutModule::OUTPUT_1));
 	}
 
 };

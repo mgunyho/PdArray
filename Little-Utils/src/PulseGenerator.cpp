@@ -76,6 +76,7 @@ struct PulseGenModule : Module {
 
 	PulseGenModule() {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
+		//TODO: consider overriding ParamQuantity::getDisplayValueString
 		configParam(PulseGenModule::GATE_LENGTH_PARAM, 0.f, 10.f,
 					// 0.5s in log scale
 					//rescale(-0.30103f, MIN_EXPONENT, MAX_EXPONENT, 0.f,10.f)
@@ -195,7 +196,7 @@ struct MsDisplayWidget : TextBox {
 				msLabelStatus = true;
 				if(s.at(0) == '0') s.erase(0, 1);
 			}
-			// hacky way to make monospace fonts prettier
+			// hacky way to make monospace font prettier
 			std::replace(s.begin(), s.end(), '0', 'O');
 			setText(s);
 		}
@@ -277,10 +278,6 @@ struct PulseGeneratorWidget : ModuleWidget {
 		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
 		addParam(createParamCentered<RoundBlackKnob>(Vec(22.5, 37.5), module, PulseGenModule::GATE_LENGTH_PARAM));
-
-		//addParam(createParamCentered<CustomTrimpot>(
-		//			Vec(22.5, 133), module, PulseGenModule::CV_AMT_PARAM,
-		//			-1.f, 1.f, 0.f));
 
 		addParam(createParam<CKSS>(Vec(7.5, 60), module, PulseGenModule::LIN_LOG_MODE_PARAM));
 

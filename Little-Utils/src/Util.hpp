@@ -14,7 +14,7 @@ int signum(float val) {
 
 // Helper function for adding a small LED to the upper right corner of a port
 // usage in module widget constructor:
-// addChild(createTinyLightForPort(position_of_port_center, ... other params as in createLightCentered() ...))
+// addChild(createTinyLightForPort<LightType>(position_of_port_center, ... other params as in createLightCentered() ...))
 template <class TLightColor>
 TinyLight<TLightColor> *createTinyLightForPort(Vec portCenterPos, Module *module, int firstLightId) {
 	constexpr float offset = 3.6f;
