@@ -87,3 +87,11 @@ an issue or a pull request in this repository!
 
 Building the modules follows the [standard procedure](https://vcvrack.com/manual/PluginDevelopmentTutorial.html#creating-the-template-plugin):
 `RACK_DIR=/path/to/Rack_SDK/ make install`.
+
+
+## Licenses
+The source code and panel artwork are licensed under the MIT license (see
+[LICENSE](LICENSE)). This repo also contains the fonts used for creating the
+panels: Cooper Hewitt and Overpass are licensed under the Open Font License (see
+[here](fonts/OFL.txt)) and Roboto is licensed under the Apache 2 License (see
+[here](fonts/APACHE2.txt)).
