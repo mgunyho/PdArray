@@ -75,6 +75,9 @@ of available inputs on an output.
 
 The LEDs indicate which inputs are active on the other end. Multiple outputs
 can read signals from a single input, but each input must have an unique label.
+Note that if you have multithreading enabled, you __might__ run into audio
+glitches since there's no synchronization between the inputs and outputs, but I
+haven't come across this myself.
 
 
 ## Contributing
