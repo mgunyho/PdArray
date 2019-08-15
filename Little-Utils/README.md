@@ -4,7 +4,7 @@ Little Utils is a small collection of minimalistic [VCV Rack](https://vcvrack.co
 modules, with a focus on usefulness and simplicity instead of faithful analog
 emulation. Here's all of them:
 
-[picture]
+![all modules](screenshots/all_modules.png)
 
 Most of these modules were born out of me yelling "How the hell is this not in
 Fundamental?!". Much of the functionality is available in other plugin packs,
