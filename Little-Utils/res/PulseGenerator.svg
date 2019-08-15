@@ -14,7 +14,7 @@
    viewBox="0 0 11.906253 100.54167"
    version="1.1"
    id="svg8"
-   inkscape:version="0.92.3 (2405546, 2018-03-11)"
+   inkscape:version="0.91 r13725"
    sodipodi:docname="PulseGenerator.svg">
   <defs
      id="defs2">
@@ -359,21 +359,21 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.828427"
-     inkscape:cx="-46.943664"
-     inkscape:cy="92.505742"
+     inkscape:zoom="11.313708"
+     inkscape:cx="-16.077984"
+     inkscape:cy="373.22065"
      inkscape:document-units="px"
-     inkscape:current-layer="layer8"
+     inkscape:current-layer="layer2"
      showgrid="true"
      units="px"
      inkscape:snap-bbox="true"
      inkscape:snap-page="true"
      inkscape:bbox-nodes="true"
      inkscape:snap-bbox-edge-midpoints="true"
-     inkscape:window-width="937"
-     inkscape:window-height="834"
-     inkscape:window-x="129"
-     inkscape:window-y="505"
+     inkscape:window-width="1436"
+     inkscape:window-height="800"
+     inkscape:window-x="0"
+     inkscape:window-y="80"
      inkscape:window-maximized="0"
      inkscape:snap-text-baseline="true"
      showguides="true"
@@ -870,6 +870,28 @@
          style="font-size:3.56722808px;line-height:1.25"
          id="path1099" />
     </g>
+    <rect
+       style="display:inline;opacity:1;fill:#fe9500;fill-opacity:1;stroke:none;stroke-width:0.26458341;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4306"
+       width="3.9687505"
+       height="3.9687507"
+       x="1.984375"
+       y="196.45833" />
+    <g
+       transform="translate(3.0697632e-8,196.45833)"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:3.54372525px;line-height:100%;font-family:'Cooper Hewitt';-inkscape-font-specification:'Cooper Hewitt, Bold';text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       id="text4312">
+      <path
+         inkscape:connector-curvature="0"
+         d="m 2.6458333,3.3641491 0,-2.83498021 0.5599086,0 0,2.83498021 -0.5599086,0 z"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:3.54372525px;line-height:100%;font-family:'Cooper Hewitt';-inkscape-font-specification:'Cooper Hewitt, Bold';text-align:center;writing-mode:lr-tb;text-anchor:middle;stroke-width:0.26458332px"
+         id="path4317" />
+      <path
+         inkscape:connector-curvature="0"
+         d="m 3.5658729,1.4859747 0.5563649,0 0,1.1800605 q 0,0.2622357 0.2480608,0.2622357 0.2090798,0 0.3295664,-0.1771863 l 0,-1.2651099 0.5599086,0 0,1.3466156 0.031893,0.5315588 -0.4996652,0 -0.042525,-0.2374296 q -0.2055361,0.283498 -0.6024333,0.283498 -0.3012167,0 -0.4429657,-0.1842737 Q 3.5658729,3.0416701 3.5658729,2.7581721 l 0,-1.2721974 z"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:3.54372525px;line-height:100%;font-family:'Cooper Hewitt';-inkscape-font-specification:'Cooper Hewitt, Bold';text-align:center;writing-mode:lr-tb;text-anchor:middle;stroke-width:0.26458332px"
+         id="path4319" />
+    </g>
   </g>
   <g
      inkscape:groupmode="layer"
@@ -932,6 +954,19 @@
          x="7.9005466"
          id="tspan1087"
          sodipodi:role="line">GAT</tspan></text>
+    <text
+       transform="translate(0,-196.45833)"
+       sodipodi:linespacing="100%"
+       id="text4332"
+       y="199.82246"
+       x="3.9529419"
+       style="display:inline;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:3.54372549px;line-height:100%;font-family:'Cooper Hewitt';-inkscape-font-specification:'Cooper Hewitt, Bold';text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       xml:space="preserve"><tspan
+         id="tspan4336"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:3.54372549px;line-height:100%;font-family:'Cooper Hewitt';-inkscape-font-specification:'Cooper Hewitt, Bold';text-align:center;writing-mode:lr-tb;text-anchor:middle;stroke-width:0.26458332px"
+         y="199.82246"
+         x="3.9529419"
+         sodipodi:role="line">lu</tspan></text>
   </g>
   <g
      inkscape:groupmode="layer"

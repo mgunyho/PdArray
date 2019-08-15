@@ -15,7 +15,7 @@
    version="1.1"
    id="svg8"
    inkscape:version="0.91 r13725"
-   sodipodi:docname="Button_background.svg">
+   sodipodi:docname="ButtonModule.svg">
   <defs
      id="defs2">
     <linearGradient
@@ -239,21 +239,21 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="4"
-     inkscape:cx="14.547676"
-     inkscape:cy="310.74898"
+     inkscape:zoom="32"
+     inkscape:cx="11.344699"
+     inkscape:cy="373.40227"
      inkscape:document-units="px"
-     inkscape:current-layer="layer8"
+     inkscape:current-layer="layer2"
      showgrid="true"
      units="px"
      inkscape:snap-bbox="true"
      inkscape:snap-page="true"
      inkscape:bbox-nodes="true"
      inkscape:snap-bbox-edge-midpoints="true"
-     inkscape:window-width="1440"
-     inkscape:window-height="900"
+     inkscape:window-width="1436"
+     inkscape:window-height="848"
      inkscape:window-x="0"
-     inkscape:window-y="0"
+     inkscape:window-y="32"
      inkscape:window-maximized="0"
      inkscape:snap-text-baseline="true"
      showguides="true"
@@ -342,6 +342,22 @@
        position="6.6145845,84.931253"
        orientation="0,1"
        id="guide4918" />
+    <sodipodi:guide
+       position="0,99.218753"
+       orientation="1,0"
+       id="guide5019" />
+    <sodipodi:guide
+       position="0,100.54167"
+       orientation="0.70710678,0.70710678"
+       id="guide5024" />
+    <sodipodi:guide
+       position="0.92604183,100.0125"
+       orientation="0,1"
+       id="guide6060" />
+    <sodipodi:guide
+       position="0.13229169,97.102087"
+       orientation="0,1"
+       id="guide6062" />
   </sodipodi:namedview>
   <metadata
      id="metadata5">
@@ -607,6 +623,29 @@
            d="m 9.3716772,79.332222 0,-2.49706 0.5422187,0 0,1.972677 1.1985891,0 0,0.524383 -1.7408078,0 z" />
       </g>
     </g>
+    <rect
+       transform="translate(0,196.45833)"
+       style="display:inline;opacity:1;fill:#fe9500;fill-opacity:1;stroke:none;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect5021"
+       width="3.9687507"
+       height="3.9687512"
+       x="1.984375"
+       y="2.1116637e-06" />
+    <g
+       transform="translate(0,196.45833)"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:3.57984519px;line-height:125%;font-family:'Cooper Hewitt';-inkscape-font-specification:'Cooper Hewitt, Bold';text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       id="text6069">
+      <path
+         d="m 2.6323492,3.3930466 0,-2.86387613 0.5656156,0 0,2.86387613 -0.5656156,0 z"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:3.57984519px;font-family:'Cooper Hewitt';-inkscape-font-specification:'Cooper Hewitt, Bold';text-align:center;writing-mode:lr-tb;text-anchor:middle;stroke-width:0.26458332px"
+         id="path6074"
+         inkscape:connector-curvature="0" />
+      <path
+         d="m 3.5617665,1.4957287 0.5620357,0 0,1.1920884 q 0,0.2649086 0.2505892,0.2649086 0.2112109,0 0.3329256,-0.1789923 l 0,-1.2780047 0.5656155,0 0,1.3603411 0.032219,0.5369768 -0.5047582,0 -0.042958,-0.2398496 q -0.207631,0.2863876 -0.6085736,0.2863876 -0.3042869,0 -0.4474807,-0.1861519 Q 3.561767,3.0672807 3.561767,2.7808931 l 0,-1.2851644 z"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:3.57984519px;font-family:'Cooper Hewitt';-inkscape-font-specification:'Cooper Hewitt, Bold';text-align:center;writing-mode:lr-tb;text-anchor:middle;stroke-width:0.26458332px"
+         id="path6076"
+         inkscape:connector-curvature="0" />
+    </g>
   </g>
   <g
      inkscape:groupmode="layer"
@@ -714,6 +753,18 @@
          x="8.9977655"
          id="tspan4592"
          sodipodi:role="line">10V</tspan></text>
+    <text
+       sodipodi:linespacing="125%"
+       id="text5015"
+       y="3.3930466"
+       x="3.9527807"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:3.57984519px;line-height:125%;font-family:'Cooper Hewitt';-inkscape-font-specification:'Cooper Hewitt, Bold';text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:3.57984519px;font-family:'Cooper Hewitt';-inkscape-font-specification:'Cooper Hewitt, Bold';text-align:center;writing-mode:lr-tb;text-anchor:middle;stroke-width:0.26458332px"
+         y="3.3930466"
+         x="3.9527807"
+         id="tspan5017"
+         sodipodi:role="line">lu</tspan></text>
   </g>
   <g
      inkscape:groupmode="layer"
