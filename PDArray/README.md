@@ -1,4 +1,4 @@
-#PDArray
+# PDArray
 
 This is a VCV Rack module that allows creating custom envelopes, much like the 
 `array` object in [Pure Data](https://puredata.info/). You can enter values into
