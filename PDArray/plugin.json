@@ -1,0 +1,37 @@
+{
+  "slug": "PdArray",
+  "name": "PdArray",
+  "version": "1.0.0",
+  "license": "MIT",
+  "brand": "",
+  "author": "Márton Gunyhó",
+  "authorEmail": "",
+  "authorUrl": "",
+  "pluginUrl": "",
+  "manualUrl": "",
+  "sourceUrl": "",
+  "donateUrl": "",
+  "modules": [
+    {
+      "slug": "Array",
+      "name": "Array",
+      "description": "",
+      "tags": [
+        "Envelope generator",
+        "Function generator",
+        "Sampler",
+        "Visual",
+        "Waveshaper"
+      ]
+    },
+    {
+      "slug": "Miniramp",
+      "name": "Miniramp",
+      "description": "",
+      "tags": [
+        "Envelope generator",
+        "Utility"
+      ]
+    }
+  ]
+}

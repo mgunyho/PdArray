@@ -14,6 +14,7 @@
 //TODO: prevent audio clicking at the last sample
 //TODO: drawing when size > width in pixels
 
+//TODO: rename to just ArrayModule (and rename *pp files)
 struct PDArrayModule : Module {
 	enum ParamIds {
 		PHASE_RANGE_PARAM,
@@ -527,4 +528,4 @@ struct PDArrayModuleWidget : ModuleWidget {
 	//}
 };
 
-Model *modelPDArray = Model::create<PDArrayModule, PDArrayModuleWidget>("PDArray", "PDArray", "Array", VISUAL_TAG, ENVELOPE_GENERATOR_TAG);
+Model *modelPDArray = Model::create<PDArrayModule, PDArrayModuleWidget>("Array");

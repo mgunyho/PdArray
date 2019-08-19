@@ -13,6 +13,7 @@ const float MAX_EXPONENT = 1.0f;
 // TODO: tweak gate/ramp port vertical positions
 // TODO: show sample count corresponding to duration (needs more space - remove CV?)
 // TODO: add trigger buttton (another reason to remove cv)
+// TODO: fix capitalization in file and module name
 
 // based on PulseGeneraotr in include/util/digital.hpp
 struct CustomPulseGenerator {
@@ -260,4 +261,4 @@ struct MiniRampWidget : ModuleWidget {
 // author name for categorization per plugin, module slug (should never
 // change), human-readable module name, and any number of tags
 // (found in `include/tags.hpp`) separated by commas.
-Model *modelMiniRamp = Model::create<MiniRamp, MiniRampWidget>("PDArray", "MiniRamp", "MiniRamp", UTILITY_TAG, ENVELOPE_GENERATOR_TAG);
+Model *modelMiniRamp = Model::create<MiniRamp, MiniRampWidget>("Miniramp");
