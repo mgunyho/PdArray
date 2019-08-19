@@ -462,10 +462,10 @@ struct PDArrayModuleWidget : ModuleWidget {
 
 		setPanel(SVG::load(assetPlugin(pluginInstance, "res/Array.svg"))); //TODO
 
-		addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
-		addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
-		addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
-		addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
+		addChild(createWidget<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
+		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+		addChild(createWidget<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
 		//TPort *createInputCentered(Vec pos, Module *module, int inputId) {
 		addInput(createInputCentered<PJ301MPort>(Vec(27.5f, 247.5f), module, PDArrayModule::PHASE_INPUT));
@@ -476,8 +476,8 @@ struct PDArrayModuleWidget : ModuleWidget {
 		addInput(createInputCentered<PJ301MPort>(Vec(97.5f, 347.5f), module, PDArrayModule::REC_SIGNAL_INPUT));
 		addInput(createInputCentered<PJ301MPort>(Vec(175.f, 347.5f), module, PDArrayModule::REC_ENABLE_INPUT));
 
-		addParam(ParamWidget::create<CKSSThree>(Vec(107.5f, 290), module, PDArrayModule::OUTPUT_RANGE_PARAM, 0, 2, 0));
-		addParam(ParamWidget::create<CKSSThree>(Vec(27.5f, 290), module, PDArrayModule::PHASE_RANGE_PARAM, 0, 2, 2));
+		addParam(createParam<CKSSThree>(Vec(107.5f, 290), module, PDArrayModule::OUTPUT_RANGE_PARAM, 0, 2, 0));
+		addParam(createParam<CKSSThree>(Vec(27.5f, 290), module, PDArrayModule::PHASE_RANGE_PARAM, 0, 2, 2));
 
 		addChild(createLightCentered<MediumLight<RedLight>>(Vec(207.5f, 355), module, PDArrayModule::REC_LIGHT));
 
@@ -528,4 +528,4 @@ struct PDArrayModuleWidget : ModuleWidget {
 	//}
 };
 
-Model *modelPDArray = Model::create<PDArrayModule, PDArrayModuleWidget>("Array");
+Model *modelPDArray = createModel<PDArrayModule, PDArrayModuleWidget>("Array");

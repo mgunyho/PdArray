@@ -221,8 +221,8 @@ struct MiniRampWidget : ModuleWidget {
 		this->module = module;
 		setPanel(SVG::load(assetPlugin(pluginInstance, "res/MiniRamp.svg"))); //TODO
 
-		addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
-		addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
+		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
 		addParam(createParamCentered<RoundBlackKnob>(
 					Vec(22.5, 37.5), module,
@@ -261,4 +261,4 @@ struct MiniRampWidget : ModuleWidget {
 // author name for categorization per plugin, module slug (should never
 // change), human-readable module name, and any number of tags
 // (found in `include/tags.hpp`) separated by commas.
-Model *modelMiniRamp = Model::create<MiniRamp, MiniRampWidget>("Miniramp");
+Model *modelMiniRamp = createModel<MiniRamp, MiniRampWidget>("Miniramp");
