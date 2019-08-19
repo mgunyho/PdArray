@@ -16,7 +16,7 @@ struct TextBox : TransparentWidget {
 
 	//TODO: create<...>() thing with position as argument?
 	TextBox() {
-		font = Font::load(assetPlugin(plugin, "res/RobotoMono-Bold.ttf"));
+		font = Font::load(assetPlugin(pluginInstance, "res/RobotoMono-Bold.ttf")); // TODO: move fonts to subfolder, fix paths...
 		defaultTextColor = nvgRGB(0x23, 0x23, 0x23);
 		textColor = defaultTextColor;
 		backgroundColor = nvgRGB(0xc8, 0xc8, 0xc8);

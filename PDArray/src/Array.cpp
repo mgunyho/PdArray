@@ -460,7 +460,7 @@ struct PDArrayModuleWidget : ModuleWidget {
 	PDArrayModuleWidget(PDArrayModule *module) : ModuleWidget(module) {
 		this->module = module;
 
-		setPanel(SVG::load(assetPlugin(plugin, "res/Array.svg"))); //TODO
+		setPanel(SVG::load(assetPlugin(pluginInstance, "res/Array.svg"))); //TODO
 
 		addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
 		addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));

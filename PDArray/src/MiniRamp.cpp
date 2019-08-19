@@ -219,7 +219,7 @@ struct MiniRampWidget : ModuleWidget {
 
 	MiniRampWidget(MiniRamp *module) : ModuleWidget(module) {
 		this->module = module;
-		setPanel(SVG::load(assetPlugin(plugin, "res/MiniRamp.svg"))); //TODO
+		setPanel(SVG::load(assetPlugin(pluginInstance, "res/MiniRamp.svg"))); //TODO
 
 		addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
 		addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
