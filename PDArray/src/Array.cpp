@@ -74,14 +74,14 @@ struct PDArrayModule : Module {
 	void loadSample(std::string path);
 
 	// For more advanced Module features, read Rack's engine.hpp header file
-	// - toJson, fromJson: serialization of internal data
+	// - dataToJson, dataFromJson: serialization of internal data
 	// - onSampleRateChange: event triggered by a change of sample rate
 	// - onReset, onRandomize, onCreate, onDelete: implements special behavior when user clicks these from the context menu
 
 	// TODO: if array is large enough (how large?) encode as base64?
 	// see https://stackoverflow.com/questions/45508360/quickest-way-to-encode-vector-of-floats-into-hex-or-base64binary
 
-	json_t *toJson() override {
+	json_t *dataToJson() override {
 		json_t *root = json_object();
 		json_object_set_new(root, "enableEditing", json_boolean(enableEditing));
 		json_object_set_new(root, "boundaryMode", json_real(boundaryMode));
@@ -93,7 +93,7 @@ struct PDArrayModule : Module {
 		return root;
 	}
 
-	void fromJson(json_t *root) override {
+	void dataFromJson(json_t *root) override {
 		json_t *enableEditing_J = json_object_get(root, "enableEditing");
 		json_t *boundaryMode_J = json_object_get(root, "boundaryMode");
 		json_t *arr = json_object_get(root, "arrayData");
@@ -403,7 +403,7 @@ struct NumberTextField : TextField {
 	}
 	void step() override {
 		TextField::step();
-		// eh, kinda hacky - is there any way to do this just once after the module has been initialized? after fromJson?
+		// eh, kinda hacky - is there any way to do this just once after the module has been initialized? after dataFromJson?
 		if(gFocusedWidget != this) {
 			validText = stringf("%u", module->buffer.size());
 			text = validText;
