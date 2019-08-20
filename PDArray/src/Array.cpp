@@ -61,7 +61,8 @@ struct PDArrayModule : Module {
 		}
 	}
 
-	PDArrayModule() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
+	PDArrayModule() {
+		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 		initBuffer();
 	}
 
@@ -457,7 +458,8 @@ struct PDArrayModuleWidget : ModuleWidget {
 	NumberTextField *sizeSelector;
 	PDArrayModule *module;
 
-	PDArrayModuleWidget(PDArrayModule *module) : ModuleWidget(module) {
+	PDArrayModuleWidget(PDArrayModule *module) {
+		setModule(module);
 		this->module = module;
 
 		setPanel(SVG::load(assetPlugin(pluginInstance, "res/Array.svg"))); //TODO

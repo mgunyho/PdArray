@@ -73,7 +73,9 @@ struct MiniRamp : Module {
 	float ramp_duration = 0.5f;
 	float cv_scale = 0.f; // cv_scale = +- 1 -> 10V CV changes duration by +-10s
 
-	MiniRamp() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
+	MiniRamp() {
+		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
+	}
 
 	void step() override;
 
@@ -217,7 +219,8 @@ struct MiniRampWidget : ModuleWidget {
 	MiniRamp *module;
 	MsDisplayWidget *msDisplay;
 
-	MiniRampWidget(MiniRamp *module) : ModuleWidget(module) {
+	MiniRampWidget(MiniRamp *module) {
+		setModule(module);
 		this->module = module;
 		setPanel(SVG::load(assetPlugin(pluginInstance, "res/MiniRamp.svg"))); //TODO
 
