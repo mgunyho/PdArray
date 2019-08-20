@@ -1,7 +1,6 @@
 #include "PDArray.hpp"
 #include "Widgets.hpp"
 #include "Util.hpp"
-#include "dsp/digital.hpp"
 
 #include <algorithm> // std::replace
 
@@ -78,11 +77,6 @@ struct MiniRamp : Module {
 	}
 
 	void step() override;
-
-	// For more advanced Module features, read Rack's engine.hpp header file
-	// - dataToJson, dataFromJson: serialization of internal data
-	// - onSampleRateChange: event triggered by a change of sample rate
-	// - onReset, onRandomize, onCreate, onDelete: implements special behavior when user clicks these from the context menu
 
 };
 
@@ -200,7 +194,9 @@ struct MsDisplayWidget : TextBox {
 	void step() override {
 		TextBox::step();
 		cvLabelStatus = cvDisplayTimer.process();
-		updateDisplayValue(cvLabelStatus ? fabs(module->cv_scale) * 10.f : module->ramp_duration);
+		if(module) {
+			updateDisplayValue(cvLabelStatus ? fabs(module->cv_scale) * 10.f : module->ramp_duration);
+		}
 	}
 
 };
@@ -209,7 +205,7 @@ struct CustomTrimpot : Trimpot {
 	MsDisplayWidget *display;
 	CustomTrimpot(): Trimpot() {};
 
-	void onDragMove(EventDragMove &e) override {
+	void onDragMove(const event::DragMove &e) override {
 		Trimpot::onDragMove(e);
 		display->triggerCVDisplay();
 	}
@@ -260,8 +256,4 @@ struct MiniRampWidget : ModuleWidget {
 };
 
 
-// Specify the Module and ModuleWidget subclass, human-readable
-// author name for categorization per plugin, module slug (should never
-// change), human-readable module name, and any number of tags
-// (found in `include/tags.hpp`) separated by commas.
 Model *modelMiniRamp = createModel<MiniRamp, MiniRampWidget>("Miniramp");

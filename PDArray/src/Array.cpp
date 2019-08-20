@@ -2,7 +2,6 @@
 #include "window.hpp" // windowIsModPressed
 #include "osdialog.h"
 #include <GLFW/glfw3.h> // key codes
-#include "dsp/digital.hpp"
 #include <algorithm> // std::min
 #define DR_WAV_IMPLEMENTATION
 #include "dr_wav.h"
@@ -73,11 +72,6 @@ struct PDArrayModule : Module {
 	}
 
 	void loadSample(std::string path);
-
-	// For more advanced Module features, read Rack's engine.hpp header file
-	// - dataToJson, dataFromJson: serialization of internal data
-	// - onSampleRateChange: event triggered by a change of sample rate
-	// - onReset, onRandomize, onCreate, onDelete: implements special behavior when user clicks these from the context menu
 
 	// TODO: if array is large enough (how large?) encode as base64?
 	// see https://stackoverflow.com/questions/45508360/quickest-way-to-encode-vector-of-floats-into-hex-or-base64binary
@@ -254,6 +248,7 @@ struct ArrayDisplay : OpaqueWidget {
 		OpaqueWidget::draw(vg);
 
 		// show phase
+		if(module) { //TODO fix indentation
 		float px =  module->phase * box.size.x;
 		nvgBeginPath(vg);
 		nvgStrokeWidth(vg, 2.f);
@@ -289,6 +284,7 @@ struct ArrayDisplay : OpaqueWidget {
 		nvgStrokeWidth(vg, 2.f);
 		nvgStrokeColor(vg, nvgRGB(0x0, 0x0, 0x0));
 		nvgStroke(vg);
+		}
 
 		nvgBeginPath(vg);
 		nvgStrokeColor(vg, nvgRGB(0x0, 0x0, 0x0));
@@ -298,25 +294,25 @@ struct ArrayDisplay : OpaqueWidget {
 
 	}
 
-	void onMouseDown(EventMouseDown &e) override {
-		if(e.button == 0 && module->enableEditing) {
-			e.target = this;
-			e.consumed = true;
+	void onButton(const event::Button &e) override {
+		if(e.button == GLFW_MOUSE_BUTTON_LEFT && e.action == GLFW_PRESS
+				&& module->enableEditing) {
+			e.consume(this);
 			dragPosition = e.pos;
 		}
 	}
 
-	void onDragStart(EventDragStart &e) override {
+	void onDragStart(const event::DragStart &e) override {
 		OpaqueWidget::onDragStart(e);
 		dragging = true;
 	}
 
-	void onDragEnd(EventDragEnd &e) override {
+	void onDragEnd(const event::DragEnd &e) override {
 		OpaqueWidget::onDragEnd(e);
 		dragging = false;
 	}
 
-	void onDragMove(EventDragMove &e) override {
+	void onDragMove(const event::DragMove &e) override {
 		OpaqueWidget::onDragMove(e);
 		if(!module->enableEditing) return;
 		//TODO: this results in erroneous behavior, use gRackWidget.lastMousePos? (then needs conversion to local coordinate frame). See e.g.
@@ -326,7 +322,7 @@ struct ArrayDisplay : OpaqueWidget {
 		//for(int i = iMin; i < iMax; i++) { ... }
 		//if(mouseRel.x > 1) { ... }
 		// check out how it's done in pd?
-		dragPosition = dragPosition.plus(e.mouseRel);
+		dragPosition = dragPosition.plus(e.mouseDelta); //TODO: check
 
 		// int() rounds down, so the upper limit of rescale is buffer.size() without -1.
 		int s = module->buffer.size();
@@ -349,7 +345,7 @@ struct NumberTextField : TextField {
 
 	NumberTextField(PDArrayModule *m) : TextField() {
 		module = m;
-		validText = stringf("%u", module->buffer.size());
+		validText = stringf("%u", module ? module->buffer.size() : 1);
 		text = validText;
 	};
 
@@ -360,7 +356,7 @@ struct NumberTextField : TextField {
 		return !s.empty() && it == s.end();
 	}
 
-	void onAction(EventAction &e) override {
+	void onAction(const event::Action &e) override {
 		if(text.size() > 0) {
 			int n = stoi(text); // text should always contain only digits
 			if(n > 0) {
@@ -369,46 +365,48 @@ struct NumberTextField : TextField {
 			}
 		}
 		text = validText;
-		if(gFocusedWidget == this) gFocusedWidget = NULL;
-		e.consumed = true;
+		//if(gFocusedWidget == this) gFocusedWidget = NULL;
+		if(APP->event->selectedWidget == this) APP->event->selectedWidget = NULL; //TODO: replace with onSelect / onDeselect (?) -- at least emit onDeselect
+		e.consume(this);
 	}
 
-	void onKey(EventKey &e) override {
-		if(e.key == GLFW_KEY_V && windowIsModPressed()) {
+	void onSelectKey(const event::SelectKey &e) override {
+		//TODO: compare this to onSelectKey in Little-Utils/src/Widgets.cpp
+		if(e.key == GLFW_KEY_V && (e.mods & RACK_MOD_MASK) == RACK_MOD_CTRL) {
 			// prevent pasting too long text
 			int pasteLength = maxCharacters - TextField::text.size();
 			if(pasteLength > 0) {
-				std::string newText(glfwGetClipboardString(gWindow));
+				std::string newText(glfwGetClipboardString(APP->window->win));
 				if(newText.size() > pasteLength) newText.erase(pasteLength);
 				if(isNumber(newText)) insertText(newText);
 			}
-			e.consumed = true;
+			e.consume(this);
 
-		} else if(e.key == GLFW_KEY_ESCAPE && (gFocusedWidget == this)) {
+		} else if(false /*e.key == GLFW_KEY_ESCAPE && (gFocusedWidget == this)*/) { //TODO
 			// same as pressing enter
-			EventAction ee;
-			onAction(ee);
+			event::Action eAction;
+			onAction(eAction);
 
 		} else {
-			TextField::onKey(e);
+			TextField::onSelectKey(e);
 		}
 	}
 
-	void onText(EventText &e) override {
+	void onSelectText(const event::SelectText &e) override {
 		// assuming GLFW number keys are contiguous
 		if(text.size() < maxCharacters
 				&& GLFW_KEY_0  <= e.codepoint
 				&& e.codepoint <= GLFW_KEY_9) {
-			TextField::onText(e);
+			TextField::onSelectText(e);
 		}
 	}
 	void step() override {
 		TextField::step();
 		// eh, kinda hacky - is there any way to do this just once after the module has been initialized? after dataFromJson?
-		if(gFocusedWidget != this) {
-			validText = stringf("%u", module->buffer.size());
-			text = validText;
-		}
+		//if(gFocusedWidget != this) { //TODO
+		//	validText = stringf("%u", module->buffer.size());
+		//	text = validText;
+		//}
 	}
 
 };
@@ -417,8 +415,8 @@ struct NumberTextField : TextField {
 // https://github.com/cfoulc/cf/blob/master/src/PLAYER.cpp
 struct ArrayFileSelectItem : MenuItem {
 	PDArrayModule *module;
-	void onAction(EventAction &e) override {
-		std::string dir = module->lastLoadedPath.empty() ? assetLocal("") : stringDirectory(module->lastLoadedPath);
+	void onAction(const event::Action &e) override {
+		std::string dir = module->lastLoadedPath.empty() ? assetLocal("") : rack::string::directory(module->lastLoadedPath);
 		char *path = osdialog_file(OSDIALOG_OPEN, dir.c_str(), NULL, NULL);
 		if(path) {
 			module->loadSample(path);
@@ -431,7 +429,7 @@ struct ArrayFileSelectItem : MenuItem {
 struct ArrayEnableEditingMenuItem : MenuItem {
 	PDArrayModule *module;
 	bool valueToSet;
-	void onAction(EventAction &e) override {
+	void onAction(const event::Action &e) override {
 		module->enableEditing = valueToSet;
 	}
 };
@@ -448,7 +446,7 @@ struct ArrayInterpModeMenuItem : MenuItem {
 			text = label;
 			rightText = CHECKMARK(module->boundaryMode == mode);
 	}
-	void onAction(EventAction &e) override {
+	void onAction(const event::Action &e) override {
 		module->boundaryMode = mode;
 	}
 };
@@ -493,8 +491,7 @@ struct PDArrayModuleWidget : ModuleWidget {
 		addChild(sizeSelector);
 	}
 
-	Menu *createContextMenu() override {
-		Menu *menu = ModuleWidget::createContextMenu();
+	void appendContextMenu(ui::Menu *menu) override {
 
 		PDArrayModule *arr = dynamic_cast<PDArrayModule*>(module);
 		if(arr){
@@ -505,7 +502,7 @@ struct PDArrayModuleWidget : ModuleWidget {
 			menu->addChild(fsItem);
 
 			auto *edItem = new ArrayEnableEditingMenuItem();
-			edItem->text = "Disable drawing";
+			edItem->text = "Disable drawing"; //TODO: better description (mention mouse)
 			edItem->module = arr;
 			edItem->rightText = CHECKMARK(!arr->enableEditing);
 			edItem->valueToSet = !arr->enableEditing;
@@ -522,12 +519,12 @@ struct PDArrayModuleWidget : ModuleWidget {
 
 		}
 
-		return menu;
 	}
 
 	//void draw(NVGcontext *vg) override {
 	//	ModuleWidget::draw(vg);
 	//}
 };
+
 
 Model *modelPDArray = createModel<PDArrayModule, PDArrayModuleWidget>("Array");
