@@ -83,15 +83,15 @@ struct MiniRamp : Module {
 void MiniRamp::process(const ProcessArgs &args) {
 	float deltaTime = args.sampleTime;
 
-	bool triggered = inputTrigger.process(rescale(inputs[TRIG_INPUT].value,
+	bool triggered = inputTrigger.process(rescale(inputs[TRIG_INPUT].getVoltage(),
 												  0.1f, 2.f, 0.f, 1.f));
 
 	// handle duration knob and CV
-	float knob_value = params[RAMP_LENGTH_PARAM].value;
-	float cv_amt = params[CV_AMT_PARAM].value;
-	float cv_voltage = inputs[RAMP_LENGTH_INPUT].value;
+	float knob_value = params[RAMP_LENGTH_PARAM].getValue();
+	float cv_amt = params[CV_AMT_PARAM].getValue();
+	float cv_voltage = inputs[RAMP_LENGTH_INPUT].getVoltage();
 
-	if(params[LIN_LOG_MODE_PARAM].value < 0.5f) {
+	if(params[LIN_LOG_MODE_PARAM].getValue() < 0.5f) {
 		// linear mode
 		cv_scale = cv_amt;
 		ramp_duration = clamp(knob_value + cv_voltage * cv_amt, 0.f, 10.f);
@@ -122,7 +122,7 @@ void MiniRamp::process(const ProcessArgs &args) {
 
 	outputs[RAMP_OUTPUT].value = gate ?
 		clamp(gateGen.time / gateGen.triggerDuration * 10.f, 0.f, 10.f) : 0.f;
-	outputs[GATE_OUTPUT].value = gate ? 10.0f : 0.0f;
+	outputs[GATE_OUTPUT].setVoltage(gate ? 10.0f : 0.0f);
 
 	lights[RAMP_LIGHT].setBrightnessSmooth(outputs[RAMP_OUTPUT].value * 1e-1f);
 	lights[GATE_LIGHT].setBrightnessSmooth(outputs[GATE_OUTPUT].value);

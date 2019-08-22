@@ -144,7 +144,7 @@ void PDArrayModule::process(const ProcessArgs &args) {
 	float deltaTime = args.sampleTime;
 
 	float phaseMin, phaseMax;
-	float prange = params[PHASE_RANGE_PARAM].value;
+	float prange = params[PHASE_RANGE_PARAM].getValue();
 	if(prange > 1.5f) {
 		phaseMin = 0.f;
 		phaseMax = 10.f;
@@ -155,15 +155,16 @@ void PDArrayModule::process(const ProcessArgs &args) {
 		phaseMin = -10.f;
 		phaseMax =  10.f;
 	}
-	//phase = rescale(clamp(inputs[PHASE_INPUT].value, 0.f, 10.f), 0.f, 10.f, 0.f, 1.f);
-	phase = clamp(rescale(inputs[PHASE_INPUT].value, phaseMin, phaseMax, 0.f, 1.f), 0.f, 1.f);
-	recPhase = clamp(rescale(inputs[REC_PHASE_INPUT].value, phaseMin, phaseMax, 0.f, 1.f), 0.f, 1.f);
+	//phase = rescale(clamp(inputs[PHASE_INPUT].getVoltage(), 0.f, 10.f), 0.f, 10.f, 0.f, 1.f);
+	//TODO: make polyphonic
+	phase = clamp(rescale(inputs[PHASE_INPUT].getVoltage(), phaseMin, phaseMax, 0.f, 1.f), 0.f, 1.f);
+	recPhase = clamp(rescale(inputs[REC_PHASE_INPUT].getVoltage(), phaseMin, phaseMax, 0.f, 1.f), 0.f, 1.f);
 
 	int size = buffer.size();
 
 
 	float inOutMin, inOutMax;
-	float orange = params[OUTPUT_RANGE_PARAM].value;
+	float orange = params[OUTPUT_RANGE_PARAM].getValue();
 	if(orange > 1.5f) {
 		inOutMin = 0.f;
 		inOutMax = 10.f;
@@ -177,16 +178,16 @@ void PDArrayModule::process(const ProcessArgs &args) {
 
 	// recording
 	int ri = int(recPhase * size);
-	recTrigger.process(rescale(inputs[REC_ENABLE_INPUT].value, 0.1f, 2.f, 0.f, 1.f));
+	recTrigger.process(rescale(inputs[REC_ENABLE_INPUT].getVoltage(), 0.1f, 2.f, 0.f, 1.f));
 	bool rec = recTrigger.isHigh();
 	if(rec) {
-		buffer[ri] = clamp(rescale(inputs[REC_SIGNAL_INPUT].value, inOutMin, inOutMax, 0.f, 1.f), 0.f, 1.f);
+		buffer[ri] = clamp(rescale(inputs[REC_SIGNAL_INPUT].getVoltage(), inOutMin, inOutMax, 0.f, 1.f), 0.f, 1.f);
 	}
 	lights[REC_LIGHT].setBrightnessSmooth(rec);
 
 	// direct output
 	int i = clamp(int(phase * size), 0, size - 1);
-	outputs[DIRECT_OUTPUT].value = rescale(buffer[i], 0.f, 1.f, inOutMin, inOutMax);
+	outputs[DIRECT_OUTPUT].setVoltage(rescale(buffer[i], 0.f, 1.f, inOutMin, inOutMax));
 
 	// interpolated output, based on tabread4_tilde_perform() in
 	// https://github.com/pure-data/pure-data/blob/master/src/d_array.c
@@ -230,7 +231,7 @@ void PDArrayModule::process(const ProcessArgs &args) {
 				(d - a - 3.f * (c - b)) * frac + (d + 2.f * a - 3.f * b)
 			)
 		);
-	outputs[INTERP_OUTPUT].value = rescale(y, 0.f, 1.f, inOutMin, inOutMax);
+	outputs[INTERP_OUTPUT].setVoltage(rescale(y, 0.f, 1.f, inOutMin, inOutMax));
 
 }
 
@@ -258,7 +259,7 @@ struct ArrayDisplay : OpaqueWidget {
 		nvgStroke(args.vg);
 
 		// phase of recording
-		if(module->inputs[PDArrayModule::REC_PHASE_INPUT].active) {
+		if(module->inputs[PDArrayModule::REC_PHASE_INPUT].isConnected()) {
 			float rpx = module->recPhase * box.size.x;
 			nvgBeginPath(args.vg);
 			nvgStrokeWidth(args.vg, 2.f);
