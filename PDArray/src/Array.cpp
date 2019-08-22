@@ -185,7 +185,7 @@ void PDArrayModule::process(const ProcessArgs &args) {
 	if(rec) {
 		buffer[ri] = clamp(rescale(inputs[REC_SIGNAL_INPUT].getVoltage(), inOutMin, inOutMax, 0.f, 1.f), 0.f, 1.f);
 	}
-	lights[REC_LIGHT].setBrightnessSmooth(rec);
+	lights[REC_LIGHT].setSmoothBrightness(rec, deltaTime);
 
 	// direct output
 	int i = clamp(int(phase * size), 0, size - 1);
@@ -248,7 +248,7 @@ struct ArrayDisplay : OpaqueWidget {
 	}
 
 	void draw(const DrawArgs &args) override {
-		OpaqueWidget::draw(args.vg); //TODO: replace args.vg with just vg
+		OpaqueWidget::draw(args); //TODO: replace args.vg with just vg
 
 		// show phase
 		if(module) { //TODO fix indentation

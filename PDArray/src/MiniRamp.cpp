@@ -133,8 +133,8 @@ void MiniRamp::process(const ProcessArgs &args) {
 		clamp(gateGen.time / gateGen.triggerDuration * 10.f, 0.f, 10.f) : 0.f;
 	outputs[GATE_OUTPUT].setVoltage(gate ? 10.0f : 0.0f);
 
-	lights[RAMP_LIGHT].setBrightnessSmooth(outputs[RAMP_OUTPUT].value * 1e-1f);
-	lights[GATE_LIGHT].setBrightnessSmooth(outputs[GATE_OUTPUT].value);
+	lights[RAMP_LIGHT].setSmoothBrightness(outputs[RAMP_OUTPUT].value * 1e-1f, deltaTime);
+	lights[GATE_LIGHT].setSmoothBrightness(outputs[GATE_OUTPUT].value, deltaTime);
 
 }
 
