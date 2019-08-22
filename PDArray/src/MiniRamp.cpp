@@ -81,7 +81,7 @@ struct MiniRamp : Module {
 };
 
 void MiniRamp::process(const ProcessArgs &args) {
-	float deltaTime = engineGetSampleTime();
+	float deltaTime = args.sampleTime;
 
 	bool triggered = inputTrigger.process(rescale(inputs[TRIG_INPUT].value,
 												  0.1f, 2.f, 0.f, 1.f));

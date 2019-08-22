@@ -19,7 +19,7 @@ TinyLight<TLightColor> *createTinyLightForPort(Vec portCenterPos, Module *module
 
 struct GUITimer {
 	// Kinda like PulseGenerator, but uses std::chrono for timing events, since
-	// we don't have engineGetSampleTime() for Widget::step().
+	// we don't have args.sampleTime for Widget::step().
 
 	//TODO: does rack provide a GUI timer?
 	bool status = false; // true == high, false == low

@@ -141,7 +141,7 @@ void PDArrayModule::loadSample(std::string path) {
 }
 
 void PDArrayModule::process(const ProcessArgs &args) {
-	float deltaTime = engineGetSampleTime();
+	float deltaTime = args.sampleTime;
 
 	float phaseMin, phaseMax;
 	float prange = params[PHASE_RANGE_PARAM].value;
