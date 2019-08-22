@@ -46,7 +46,7 @@ struct PDArrayModule : Module {
 
 	float phase = 0.f;
 	float recPhase = 0.f;
-	SchmittTrigger recTrigger;
+	dsp::SchmittTrigger recTrigger;
 	bool periodicInterpolation = true; // TODO: implement in GUI
 	std::vector<float> buffer;
 	std::string lastLoadedPath;

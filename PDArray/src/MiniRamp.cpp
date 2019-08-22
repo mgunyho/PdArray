@@ -67,7 +67,7 @@ struct MiniRamp : Module {
 		NUM_LIGHTS
 	};
 
-	SchmittTrigger inputTrigger;
+	dsp::SchmittTrigger inputTrigger;
 	CustomPulseGenerator gateGen;
 	float ramp_duration = 0.5f;
 	float cv_scale = 0.f; // cv_scale = +- 1 -> 10V CV changes duration by +-10s
