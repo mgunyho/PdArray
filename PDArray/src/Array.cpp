@@ -62,6 +62,8 @@ struct PDArrayModule : Module {
 
 	PDArrayModule() {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
+		configParam(PDArrayModule::OUTPUT_RANGE_PARAM, 0, 2, 0, ""); //TODO: tooltips...
+		configParam(PDArrayModule::PHASE_RANGE_PARAM, 0, 2, 2, "");
 		initBuffer();
 	}
 
@@ -477,8 +479,8 @@ struct PDArrayModuleWidget : ModuleWidget {
 		addInput(createInputCentered<PJ301MPort>(Vec(97.5f, 347.5f), module, PDArrayModule::REC_SIGNAL_INPUT));
 		addInput(createInputCentered<PJ301MPort>(Vec(175.f, 347.5f), module, PDArrayModule::REC_ENABLE_INPUT));
 
-		addParam(createParam<CKSSThree>(Vec(107.5f, 290), module, PDArrayModule::OUTPUT_RANGE_PARAM, 0, 2, 0));
-		addParam(createParam<CKSSThree>(Vec(27.5f, 290), module, PDArrayModule::PHASE_RANGE_PARAM, 0, 2, 2));
+		addParam(createParam<CKSSThree>(Vec(107.5f, 290), module, PDArrayModule::OUTPUT_RANGE_PARAM));
+		addParam(createParam<CKSSThree>(Vec(27.5f, 290), module, PDArrayModule::PHASE_RANGE_PARAM));
 
 		addChild(createLightCentered<MediumLight<RedLight>>(Vec(207.5f, 355), module, PDArrayModule::REC_LIGHT));
 

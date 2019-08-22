@@ -74,6 +74,7 @@ struct MiniRamp : Module {
 
 	MiniRamp() {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
+		configParam(MiniRamp::LIN_LOG_MODE_PARAM, 0.f, 1.f, 1.f, ""); // TODO: tooltip
 	}
 
 	void process(const ProcessArgs &args) override;
@@ -231,7 +232,7 @@ struct MiniRampWidget : ModuleWidget {
 					5.f // 0.1s in log mode, 5s in lin mode
 					));
 
-		addParam(createParam<CKSS>(Vec(7.5, 60), module, MiniRamp::LIN_LOG_MODE_PARAM, 0.f, 1.f, 1.f));
+		addParam(createParam<CKSS>(Vec(7.5, 60), module, MiniRamp::LIN_LOG_MODE_PARAM));
 
 		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 151), module, MiniRamp::RAMP_LENGTH_INPUT));
 		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 192), module, MiniRamp::TRIG_INPUT));
