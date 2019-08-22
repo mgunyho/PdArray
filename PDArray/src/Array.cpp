@@ -416,7 +416,7 @@ struct NumberTextField : TextField {
 struct ArrayFileSelectItem : MenuItem {
 	PDArrayModule *module;
 	void onAction(const event::Action &e) override {
-		std::string dir = module->lastLoadedPath.empty() ? assetLocal("") : rack::string::directory(module->lastLoadedPath);
+		std::string dir = module->lastLoadedPath.empty() ? asset::user("") : rack::string::directory(module->lastLoadedPath);
 		char *path = osdialog_file(OSDIALOG_OPEN, dir.c_str(), NULL, NULL);
 		if(path) {
 			module->loadSample(path);
@@ -460,7 +460,7 @@ struct PDArrayModuleWidget : ModuleWidget {
 		setModule(module);
 		this->module = module;
 
-		setPanel(APP->window->loadSvg(assetPlugin(pluginInstance, "res/Array.svg"))); //TODO
+		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Array.svg"))); //TODO
 
 		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
 		addChild(createWidget<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
