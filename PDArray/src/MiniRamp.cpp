@@ -74,7 +74,15 @@ struct MiniRamp : Module {
 
 	MiniRamp() {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
-		configParam(MiniRamp::LIN_LOG_MODE_PARAM, 0.f, 1.f, 1.f, ""); // TODO: tooltip
+
+		// TODO: tooltips
+		configParam(MiniRamp::RAMP_LENGTH_PARAM, 0.f, 10.f,
+					// 0.5s in log scale
+					//rescale(-0.30103f, MIN_EXPONENT, MAX_EXPONENT, 0.f,10.f)
+					5.f // 0.1s in log mode, 5s in lin mode
+					);
+		configParam(MiniRamp::CV_AMT_PARAM, -1.f, 1.f, 0.f, "");
+		configParam(MiniRamp::LIN_LOG_MODE_PARAM, 0.f, 1.f, 1.f, "");
 	}
 
 	void process(const ProcessArgs &args) override;
@@ -152,10 +160,10 @@ struct MsDisplayWidget : TextBox {
 			previous_displayed_value = v;
 			if(v <= 0.0995) {
 				v *= 1e3f;
-				s = stringf("%#.2g", v < 1.f ? 0.f : v);
+				s = string::f("%#.2g", v < 1.f ? 0.f : v);
 				msLabelStatus = false;
 			} else {
-				s = stringf("%#.2g", v);
+				s = string::f("%#.2g", v);
 				msLabelStatus = true;
 				if(s.at(0) == '0') s.erase(0, 1);
 			}
@@ -166,7 +174,7 @@ struct MsDisplayWidget : TextBox {
 	}
 
 	void draw(const DrawArgs &args) override {
-		TextBox::draw(args.vg); //TODO: replace args.vg with just vg
+		TextBox::draw(args); //TODO: replace args.vg with just vg
 		nvgScissor(args.vg, 0, 0, box.size.x, box.size.y);
 
 		if(font->handle >= 0) {
@@ -224,13 +232,8 @@ struct MiniRampWidget : ModuleWidget {
 		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
 		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-		addParam(createParamCentered<RoundBlackKnob>(
-					Vec(22.5, 37.5), module,
-					MiniRamp::RAMP_LENGTH_PARAM, 0.f, 10.f,
-					// 0.5s in log scale
-					//rescale(-0.30103f, MIN_EXPONENT, MAX_EXPONENT, 0.f,10.f)
-					5.f // 0.1s in log mode, 5s in lin mode
-					));
+		addParam(createParamCentered<RoundBlackKnob>(Vec(22.5, 37.5), module,
+					MiniRamp::RAMP_LENGTH_PARAM));
 
 		addParam(createParam<CKSS>(Vec(7.5, 60), module, MiniRamp::LIN_LOG_MODE_PARAM));
 
@@ -246,9 +249,8 @@ struct MiniRampWidget : ModuleWidget {
 		msDisplay->box.pos = Vec(7.5, 308);
 		addChild(msDisplay);
 
-		auto cvKnob = createParamCentered<CustomTrimpot>(
-					Vec(22.5, 110), module, MiniRamp::CV_AMT_PARAM,
-					-1.f, 1.f, 0.f);
+		auto cvKnob = createParamCentered<CustomTrimpot>(Vec(22.5, 110), module,
+				MiniRamp::CV_AMT_PARAM);
 		cvKnob->display = msDisplay;
 		addParam(cvKnob);
 

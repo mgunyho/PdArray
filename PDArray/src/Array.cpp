@@ -348,7 +348,7 @@ struct NumberTextField : TextField {
 
 	NumberTextField(PDArrayModule *m) : TextField() {
 		module = m;
-		validText = stringf("%u", module ? module->buffer.size() : 1);
+		validText = string::f("%u", module ? module->buffer.size() : 1);
 		text = validText;
 	};
 
@@ -363,7 +363,7 @@ struct NumberTextField : TextField {
 		if(text.size() > 0) {
 			int n = stoi(text); // text should always contain only digits
 			if(n > 0) {
-				validText = stringf("%u", n);
+				validText = string::f("%u", n);
 				module->resizeBuffer(n);
 			}
 		}
