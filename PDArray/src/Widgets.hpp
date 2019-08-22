@@ -1,4 +1,4 @@
-#include "rack0.hpp"
+#include "rack.hpp"
 
 // TODO: same as in LittleUtils, move to common folder?
 struct TextBox : TransparentWidget {
@@ -29,27 +29,26 @@ struct TextBox : TransparentWidget {
 
 	virtual void setText(std::string s) { text = s; }
 
-	virtual void draw(NVGcontext *vg) override {
+	virtual void draw(const DrawArgs &args) override {
 		// based on LedDisplayChoice::draw() in Rack/src/app/LedDisplay.cpp
-		nvgScissor(vg, 0, 0, box.size.x, box.size.y);
-
-		nvgBeginPath(vg);
-		nvgRoundedRect(vg, 0, 0, box.size.x, box.size.y, 3.0);
-		nvgFillColor(vg, backgroundColor);
-		nvgFill(vg);
+		nvgScissor(args.vg, 0, 0, box.size.x, box.size.y); //TODO: replace args.vg with just vg
+		nvgBeginPath(args.vg);
+		nvgRoundedRect(args.vg, 0, 0, box.size.x, box.size.y, 3.0);
+		nvgFillColor(args.vg, backgroundColor);
+		nvgFill(args.vg);
 
 		if (font->handle >= 0) {
 
-			nvgFillColor(vg, textColor);
-			nvgFontFaceId(vg, font->handle);
+			nvgFillColor(args.vg, textColor);
+			nvgFontFaceId(args.vg, font->handle);
 
-			nvgFontSize(vg, font_size);
-			nvgTextLetterSpacing(vg, letter_spacing);
-			nvgTextAlign(vg, NVG_ALIGN_CENTER | NVG_ALIGN_TOP);
-			nvgText(vg, textOffset.x, textOffset.y, text.c_str(), NULL);
+			nvgFontSize(args.vg, font_size);
+			nvgTextLetterSpacing(args.vg, letter_spacing);
+			nvgTextAlign(args.vg, NVG_ALIGN_CENTER | NVG_ALIGN_TOP);
+			nvgText(args.vg, textOffset.x, textOffset.y, text.c_str(), NULL);
 		}
 
-		nvgResetScissor(vg);
+		nvgResetScissor(args.vg);
 	};
 
 };
