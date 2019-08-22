@@ -248,52 +248,53 @@ struct ArrayDisplay : OpaqueWidget {
 	}
 
 	void draw(const DrawArgs &args) override {
-		OpaqueWidget::draw(args); //TODO: replace args.vg with just vg
+		OpaqueWidget::draw(args);
+		const auto vg = args.vg;
 
 		// show phase
 		if(module) { //TODO fix indentation
 		float px =  module->phase * box.size.x;
-		nvgBeginPath(args.vg);
-		nvgStrokeWidth(args.vg, 2.f);
-		nvgStrokeColor(args.vg, nvgRGB(0x23, 0x23, 0x87));
-		nvgMoveTo(args.vg, px, 0);
-		nvgLineTo(args.vg, px, box.size.y);
-		nvgStroke(args.vg);
+		nvgBeginPath(vg);
+		nvgStrokeWidth(vg, 2.f);
+		nvgStrokeColor(vg, nvgRGB(0x23, 0x23, 0x87));
+		nvgMoveTo(vg, px, 0);
+		nvgLineTo(vg, px, box.size.y);
+		nvgStroke(vg);
 
 		// phase of recording
 		if(module->inputs[PDArrayModule::REC_PHASE_INPUT].isConnected()) {
 			float rpx = module->recPhase * box.size.x;
-			nvgBeginPath(args.vg);
-			nvgStrokeWidth(args.vg, 2.f);
-			nvgStrokeColor(args.vg, nvgRGB(0x87, 0x23, 0x23));
-			nvgMoveTo(args.vg, rpx, 0);
-			nvgLineTo(args.vg, rpx, box.size.y);
-			nvgStroke(args.vg);
+			nvgBeginPath(vg);
+			nvgStrokeWidth(vg, 2.f);
+			nvgStrokeColor(vg, nvgRGB(0x87, 0x23, 0x23));
+			nvgMoveTo(vg, rpx, 0);
+			nvgLineTo(vg, rpx, box.size.y);
+			nvgStroke(vg);
 		}
 
 		int s = module->buffer.size();
 		float w = box.size.x * 1.f / s;
-		nvgBeginPath(args.vg);
+		nvgBeginPath(vg);
 		for(int i = 0; i < s; i++) {
 			float x1 = i * w;
 			float x2 = (i + 1) * w;
 			float y = (1.f - module->buffer[i]) * box.size.y;
 
-			if(i == 0) nvgMoveTo(args.vg, x1, y);
-			else nvgLineTo(args.vg, x1, y);
+			if(i == 0) nvgMoveTo(vg, x1, y);
+			else nvgLineTo(vg, x1, y);
 
-			nvgLineTo(args.vg, x2, y);
+			nvgLineTo(vg, x2, y);
 		}
-		nvgStrokeWidth(args.vg, 2.f);
-		nvgStrokeColor(args.vg, nvgRGB(0x0, 0x0, 0x0));
-		nvgStroke(args.vg);
+		nvgStrokeWidth(vg, 2.f);
+		nvgStrokeColor(vg, nvgRGB(0x0, 0x0, 0x0));
+		nvgStroke(vg);
 		}
 
-		nvgBeginPath(args.vg);
-		nvgStrokeColor(args.vg, nvgRGB(0x0, 0x0, 0x0));
-		nvgStrokeWidth(args.vg, 2.f);
-		nvgRect(args.vg, 0, 0, box.size.x, box.size.y);
-		nvgStroke(args.vg);
+		nvgBeginPath(vg);
+		nvgStrokeColor(vg, nvgRGB(0x0, 0x0, 0x0));
+		nvgStrokeWidth(vg, 2.f);
+		nvgRect(vg, 0, 0, box.size.x, box.size.y);
+		nvgStroke(vg);
 
 	}
 
