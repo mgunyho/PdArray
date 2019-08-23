@@ -264,14 +264,14 @@ struct ArrayDisplay : OpaqueWidget {
 		if(module) {
 			int nc = module->nChannels;
 			int alpha = int(0xff * rescale(1.0f/nc, 0.f, 1.f, 0.5f, 1.0f));
-			for(int c = 0; c < nc; c++) { //TODO: fix indentation
-			float px =  module->phases[c] * box.size.x;
-			nvgBeginPath(vg);
-			nvgStrokeWidth(vg, 2.f);
-			nvgStrokeColor(vg, nvgRGBA(0x23, 0x23, 0x87, alpha));
-			nvgMoveTo(vg, px, 0);
-			nvgLineTo(vg, px, box.size.y);
-			nvgStroke(vg);
+			for(int c = 0; c < nc; c++) {
+				float px =  module->phases[c] * box.size.x;
+				nvgBeginPath(vg);
+				nvgStrokeWidth(vg, 2.f);
+				nvgStrokeColor(vg, nvgRGBA(0x23, 0x23, 0x87, alpha));
+				nvgMoveTo(vg, px, 0);
+				nvgLineTo(vg, px, box.size.y);
+				nvgStroke(vg);
 			}
 
 			// phase of recording
