@@ -28,7 +28,7 @@ struct PDArrayModule : Module {
 		NUM_INPUTS
 	};
 	enum OutputIds {
-		DIRECT_OUTPUT, //TODO: rename
+		STEP_OUTPUT,
 		INTERP_OUTPUT,
 		NUM_OUTPUTS
 	};
@@ -62,8 +62,8 @@ struct PDArrayModule : Module {
 
 	PDArrayModule() {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
-		configParam(PDArrayModule::OUTPUT_RANGE_PARAM, 0, 2, 0, ""); //TODO: tooltips...
-		configParam(PDArrayModule::PHASE_RANGE_PARAM, 0, 2, 2, "");
+		configParam(PDArrayModule::OUTPUT_RANGE_PARAM, 0, 2, 0, "Recording and output range");
+		configParam(PDArrayModule::PHASE_RANGE_PARAM, 0, 2, 2, "Position CV range");
 		initBuffer();
 	}
 
@@ -77,6 +77,7 @@ struct PDArrayModule : Module {
 
 	// TODO: if array is large enough (how large?) encode as base64?
 	// see https://stackoverflow.com/questions/45508360/quickest-way-to-encode-vector-of-floats-into-hex-or-base64binary
+	// also: rack::string::to/fromBase64
 
 	json_t *dataToJson() override {
 		json_t *root = json_object();
@@ -129,7 +130,7 @@ void PDArrayModule::loadSample(std::string path) {
 		int newSize = std::min(totalPCMFrameCount, buffer.size());
 		buffer.clear();
 		buffer.reserve(newSize);
-		for(int i = 0; i < newSize * channels; i = i + channels) {
+		for(unsigned int i = 0; i < newSize * channels; i = i + channels) {
 			float s = pSampleData[i];
 			if(channels == 2) {
 				s = (s + pSampleData[i + 1]) * 0.5f; // mix stereo channels, good idea?
@@ -189,7 +190,7 @@ void PDArrayModule::process(const ProcessArgs &args) {
 
 	// direct output
 	int i = clamp(int(phase * size), 0, size - 1);
-	outputs[DIRECT_OUTPUT].setVoltage(rescale(buffer[i], 0.f, 1.f, inOutMin, inOutMax));
+	outputs[STEP_OUTPUT].setVoltage(rescale(buffer[i], 0.f, 1.f, inOutMin, inOutMax));
 
 	// interpolated output, based on tabread4_tilde_perform() in
 	// https://github.com/pure-data/pure-data/blob/master/src/d_array.c
@@ -252,42 +253,43 @@ struct ArrayDisplay : OpaqueWidget {
 		const auto vg = args.vg;
 
 		// show phase
-		if(module) { //TODO fix indentation
-		float px =  module->phase * box.size.x;
-		nvgBeginPath(vg);
-		nvgStrokeWidth(vg, 2.f);
-		nvgStrokeColor(vg, nvgRGB(0x23, 0x23, 0x87));
-		nvgMoveTo(vg, px, 0);
-		nvgLineTo(vg, px, box.size.y);
-		nvgStroke(vg);
-
-		// phase of recording
-		if(module->inputs[PDArrayModule::REC_PHASE_INPUT].isConnected()) {
-			float rpx = module->recPhase * box.size.x;
+		// TODO: polyphony
+		if(module) {
+			float px =  module->phase * box.size.x;
 			nvgBeginPath(vg);
 			nvgStrokeWidth(vg, 2.f);
-			nvgStrokeColor(vg, nvgRGB(0x87, 0x23, 0x23));
-			nvgMoveTo(vg, rpx, 0);
-			nvgLineTo(vg, rpx, box.size.y);
+			nvgStrokeColor(vg, nvgRGB(0x23, 0x23, 0x87));
+			nvgMoveTo(vg, px, 0);
+			nvgLineTo(vg, px, box.size.y);
 			nvgStroke(vg);
-		}
 
-		int s = module->buffer.size();
-		float w = box.size.x * 1.f / s;
-		nvgBeginPath(vg);
-		for(int i = 0; i < s; i++) {
-			float x1 = i * w;
-			float x2 = (i + 1) * w;
-			float y = (1.f - module->buffer[i]) * box.size.y;
+			// phase of recording
+			if(module->inputs[PDArrayModule::REC_PHASE_INPUT].isConnected()) {
+				float rpx = module->recPhase * box.size.x;
+				nvgBeginPath(vg);
+				nvgStrokeWidth(vg, 2.f);
+				nvgStrokeColor(vg, nvgRGB(0x87, 0x23, 0x23));
+				nvgMoveTo(vg, rpx, 0);
+				nvgLineTo(vg, rpx, box.size.y);
+				nvgStroke(vg);
+			}
 
-			if(i == 0) nvgMoveTo(vg, x1, y);
-			else nvgLineTo(vg, x1, y);
+			int s = module->buffer.size();
+			float w = box.size.x * 1.f / s;
+			nvgBeginPath(vg);
+			for(int i = 0; i < s; i++) {
+				float x1 = i * w;
+				float x2 = (i + 1) * w;
+				float y = (1.f - module->buffer[i]) * box.size.y;
 
-			nvgLineTo(vg, x2, y);
-		}
-		nvgStrokeWidth(vg, 2.f);
-		nvgStrokeColor(vg, nvgRGB(0x0, 0x0, 0x0));
-		nvgStroke(vg);
+				if(i == 0) nvgMoveTo(vg, x1, y);
+				else nvgLineTo(vg, x1, y);
+
+				nvgLineTo(vg, x2, y);
+			}
+			nvgStrokeWidth(vg, 2.f);
+			nvgStrokeColor(vg, nvgRGB(0x0, 0x0, 0x0));
+			nvgStroke(vg);
 		}
 
 		nvgBeginPath(vg);
@@ -370,7 +372,7 @@ struct NumberTextField : TextField {
 		}
 		text = validText;
 		//if(gFocusedWidget == this) gFocusedWidget = NULL;
-		if(APP->event->selectedWidget == this) APP->event->selectedWidget = NULL; //TODO: replace with onSelect / onDeselect (?) -- at least emit onDeselect
+		if(APP->event->selectedWidget == this) APP->event->selectedWidget = NULL; //TODO: replace with onSelect / onDeselect (?) -- at least emit onDeselect, compare to TextField (?)
 		e.consume(this);
 	}
 
@@ -386,10 +388,14 @@ struct NumberTextField : TextField {
 			}
 			e.consume(this);
 
-		} else if(false /*e.key == GLFW_KEY_ESCAPE && (gFocusedWidget == this)*/) { //TODO
+		} else if(e.key == GLFW_KEY_ESCAPE) {
 			// same as pressing enter
 			event::Action eAction;
 			onAction(eAction);
+			event::Deselect eDeselect;
+			onDeselect(eDeselect);
+			APP->event->selectedWidget = NULL;
+			e.consume(this);
 
 		} else {
 			TextField::onSelectKey(e);
@@ -407,10 +413,12 @@ struct NumberTextField : TextField {
 	void step() override {
 		TextField::step();
 		// eh, kinda hacky - is there any way to do this just once after the module has been initialized? after dataFromJson?
-		//if(gFocusedWidget != this) { //TODO
-		//	validText = stringf("%u", module->buffer.size());
-		//	text = validText;
-		//}
+		if(module) {
+			if(APP->event->selectedWidget != this) {
+				validText = string::f("%u", module->buffer.size());
+				text = validText;
+			}
+		}
 	}
 
 };
@@ -464,7 +472,7 @@ struct PDArrayModuleWidget : ModuleWidget {
 		setModule(module);
 		this->module = module;
 
-		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Array.svg"))); //TODO
+		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Array.svg"))); //TODO: fix ugly panel...
 
 		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
 		addChild(createWidget<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
@@ -473,7 +481,7 @@ struct PDArrayModuleWidget : ModuleWidget {
 
 		//TPort *createInputCentered(Vec pos, Module *module, int inputId) {
 		addInput(createInputCentered<PJ301MPort>(Vec(27.5f, 247.5f), module, PDArrayModule::PHASE_INPUT));
-		addOutput(createOutputCentered<PJ301MPort>(Vec(97.5f, 247.5f), module, PDArrayModule::DIRECT_OUTPUT));
+		addOutput(createOutputCentered<PJ301MPort>(Vec(97.5f, 247.5f), module, PDArrayModule::STEP_OUTPUT));
 		addOutput(createOutputCentered<PJ301MPort>(Vec(175.f, 247.5f), module, PDArrayModule::INTERP_OUTPUT));
 
 		addInput(createInputCentered<PJ301MPort>(Vec(27.5f, 347.5f), module, PDArrayModule::REC_PHASE_INPUT));
