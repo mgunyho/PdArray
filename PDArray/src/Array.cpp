@@ -15,8 +15,7 @@
 //TODO: add 'reset buffer' right click menu
 //TODO: undo history? hard?
 
-//TODO: rename to just ArrayModule (and rename *pp files)
-struct PDArrayModule : Module {
+struct Array : Module {
 	enum ParamIds {
 		PHASE_RANGE_PARAM,
 		OUTPUT_RANGE_PARAM,
@@ -62,10 +61,10 @@ struct PDArrayModule : Module {
 		}
 	}
 
-	PDArrayModule() {
+	Array() {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
-		configParam(PDArrayModule::OUTPUT_RANGE_PARAM, 0, 2, 0, "Recording and output range");
-		configParam(PDArrayModule::PHASE_RANGE_PARAM, 0, 2, 2, "Position CV range");
+		configParam(Array::OUTPUT_RANGE_PARAM, 0, 2, 0, "Recording and output range");
+		configParam(Array::PHASE_RANGE_PARAM, 0, 2, 2, "Position CV range");
 		for(int i = 0; i < MAX_POLY_CHANNELS; i++) phases[i] = 0.f;
 		initBuffer();
 	}
@@ -126,7 +125,7 @@ struct PDArrayModule : Module {
 	}
 };
 
-void PDArrayModule::loadSample(std::string path) {
+void Array::loadSample(std::string path) {
 	unsigned int channels, sampleRate;
 	drwav_uint64 totalPCMFrameCount;
 	float* pSampleData = drwav_open_file_and_read_pcm_frames_f32(path.c_str(), &channels, &sampleRate, &totalPCMFrameCount);
@@ -148,7 +147,7 @@ void PDArrayModule::loadSample(std::string path) {
 	drwav_free(pSampleData);
 }
 
-void PDArrayModule::process(const ProcessArgs &args) {
+void Array::process(const ProcessArgs &args) {
 	float deltaTime = args.sampleTime;
 
 	float phaseMin, phaseMax;
@@ -248,11 +247,11 @@ void PDArrayModule::process(const ProcessArgs &args) {
 }
 
 struct ArrayDisplay : OpaqueWidget {
-	PDArrayModule *module;
+	Array *module;
 	Vec dragPosition;
 	bool dragging = false;
 
-	ArrayDisplay(PDArrayModule *module): OpaqueWidget() {
+	ArrayDisplay(Array *module): OpaqueWidget() {
 		this->module = module;
 		box.size = Vec(230, 205);
 	}
@@ -276,7 +275,7 @@ struct ArrayDisplay : OpaqueWidget {
 			}
 
 			// phase of recording
-			if(module->inputs[PDArrayModule::REC_PHASE_INPUT].isConnected()) {
+			if(module->inputs[Array::REC_PHASE_INPUT].isConnected()) {
 				float rpx = module->recPhase * box.size.x;
 				nvgBeginPath(vg);
 				nvgStrokeWidth(vg, 2.f);
@@ -358,10 +357,10 @@ struct ArrayDisplay : OpaqueWidget {
 // TextField that only allows inputting numbers
 struct NumberTextField : TextField {
 	int maxCharacters = 6;
-	PDArrayModule *module;
+	Array *module;
 	std::string validText = "1";
 
-	NumberTextField(PDArrayModule *m) : TextField() {
+	NumberTextField(Array *m) : TextField() {
 		module = m;
 		validText = string::f("%u", module ? module->buffer.size() : 1);
 		text = validText;
@@ -438,7 +437,7 @@ struct NumberTextField : TextField {
 // file selection dialog, based on PLAYERItem in cf
 // https://github.com/cfoulc/cf/blob/master/src/PLAYER.cpp
 struct ArrayFileSelectItem : MenuItem {
-	PDArrayModule *module;
+	Array *module;
 	void onAction(const event::Action &e) override {
 		std::string dir = module->lastLoadedPath.empty() ? asset::user("") : rack::string::directory(module->lastLoadedPath);
 		char *path = osdialog_file(OSDIALOG_OPEN, dir.c_str(), NULL, NULL);
@@ -451,7 +450,7 @@ struct ArrayFileSelectItem : MenuItem {
 };
 
 struct ArrayEnableEditingMenuItem : MenuItem {
-	PDArrayModule *module;
+	Array *module;
 	bool valueToSet;
 	void onAction(const event::Action &e) override {
 		module->enableEditing = valueToSet;
@@ -459,10 +458,10 @@ struct ArrayEnableEditingMenuItem : MenuItem {
 };
 
 struct ArrayInterpModeMenuItem : MenuItem {
-	PDArrayModule *module;
-	PDArrayModule::InterpBoundaryMode mode;
-	ArrayInterpModeMenuItem(PDArrayModule *pModule,
-			PDArrayModule::InterpBoundaryMode pMode,
+	Array *module;
+	Array::InterpBoundaryMode mode;
+	ArrayInterpModeMenuItem(Array *pModule,
+			Array::InterpBoundaryMode pMode,
 			std::string label):
 		MenuItem() {
 			module = pModule;
@@ -475,12 +474,12 @@ struct ArrayInterpModeMenuItem : MenuItem {
 	}
 };
 
-struct PDArrayModuleWidget : ModuleWidget {
+struct ArrayModuleWidget : ModuleWidget {
 	ArrayDisplay *display;
 	NumberTextField *sizeSelector;
-	PDArrayModule *module;
+	Array *module;
 
-	PDArrayModuleWidget(PDArrayModule *module) {
+	ArrayModuleWidget(Array *module) {
 		setModule(module);
 		this->module = module;
 
@@ -492,18 +491,18 @@ struct PDArrayModuleWidget : ModuleWidget {
 		addChild(createWidget<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
 		//TPort *createInputCentered(Vec pos, Module *module, int inputId) {
-		addInput(createInputCentered<PJ301MPort>(Vec(27.5f, 247.5f), module, PDArrayModule::PHASE_INPUT));
-		addOutput(createOutputCentered<PJ301MPort>(Vec(97.5f, 247.5f), module, PDArrayModule::STEP_OUTPUT));
-		addOutput(createOutputCentered<PJ301MPort>(Vec(175.f, 247.5f), module, PDArrayModule::INTERP_OUTPUT));
+		addInput(createInputCentered<PJ301MPort>(Vec(27.5f, 247.5f), module, Array::PHASE_INPUT));
+		addOutput(createOutputCentered<PJ301MPort>(Vec(97.5f, 247.5f), module, Array::STEP_OUTPUT));
+		addOutput(createOutputCentered<PJ301MPort>(Vec(175.f, 247.5f), module, Array::INTERP_OUTPUT));
 
-		addInput(createInputCentered<PJ301MPort>(Vec(27.5f, 347.5f), module, PDArrayModule::REC_PHASE_INPUT));
-		addInput(createInputCentered<PJ301MPort>(Vec(97.5f, 347.5f), module, PDArrayModule::REC_SIGNAL_INPUT));
-		addInput(createInputCentered<PJ301MPort>(Vec(175.f, 347.5f), module, PDArrayModule::REC_ENABLE_INPUT));
+		addInput(createInputCentered<PJ301MPort>(Vec(27.5f, 347.5f), module, Array::REC_PHASE_INPUT));
+		addInput(createInputCentered<PJ301MPort>(Vec(97.5f, 347.5f), module, Array::REC_SIGNAL_INPUT));
+		addInput(createInputCentered<PJ301MPort>(Vec(175.f, 347.5f), module, Array::REC_ENABLE_INPUT));
 
-		addParam(createParam<CKSSThree>(Vec(107.5f, 290), module, PDArrayModule::OUTPUT_RANGE_PARAM));
-		addParam(createParam<CKSSThree>(Vec(27.5f, 290), module, PDArrayModule::PHASE_RANGE_PARAM));
+		addParam(createParam<CKSSThree>(Vec(107.5f, 290), module, Array::OUTPUT_RANGE_PARAM));
+		addParam(createParam<CKSSThree>(Vec(27.5f, 290), module, Array::PHASE_RANGE_PARAM));
 
-		addChild(createLightCentered<MediumLight<RedLight>>(Vec(207.5f, 355), module, PDArrayModule::REC_LIGHT));
+		addChild(createLightCentered<MediumLight<RedLight>>(Vec(207.5f, 355), module, Array::REC_LIGHT));
 
 		display = new ArrayDisplay(module);
 		display->box.pos = Vec(5, 20);
@@ -517,7 +516,7 @@ struct PDArrayModuleWidget : ModuleWidget {
 
 	void appendContextMenu(ui::Menu *menu) override {
 
-		PDArrayModule *arr = dynamic_cast<PDArrayModule*>(module);
+		Array *arr = dynamic_cast<Array*>(module);
 		if(arr){
 			menu->addChild(new MenuLabel()); // spacer
 			auto *fsItem = new ArrayFileSelectItem();
@@ -537,9 +536,9 @@ struct PDArrayModuleWidget : ModuleWidget {
 			interpModeLabel->text = "Interpolation at boundary";
 			menu->addChild(new MenuLabel());
 			menu->addChild(interpModeLabel);
-			menu->addChild(new ArrayInterpModeMenuItem(this->module, PDArrayModule::INTERP_CONSTANT, "Constant"));
-			menu->addChild(new ArrayInterpModeMenuItem(this->module, PDArrayModule::INTERP_MIRROR, "Mirror"));
-			menu->addChild(new ArrayInterpModeMenuItem(this->module, PDArrayModule::INTERP_PERIODIC, "Periodic"));
+			menu->addChild(new ArrayInterpModeMenuItem(this->module, Array::INTERP_CONSTANT, "Constant"));
+			menu->addChild(new ArrayInterpModeMenuItem(this->module, Array::INTERP_MIRROR, "Mirror"));
+			menu->addChild(new ArrayInterpModeMenuItem(this->module, Array::INTERP_PERIODIC, "Periodic"));
 
 		}
 
@@ -548,4 +547,4 @@ struct PDArrayModuleWidget : ModuleWidget {
 };
 
 
-Model *modelPDArray = createModel<PDArrayModule, PDArrayModuleWidget>("Array");
+Model *modelArray = createModel<Array, ArrayModuleWidget>("Array");

@@ -8,7 +8,7 @@ void init(Plugin *p) {
 	pluginInstance = p;
 
 	// Add all Models defined throughout the plugin
-	p->addModel(modelPDArray);
+	p->addModel(modelArray);
 	p->addModel(modelMiniramp);
 
 	// Any other plugin initialization may go here.

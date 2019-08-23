@@ -12,7 +12,6 @@ const float MAX_EXPONENT = 1.0f;
 // TODO: tweak gate/ramp port vertical positions
 // TODO: show sample count corresponding to duration (needs more space - remove CV?)
 // TODO: add trigger buttton (another reason to remove cv)
-// TODO: polyphony
 
 // based on PulseGeneraotr in include/util/digital.hpp
 struct CustomPulseGenerator {
