@@ -8,11 +8,10 @@ const float MIN_EXPONENT = -3.0f;
 const float MAX_EXPONENT = 1.0f;
 
 // quick and dirty copy-paste of LittleUtils PulseGenerator.
-// TODO: move common modules to common folder
+// TODO: move modules that are shared with LittleUtils common folder
 // TODO: tweak gate/ramp port vertical positions
 // TODO: show sample count corresponding to duration (needs more space - remove CV?)
 // TODO: add trigger buttton (another reason to remove cv)
-// TODO: fix capitalization in file and module name
 
 // based on PulseGeneraotr in include/util/digital.hpp
 struct CustomPulseGenerator {
@@ -75,14 +74,13 @@ struct Miniramp : Module {
 	Miniramp() {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 
-		// TODO: tooltips
 		configParam(Miniramp::RAMP_LENGTH_PARAM, 0.f, 10.f,
 					// 0.5s in log scale
 					//rescale(-0.30103f, MIN_EXPONENT, MAX_EXPONENT, 0.f,10.f)
-					5.f // 0.1s in log mode, 5s in lin mode
-					);
-		configParam(Miniramp::CV_AMT_PARAM, -1.f, 1.f, 0.f, "");
-		configParam(Miniramp::LIN_LOG_MODE_PARAM, 0.f, 1.f, 1.f, "");
+					5.f, // 0.1s in log mode, 5s in lin mode
+					"Ramp duration");
+		configParam(Miniramp::CV_AMT_PARAM, -1.f, 1.f, 0.f, "CV amount");
+		configParam(Miniramp::LIN_LOG_MODE_PARAM, 0.f, 1.f, 1.f, "Linear/Logarithmic mode");
 	}
 
 	void process(const ProcessArgs &args) override;
@@ -228,7 +226,7 @@ struct MinirampWidget : ModuleWidget {
 	MinirampWidget(Miniramp *module) {
 		setModule(module);
 		this->module = module;
-		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Miniramp.svg"))); //TODO
+		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Miniramp.svg"))); //TODO: make less ugly
 
 		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
 		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));

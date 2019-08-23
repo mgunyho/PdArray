@@ -12,6 +12,7 @@
 //TODO: reinitialize buffer with onInitialize()
 //TODO: prevent audio clicking at the last sample
 //TODO: drawing when size > width in pixels
+//TODO: undo history? hard?
 
 //TODO: rename to just ArrayModule (and rename *pp files)
 struct PDArrayModule : Module {
