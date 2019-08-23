@@ -67,8 +67,8 @@ struct Miniramp : Module {
 		NUM_LIGHTS
 	};
 
-	dsp::SchmittTrigger inputTrigger;
-	CustomPulseGenerator gateGen;
+	dsp::SchmittTrigger inputTrigger[MAX_POLY_CHANNELS];
+	CustomPulseGenerator gateGen[MAX_POLY_CHANNELS];
 	float ramp_duration = 0.5f;
 	float cv_scale = 0.f; // cv_scale = +- 1 -> 10V CV changes duration by +-10s
 
@@ -90,15 +90,14 @@ struct Miniramp : Module {
 
 void Miniramp::process(const ProcessArgs &args) {
 	float deltaTime = args.sampleTime;
-
-	bool triggered = inputTrigger.process(rescale(inputs[TRIG_INPUT].getVoltage(),
-												  0.1f, 2.f, 0.f, 1.f));
+	const int channels = inputs[TRIG_INPUT].getChannels();
 
 	// handle duration knob and CV
 	float knob_value = params[RAMP_LENGTH_PARAM].getValue();
 	float cv_amt = params[CV_AMT_PARAM].getValue();
 	float cv_voltage = inputs[RAMP_LENGTH_INPUT].getVoltage();
 
+	//TODO: update this to match pulseGenerator
 	if(params[LIN_LOG_MODE_PARAM].getValue() < 0.5f) {
 		// linear mode
 		cv_scale = cv_amt;
@@ -119,22 +118,32 @@ void Miniramp::process(const ProcessArgs &args) {
 				0.f, 10.f);
 	}
 
+	for(int c = 0; c < channels; c++) { //TODO: fix indentation
+	bool triggered = inputTrigger[c].process(rescale(inputs[TRIG_INPUT].getVoltage(c),
+												  0.1f, 2.f, 0.f, 1.f));
 	if(triggered && ramp_duration > 0.f) {
-		gateGen.trigger(ramp_duration);
+		gateGen[c].trigger(ramp_duration);
 	}
 
 	// update trigger duration even in the middle of a trigger
-	gateGen.triggerDuration = ramp_duration;
+	gateGen[c].triggerDuration = ramp_duration;
 
-	bool gate = gateGen.process(deltaTime);
+	bool gate = gateGen[c].process(deltaTime);
 
-	outputs[RAMP_OUTPUT].value = gate ?
-		clamp(gateGen.time / gateGen.triggerDuration * 10.f, 0.f, 10.f) : 0.f;
-	outputs[GATE_OUTPUT].setVoltage(gate ? 10.0f : 0.0f);
+	float ramp_v = gate ?
+		clamp(gateGen[c].time / gateGen[c].triggerDuration * 10.f, 0.f, 10.f) :
+		0.f;
 
+	outputs[RAMP_OUTPUT].setVoltage(ramp_v, c);
+	outputs[GATE_OUTPUT].setVoltage(gate ? 10.0f : 0.0f, c);
+
+	//TODO: figure out lights for polyphonic mode
 	lights[RAMP_LIGHT].setSmoothBrightness(outputs[RAMP_OUTPUT].value * 1e-1f, deltaTime);
 	lights[GATE_LIGHT].setSmoothBrightness(outputs[GATE_OUTPUT].value, deltaTime);
 
+	}
+	outputs[RAMP_OUTPUT].setChannels(channels);
+	outputs[GATE_OUTPUT].setChannels(channels);
 }
 
 struct MsDisplayWidget : TextBox {
