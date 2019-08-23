@@ -44,7 +44,7 @@ struct CustomPulseGenerator {
 	}
 };
 
-struct MiniRamp : Module {
+struct Miniramp : Module {
 	enum ParamIds {
 		RAMP_LENGTH_PARAM,
 		CV_AMT_PARAM,
@@ -72,24 +72,24 @@ struct MiniRamp : Module {
 	float ramp_duration = 0.5f;
 	float cv_scale = 0.f; // cv_scale = +- 1 -> 10V CV changes duration by +-10s
 
-	MiniRamp() {
+	Miniramp() {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 
 		// TODO: tooltips
-		configParam(MiniRamp::RAMP_LENGTH_PARAM, 0.f, 10.f,
+		configParam(Miniramp::RAMP_LENGTH_PARAM, 0.f, 10.f,
 					// 0.5s in log scale
 					//rescale(-0.30103f, MIN_EXPONENT, MAX_EXPONENT, 0.f,10.f)
 					5.f // 0.1s in log mode, 5s in lin mode
 					);
-		configParam(MiniRamp::CV_AMT_PARAM, -1.f, 1.f, 0.f, "");
-		configParam(MiniRamp::LIN_LOG_MODE_PARAM, 0.f, 1.f, 1.f, "");
+		configParam(Miniramp::CV_AMT_PARAM, -1.f, 1.f, 0.f, "");
+		configParam(Miniramp::LIN_LOG_MODE_PARAM, 0.f, 1.f, 1.f, "");
 	}
 
 	void process(const ProcessArgs &args) override;
 
 };
 
-void MiniRamp::process(const ProcessArgs &args) {
+void Miniramp::process(const ProcessArgs &args) {
 	float deltaTime = args.sampleTime;
 
 	bool triggered = inputTrigger.process(rescale(inputs[TRIG_INPUT].getVoltage(),
@@ -139,7 +139,7 @@ void MiniRamp::process(const ProcessArgs &args) {
 }
 
 struct MsDisplayWidget : TextBox {
-	MiniRamp *module;
+	Miniramp *module;
 	bool msLabelStatus = false; // 0 = 'ms', 1 = 's'
 	bool cvLabelStatus = false; // whether to show 'cv'
 	float previous_displayed_value = 0.f;
@@ -147,7 +147,7 @@ struct MsDisplayWidget : TextBox {
 
 	GUITimer cvDisplayTimer;
 
-	MsDisplayWidget(MiniRamp *m) : TextBox() {
+	MsDisplayWidget(Miniramp *m) : TextBox() {
 		module = m;
 		box.size = Vec(30, 27);
 		letter_spacing = -2.0f;
@@ -221,37 +221,37 @@ struct CustomTrimpot : Trimpot {
 	}
 };
 
-struct MiniRampWidget : ModuleWidget {
-	MiniRamp *module;
+struct MinirampWidget : ModuleWidget {
+	Miniramp *module;
 	MsDisplayWidget *msDisplay;
 
-	MiniRampWidget(MiniRamp *module) {
+	MinirampWidget(Miniramp *module) {
 		setModule(module);
 		this->module = module;
-		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/MiniRamp.svg"))); //TODO
+		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Miniramp.svg"))); //TODO
 
 		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
 		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
 		addParam(createParamCentered<RoundBlackKnob>(Vec(22.5, 37.5), module,
-					MiniRamp::RAMP_LENGTH_PARAM));
+					Miniramp::RAMP_LENGTH_PARAM));
 
-		addParam(createParam<CKSS>(Vec(7.5, 60), module, MiniRamp::LIN_LOG_MODE_PARAM));
+		addParam(createParam<CKSS>(Vec(7.5, 60), module, Miniramp::LIN_LOG_MODE_PARAM));
 
-		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 151), module, MiniRamp::RAMP_LENGTH_INPUT));
-		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 192), module, MiniRamp::TRIG_INPUT));
-		addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 240), module, MiniRamp::RAMP_OUTPUT));
-		addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 288), module, MiniRamp::GATE_OUTPUT));
+		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 151), module, Miniramp::RAMP_LENGTH_INPUT));
+		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 192), module, Miniramp::TRIG_INPUT));
+		addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 240), module, Miniramp::RAMP_OUTPUT));
+		addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 288), module, Miniramp::GATE_OUTPUT));
 
-		addChild(createTinyLightForPort<GreenLight>(Vec(22.5, 240), module, MiniRamp::RAMP_LIGHT));
-		addChild(createTinyLightForPort<GreenLight>(Vec(22.5, 288), module, MiniRamp::GATE_LIGHT));
+		addChild(createTinyLightForPort<GreenLight>(Vec(22.5, 240), module, Miniramp::RAMP_LIGHT));
+		addChild(createTinyLightForPort<GreenLight>(Vec(22.5, 288), module, Miniramp::GATE_LIGHT));
 
 		msDisplay = new MsDisplayWidget(module);
 		msDisplay->box.pos = Vec(7.5, 308);
 		addChild(msDisplay);
 
 		auto cvKnob = createParamCentered<CustomTrimpot>(Vec(22.5, 110), module,
-				MiniRamp::CV_AMT_PARAM);
+				Miniramp::CV_AMT_PARAM);
 		cvKnob->display = msDisplay;
 		addParam(cvKnob);
 
@@ -260,4 +260,4 @@ struct MiniRampWidget : ModuleWidget {
 };
 
 
-Model *modelMiniRamp = createModel<MiniRamp, MiniRampWidget>("Miniramp");
+Model *modelMiniramp = createModel<Miniramp, MinirampWidget>("Miniramp");
