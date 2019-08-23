@@ -1,4 +1,4 @@
-#include "PDArray.hpp"
+#include "plugin.hpp"
 #include "window.hpp" // windowIsModPressed
 #include "osdialog.h"
 #include <GLFW/glfw3.h> // key codes

@@ -1,4 +1,4 @@
-#include "PDArray.hpp"
+#include "plugin.hpp"
 #include "Widgets.hpp"
 #include "Util.hpp"
 

@@ -1,4 +1,4 @@
-#include "PDArray.hpp"
+#include "plugin.hpp"
 
 
 Plugin *pluginInstance;
