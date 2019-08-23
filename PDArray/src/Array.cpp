@@ -12,6 +12,7 @@
 //TODO: reinitialize buffer with onInitialize()
 //TODO: prevent audio clicking at the last sample
 //TODO: drawing when size > width in pixels
+//TODO: add 'reset buffer' right click menu
 //TODO: undo history? hard?
 
 //TODO: rename to just ArrayModule (and rename *pp files)
@@ -119,6 +120,8 @@ struct PDArrayModule : Module {
 	}
 
 	void onReset() override {
+		boundaryMode = INTERP_PERIODIC;
+		enableEditing = true;
 		initBuffer();
 	}
 };
