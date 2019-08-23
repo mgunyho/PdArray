@@ -9,8 +9,6 @@
 const float MIN_EXPONENT = -3.0f;
 const float MAX_EXPONENT = 1.0f;
 
-const int MAX_POLY_CHANNELS = 16;
-
 // based on PulseGeneraotr in include/util/digital.hpp
 struct CustomPulseGenerator {
 	float time;

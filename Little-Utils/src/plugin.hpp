@@ -3,6 +3,8 @@
 
 using namespace rack;
 
+static const int MAX_POLY_CHANNELS = 16;
+
 // Declare the Plugin, defined in plugin.cpp
 extern Plugin *pluginInstance;
 
