@@ -45,10 +45,10 @@ struct PDArrayModule : Module {
 		NUM_INTERP_MODES
 	};
 
-	float phase = 0.f;
+	float phases[MAX_POLY_CHANNELS];
+	int nChannels = 1;
 	float recPhase = 0.f;
 	dsp::SchmittTrigger recTrigger;
-	bool periodicInterpolation = true; // TODO: implement in GUI
 	std::vector<float> buffer;
 	std::string lastLoadedPath;
 	bool enableEditing = true;
@@ -65,6 +65,7 @@ struct PDArrayModule : Module {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 		configParam(PDArrayModule::OUTPUT_RANGE_PARAM, 0, 2, 0, "Recording and output range");
 		configParam(PDArrayModule::PHASE_RANGE_PARAM, 0, 2, 2, "Position CV range");
+		for(int i = 0; i < MAX_POLY_CHANNELS; i++) phases[i] = 0.f;
 		initBuffer();
 	}
 
@@ -159,10 +160,6 @@ void PDArrayModule::process(const ProcessArgs &args) {
 		phaseMin = -10.f;
 		phaseMax =  10.f;
 	}
-	//phase = rescale(clamp(inputs[PHASE_INPUT].getVoltage(), 0.f, 10.f), 0.f, 10.f, 0.f, 1.f);
-	//TODO: make polyphonic
-	phase = clamp(rescale(inputs[PHASE_INPUT].getVoltage(), phaseMin, phaseMax, 0.f, 1.f), 0.f, 1.f);
-	recPhase = clamp(rescale(inputs[REC_PHASE_INPUT].getVoltage(), phaseMin, phaseMax, 0.f, 1.f), 0.f, 1.f);
 
 	int size = buffer.size();
 
@@ -181,6 +178,7 @@ void PDArrayModule::process(const ProcessArgs &args) {
 	}
 
 	// recording
+	recPhase = clamp(rescale(inputs[REC_PHASE_INPUT].getVoltage(), phaseMin, phaseMax, 0.f, 1.f), 0.f, 1.f);
 	int ri = int(recPhase * size);
 	recTrigger.process(rescale(inputs[REC_ENABLE_INPUT].getVoltage(), 0.1f, 2.f, 0.f, 1.f));
 	bool rec = recTrigger.isHigh();
@@ -189,17 +187,23 @@ void PDArrayModule::process(const ProcessArgs &args) {
 	}
 	lights[REC_LIGHT].setSmoothBrightness(rec, deltaTime);
 
+	nChannels = inputs[PHASE_INPUT].getChannels();
+	outputs[STEP_OUTPUT].setChannels(nChannels);
+	outputs[INTERP_OUTPUT].setChannels(nChannels);
+	for(int chan = 0; chan < nChannels; chan++) { //TODO: fix indentation
+	float phase = clamp(rescale(inputs[PHASE_INPUT].getVoltage(chan), phaseMin, phaseMax, 0.f, 1.f), 0.f, 1.f);
+	phases[chan] = phase;
 	// direct output
 	int i = clamp(int(phase * size), 0, size - 1);
-	outputs[STEP_OUTPUT].setVoltage(rescale(buffer[i], 0.f, 1.f, inOutMin, inOutMax));
+	outputs[STEP_OUTPUT].setVoltage(rescale(buffer[i], 0.f, 1.f, inOutMin, inOutMax), chan);
 
 	// interpolated output, based on tabread4_tilde_perform() in
 	// https://github.com/pure-data/pure-data/blob/master/src/d_array.c
-	// TODO: add right-click menu option to toggle periodic interpolation
 	int ia, ib, ic, id;
 	switch(boundaryMode) {
 		case INTERP_CONSTANT:
 			{
+				//TODO: make symmetric (based on range polarity (?)) -- possible?
 				ia = clamp(i - 1, 0, size - 1);
 				ib = clamp(i + 0, 0, size - 1);
 				ic = clamp(i + 1, 0, size - 1);
@@ -235,7 +239,8 @@ void PDArrayModule::process(const ProcessArgs &args) {
 				(d - a - 3.f * (c - b)) * frac + (d + 2.f * a - 3.f * b)
 			)
 		);
-	outputs[INTERP_OUTPUT].setVoltage(rescale(y, 0.f, 1.f, inOutMin, inOutMax));
+	outputs[INTERP_OUTPUT].setVoltage(rescale(y, 0.f, 1.f, inOutMin, inOutMax), chan);
+	}
 
 }
 
@@ -254,15 +259,18 @@ struct ArrayDisplay : OpaqueWidget {
 		const auto vg = args.vg;
 
 		// show phase
-		// TODO: polyphony
 		if(module) {
-			float px =  module->phase * box.size.x;
+			int nc = module->nChannels;
+			int alpha = int(0xff * rescale(1.0f/nc, 0.f, 1.f, 0.5f, 1.0f));
+			for(int c = 0; c < nc; c++) { //TODO: fix indentation
+			float px =  module->phases[c] * box.size.x;
 			nvgBeginPath(vg);
 			nvgStrokeWidth(vg, 2.f);
-			nvgStrokeColor(vg, nvgRGB(0x23, 0x23, 0x87));
+			nvgStrokeColor(vg, nvgRGBA(0x23, 0x23, 0x87, alpha));
 			nvgMoveTo(vg, px, 0);
 			nvgLineTo(vg, px, box.size.y);
 			nvgStroke(vg);
+			}
 
 			// phase of recording
 			if(module->inputs[PDArrayModule::REC_PHASE_INPUT].isConnected()) {

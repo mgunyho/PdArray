@@ -1,5 +1,6 @@
 #include "rack.hpp"
 
+static const int MAX_POLY_CHANNELS = 16;
 
 using namespace rack;
 
