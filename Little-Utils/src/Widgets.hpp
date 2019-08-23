@@ -14,7 +14,7 @@ struct TextBox : TransparentWidget {
 	NVGcolor backgroundColor;
 
 	TextBox() {
-		font = APP->window->loadFont(asset::plugin(pluginInstance, "res/RobotoMono-Bold.ttf"));
+		font = APP->window->loadFont(asset::plugin(pluginInstance, "res/RobotoMono-Bold.ttf")); //TODO: fix paths...
 		defaultTextColor = nvgRGB(0x23, 0x23, 0x23);
 		textColor = defaultTextColor;
 		backgroundColor = nvgRGB(0xc8, 0xc8, 0xc8);

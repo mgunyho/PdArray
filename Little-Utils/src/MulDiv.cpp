@@ -3,8 +3,6 @@
 
 #include <algorithm> // std::replace
 
-const int MAX_POLY_CHANNELS = 16;
-
 struct MulDiv : Module {
 	enum ParamIds {
 		A_SCALE_PARAM,
