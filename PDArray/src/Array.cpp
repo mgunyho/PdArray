@@ -193,56 +193,56 @@ void PDArrayModule::process(const ProcessArgs &args) {
 	nChannels = inputs[PHASE_INPUT].getChannels();
 	outputs[STEP_OUTPUT].setChannels(nChannels);
 	outputs[INTERP_OUTPUT].setChannels(nChannels);
-	for(int chan = 0; chan < nChannels; chan++) { //TODO: fix indentation
-	float phase = clamp(rescale(inputs[PHASE_INPUT].getVoltage(chan), phaseMin, phaseMax, 0.f, 1.f), 0.f, 1.f);
-	phases[chan] = phase;
-	// direct output
-	int i = clamp(int(phase * size), 0, size - 1);
-	outputs[STEP_OUTPUT].setVoltage(rescale(buffer[i], 0.f, 1.f, inOutMin, inOutMax), chan);
+	for(int chan = 0; chan < nChannels; chan++) {
+		float phase = clamp(rescale(inputs[PHASE_INPUT].getVoltage(chan), phaseMin, phaseMax, 0.f, 1.f), 0.f, 1.f);
+		phases[chan] = phase;
+		// direct output
+		int i = clamp(int(phase * size), 0, size - 1);
+		outputs[STEP_OUTPUT].setVoltage(rescale(buffer[i], 0.f, 1.f, inOutMin, inOutMax), chan);
 
-	// interpolated output, based on tabread4_tilde_perform() in
-	// https://github.com/pure-data/pure-data/blob/master/src/d_array.c
-	int ia, ib, ic, id;
-	switch(boundaryMode) {
-		case INTERP_CONSTANT:
-			{
-				//TODO: make symmetric (based on range polarity (?)) -- possible?
-				ia = clamp(i - 1, 0, size - 1);
-				ib = clamp(i + 0, 0, size - 1);
-				ic = clamp(i + 1, 0, size - 1);
-				id = clamp(i + 2, 0, size - 1);
-				break;
-			}
-		case INTERP_MIRROR:
-			{
-				ia = i < 1 ? 1 : i - 1;
-				ib = i;
-				ic = i + 1 < size ? i + 1 : size - 1;
-				id = i + 2 < size ? i + 2 : 2*size - (i + 3);
-				break;
-			}
-		case INTERP_PERIODIC:
-		default:
-			{
-				ia = (i - 1 + size) % size;
-				ib = (i + 0) % size;
-				ic = (i + 1) % size;
-				id = (i + 2) % size;
-				break;
-			}
-	}
-	float a = buffer[ia];
-	float b = buffer[ib];
-	float c = buffer[ic];
-	float d = buffer[id];
+		// interpolated output, based on tabread4_tilde_perform() in
+		// https://github.com/pure-data/pure-data/blob/master/src/d_array.c
+		int ia, ib, ic, id;
+		switch(boundaryMode) {
+			case INTERP_CONSTANT:
+				{
+					//TODO: make symmetric (based on range polarity (?)) -- possible?
+					ia = clamp(i - 1, 0, size - 1);
+					ib = clamp(i + 0, 0, size - 1);
+					ic = clamp(i + 1, 0, size - 1);
+					id = clamp(i + 2, 0, size - 1);
+					break;
+				}
+			case INTERP_MIRROR:
+				{
+					ia = i < 1 ? 1 : i - 1;
+					ib = i;
+					ic = i + 1 < size ? i + 1 : size - 1;
+					id = i + 2 < size ? i + 2 : 2*size - (i + 3);
+					break;
+				}
+			case INTERP_PERIODIC:
+			default:
+				{
+					ia = (i - 1 + size) % size;
+					ib = (i + 0) % size;
+					ic = (i + 1) % size;
+					id = (i + 2) % size;
+					break;
+				}
+		}
+		float a = buffer[ia];
+		float b = buffer[ib];
+		float c = buffer[ic];
+		float d = buffer[id];
 
-	float frac = phase * size - i; // fractional part of phase
-	float y = b + frac * (
-			c - b - 0.1666667f * (1.f - frac) * (
-				(d - a - 3.f * (c - b)) * frac + (d + 2.f * a - 3.f * b)
-			)
-		);
-	outputs[INTERP_OUTPUT].setVoltage(rescale(y, 0.f, 1.f, inOutMin, inOutMax), chan);
+		float frac = phase * size - i; // fractional part of phase
+		float y = b + frac * (
+				c - b - 0.1666667f * (1.f - frac) * (
+					(d - a - 3.f * (c - b)) * frac + (d + 2.f * a - 3.f * b)
+					)
+				);
+		outputs[INTERP_OUTPUT].setVoltage(rescale(y, 0.f, 1.f, inOutMin, inOutMax), chan);
 	}
 
 }

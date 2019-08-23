@@ -118,28 +118,28 @@ void Miniramp::process(const ProcessArgs &args) {
 				0.f, 10.f);
 	}
 
-	for(int c = 0; c < channels; c++) { //TODO: fix indentation
-	bool triggered = inputTrigger[c].process(rescale(inputs[TRIG_INPUT].getVoltage(c),
-												  0.1f, 2.f, 0.f, 1.f));
-	if(triggered && ramp_duration > 0.f) {
-		gateGen[c].trigger(ramp_duration);
-	}
+	for(int c = 0; c < channels; c++) {
+		bool triggered = inputTrigger[c].process(rescale(
+					inputs[TRIG_INPUT].getVoltage(c), 0.1f, 2.f, 0.f, 1.f));
+		if(triggered && ramp_duration > 0.f) {
+			gateGen[c].trigger(ramp_duration);
+		}
 
-	// update trigger duration even in the middle of a trigger
-	gateGen[c].triggerDuration = ramp_duration;
+		// update trigger duration even in the middle of a trigger
+		gateGen[c].triggerDuration = ramp_duration;
 
-	bool gate = gateGen[c].process(deltaTime);
+		bool gate = gateGen[c].process(deltaTime);
 
-	float ramp_v = gate ?
-		clamp(gateGen[c].time / gateGen[c].triggerDuration * 10.f, 0.f, 10.f) :
-		0.f;
+		float ramp_v = gate ?
+			clamp(gateGen[c].time/gateGen[c].triggerDuration * 10.f, 0.f, 10.f) :
+			0.f;
 
-	outputs[RAMP_OUTPUT].setVoltage(ramp_v, c);
-	outputs[GATE_OUTPUT].setVoltage(gate ? 10.0f : 0.0f, c);
+		outputs[RAMP_OUTPUT].setVoltage(ramp_v, c);
+		outputs[GATE_OUTPUT].setVoltage(gate ? 10.0f : 0.0f, c);
 
-	//TODO: figure out lights for polyphonic mode
-	lights[RAMP_LIGHT].setSmoothBrightness(outputs[RAMP_OUTPUT].value * 1e-1f, deltaTime);
-	lights[GATE_LIGHT].setSmoothBrightness(outputs[GATE_OUTPUT].value, deltaTime);
+		//TODO: figure out lights for polyphonic mode
+		lights[RAMP_LIGHT].setSmoothBrightness(outputs[RAMP_OUTPUT].value * 1e-1f, deltaTime);
+		lights[GATE_LIGHT].setSmoothBrightness(outputs[GATE_OUTPUT].value, deltaTime);
 
 	}
 	outputs[RAMP_OUTPUT].setChannels(channels);
