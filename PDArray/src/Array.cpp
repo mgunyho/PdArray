@@ -9,10 +9,9 @@
 #include <iostream>
 
 //TODO: preiodic interp right click menu
-//TODO: reinitialize buffer with onInitialize()
-//TODO: prevent audio clicking at the last sample
-//TODO: drawing when size > width in pixels
 //TODO: add 'reset buffer' right click menu
+//TODO: load buffer from text/csv file?
+//TODO: prevent audio clicking at the last sample
 //TODO: undo history? hard?
 
 struct Array : Module {
@@ -197,16 +196,17 @@ void Array::process(const ProcessArgs &args) {
 		float phase = clamp(rescale(inputs[PHASE_INPUT].getVoltage(chan), phaseMin, phaseMax, 0.f, 1.f), 0.f, 1.f);
 		phases[chan] = phase;
 		// direct output
-		int i = clamp(int(phase * size), 0, size - 1);
-		outputs[STEP_OUTPUT].setVoltage(rescale(buffer[i], 0.f, 1.f, inOutMin, inOutMax), chan);
+		int i_step = clamp(std::lround(phase * (size - 1)), 0, size - 1);
+		outputs[STEP_OUTPUT].setVoltage(rescale(buffer[i_step], 0.f, 1.f, inOutMin, inOutMax), chan);
 
 		// interpolated output, based on tabread4_tilde_perform() in
 		// https://github.com/pure-data/pure-data/blob/master/src/d_array.c
+		//TODO: make symmetric (based on range polarity (?)) -- sensible/possible?
+		int i = clamp(std::lround(phase * (size - 1)), 0, size - 1);
 		int ia, ib, ic, id;
 		switch(boundaryMode) {
 			case INTERP_CONSTANT:
 				{
-					//TODO: make symmetric (based on range polarity (?)) -- possible?
 					ia = clamp(i - 1, 0, size - 1);
 					ib = clamp(i + 0, 0, size - 1);
 					ic = clamp(i + 1, 0, size - 1);
@@ -315,6 +315,8 @@ struct ArrayDisplay : OpaqueWidget {
 	}
 
 	void onButton(const event::Button &e) override {
+		//TODO: don't draw on right-click?
+		//TODO: don't draw if lock modules is enabled
 		if(e.button == GLFW_MOUSE_BUTTON_LEFT && e.action == GLFW_PRESS
 				&& module->enableEditing) {
 			e.consume(this);
@@ -336,7 +338,7 @@ struct ArrayDisplay : OpaqueWidget {
 		OpaqueWidget::onDragMove(e);
 		if(!module->enableEditing) return;
 		Vec dragPosition_old = dragPosition;
-		dragPosition = dragPosition.plus(e.mouseDelta); //TODO: check
+		dragPosition = dragPosition.plus(e.mouseDelta);
 
 		// int() rounds down, so the upper limit of rescale is buffer.size() without -1.
 		int s = module->buffer.size();
