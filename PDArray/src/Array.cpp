@@ -2,9 +2,9 @@
 #include "window.hpp" // windowIsModPressed
 #include "osdialog.h"
 #include <GLFW/glfw3.h> // key codes
-#include <algorithm> // std::min
+#include <algorithm> // std::min, std::swap
 #define DR_WAV_IMPLEMENTATION
-#include "dr_wav.h"
+#include "dr_wav.h" // for reading wav files
 
 #include <iostream>
 
@@ -56,8 +56,9 @@ struct Array : Module {
 
 	void initBuffer() {
 		buffer.clear();
-		for(int i = 0; i < 10; i++) {
-			buffer.push_back(i / 9.f);
+		int default_steps = 10;
+		for(int i = 0; i < default_steps; i++) {
+			buffer.push_back(i / (default_steps - 1.f));
 		}
 	}
 
@@ -260,8 +261,8 @@ struct ArrayDisplay : OpaqueWidget {
 		OpaqueWidget::draw(args);
 		const auto vg = args.vg;
 
-		// show phase
 		if(module) {
+			// show phase
 			int nc = module->nChannels;
 			int alpha = int(0xff * rescale(1.0f/nc, 0.f, 1.f, 0.5f, 1.0f));
 			for(int c = 0; c < nc; c++) {
@@ -285,6 +286,8 @@ struct ArrayDisplay : OpaqueWidget {
 				nvgStroke(vg);
 			}
 
+			//TODO: optimize drawing when buffer size > pixels
+			//TODO: move this to be before phase drawing
 			int s = module->buffer.size();
 			float w = box.size.x * 1.f / s;
 			nvgBeginPath(vg);
@@ -332,20 +335,31 @@ struct ArrayDisplay : OpaqueWidget {
 	void onDragMove(const event::DragMove &e) override {
 		OpaqueWidget::onDragMove(e);
 		if(!module->enableEditing) return;
-		//TODO: this results in erroneous behavior, use gRackWidget.lastMousePos? (then needs conversion to local coordinate frame). See e.g.
-		// https://github.com/jeremywen/JW-Modules/blob/master/src/XYPad.cpp
-		//TODO: figure out range of affected i's using mouseRel?
-		//int iMin = ..., iMax = ...
-		//for(int i = iMin; i < iMax; i++) { ... }
-		//if(mouseRel.x > 1) { ... }
-		// check out how it's done in pd?
+		Vec dragPosition_old = dragPosition;
 		dragPosition = dragPosition.plus(e.mouseDelta); //TODO: check
 
 		// int() rounds down, so the upper limit of rescale is buffer.size() without -1.
 		int s = module->buffer.size();
-		int i = clamp(int(rescale(dragPosition.x, 0, box.size.x, 0, s)), 0, s - 1);
-		float y = clamp(rescale(dragPosition.y, 0, box.size.y, 1.f, 0.f), 0.f, 1.f);
-		module->buffer[i] = y;
+		int boxx = box.size.x;
+		int boxy = box.size.y;
+		int i1 = clamp(int(rescale(dragPosition_old.x, 0, boxx, 0, s)), 0, s - 1);
+		int i2 = clamp(int(rescale(dragPosition.x,     0, boxx, 0, s)), 0, s - 1);
+
+		if(abs(i1 - i2) < 2) {
+			float y = clamp(rescale(dragPosition.y, 0, boxy, 1.f, 0.f), 0.f, 1.f);
+			module->buffer[i2] = y;
+		} else {
+			float y1 = clamp(rescale(dragPosition_old.y, 0, boxy, 1.f, 0.f), 0.f, 1.f);
+			float y2 = clamp(rescale(dragPosition.y,     0, boxy, 1.f, 0.f), 0.f, 1.f);
+			if(i2 < i1) {
+				std::swap(i1, i2);
+				std::swap(y1, y2);
+			}
+			for(int i = i1; i <= i2; i++) {
+				float y = y1 + rescale(i, i1, i2, 0.f, 1.0f) * (y2 - y1);
+				module->buffer[i] = y;
+			}
+		}
 	}
 
 	void step() override {
