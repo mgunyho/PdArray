@@ -9,10 +9,10 @@
 #include <iostream>
 
 //TODO: preiodic interp right click menu
-//TODO: add 'reset buffer' right click menu
 //TODO: load buffer from text/csv file?
 //TODO: prevent audio clicking at the last sample
 //TODO: undo history? hard?
+//TODO: show duration corresponding to sample count
 
 struct Array : Module {
 	enum ParamIds {
@@ -317,6 +317,7 @@ struct ArrayDisplay : OpaqueWidget {
 	void onButton(const event::Button &e) override {
 		//TODO: don't draw on right-click?
 		//TODO: don't draw if lock modules is enabled
+		//TODO: don't draw on ctrl+drag?
 		if(e.button == GLFW_MOUSE_BUTTON_LEFT && e.action == GLFW_PRESS
 				&& module->enableEditing) {
 			e.consume(this);
@@ -450,6 +451,13 @@ struct NumberTextField : TextField {
 
 };
 
+struct ArrayResetBufferItem : MenuItem {
+	Array *module;
+	void onAction(const event::Action &e) override {
+		module->initBuffer();
+	}
+};
+
 // file selection dialog, based on PLAYERItem in cf
 // https://github.com/cfoulc/cf/blob/master/src/PLAYER.cpp
 struct ArrayFileSelectItem : MenuItem {
@@ -535,6 +543,12 @@ struct ArrayModuleWidget : ModuleWidget {
 		Array *arr = dynamic_cast<Array*>(module);
 		if(arr){
 			menu->addChild(new MenuLabel()); // spacer
+
+			auto *bufResetItem = new ArrayResetBufferItem();
+			bufResetItem->text = "Rreset array contents";
+			bufResetItem->module = arr;
+			menu->addChild(bufResetItem);
+
 			auto *fsItem = new ArrayFileSelectItem();
 			fsItem->text = "Load .wav file";
 			fsItem->module = arr;
