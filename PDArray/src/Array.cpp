@@ -8,7 +8,7 @@
 
 #include <iostream>
 
-//TODO: preiodic interp right click menu
+//TODO: preiodic interp right click submenu
 //TODO: load buffer from text/csv file?
 //TODO: prevent audio clicking at the last sample
 //TODO: undo history? hard?
@@ -291,15 +291,26 @@ struct ArrayDisplay : OpaqueWidget {
 			int s = module->buffer.size();
 			float w = box.size.x * 1.f / s;
 			nvgBeginPath(vg);
-			for(int i = 0; i < s; i++) {
-				float x1 = i * w;
-				float x2 = (i + 1) * w;
-				float y = (1.f - module->buffer[i]) * box.size.y;
+			if(s < box.size.x) {
+				for(int i = 0; i < s; i++) {
+					float x1 = i * w;
+					float x2 = (i + 1) * w;
+					float y = (1.f - module->buffer[i]) * box.size.y;
 
-				if(i == 0) nvgMoveTo(vg, x1, y);
-				else nvgLineTo(vg, x1, y);
+					if(i == 0) nvgMoveTo(vg, x1, y);
+					else nvgLineTo(vg, x1, y);
 
-				nvgLineTo(vg, x2, y);
+					nvgLineTo(vg, x2, y);
+				}
+			} else {
+				for(int i = 0; i < box.size.x; i++) {
+					//int i1 = clamp(int(rescale(i, 0, box.size.x - 1, 0, s - 1)), 0, s - 1);
+					// just use the left edge (should really use average over i1..i2 instead...
+					int ii = clamp(int(rescale(i, 0, box.size.x - 1, 0, s - 1)), 0, s - 1);
+					float y = (1.f - module->buffer[ii]) * box.size.y;
+					if(i == 0) nvgMoveTo(vg, 0, y);
+					else nvgLineTo(vg, i, y);
+				}
 			}
 			nvgStrokeWidth(vg, 2.f);
 			nvgStrokeColor(vg, nvgRGB(0x0, 0x0, 0x0));
