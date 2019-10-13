@@ -300,7 +300,7 @@ struct ArrayDisplay : OpaqueWidget {
 				float px =  module->phases[c] * box.size.x;
 				nvgBeginPath(vg);
 				nvgStrokeWidth(vg, 2.f);
-				nvgStrokeColor(vg, nvgRGBA(0x23, 0x23, 0x87, alpha));
+				nvgStrokeColor(vg, nvgRGBA(0x26, 0x8b, 0xd2, alpha));
 				nvgMoveTo(vg, px, 0);
 				nvgLineTo(vg, px, box.size.y);
 				nvgStroke(vg);
@@ -311,7 +311,7 @@ struct ArrayDisplay : OpaqueWidget {
 				float rpx = module->recPhase * box.size.x;
 				nvgBeginPath(vg);
 				nvgStrokeWidth(vg, 2.f);
-				nvgStrokeColor(vg, nvgRGB(0x87, 0x23, 0x23));
+				nvgStrokeColor(vg, nvgRGB(0xdc, 0x32, 0x2f));
 				nvgMoveTo(vg, rpx, 0);
 				nvgLineTo(vg, rpx, box.size.y);
 				nvgStroke(vg);
@@ -522,7 +522,7 @@ struct ArrayModuleWidget : ModuleWidget {
 		setModule(module);
 		this->module = module;
 
-		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Array.svg"))); //TODO: fix ugly panel...
+		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Array.svg")));
 
 		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
 		addChild(createWidget<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));

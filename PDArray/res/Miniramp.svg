@@ -14,8 +14,8 @@
    viewBox="0 0 11.906253 100.54167"
    version="1.1"
    id="svg8"
-   inkscape:version="0.92.3 (2405546, 2018-03-11)"
-   sodipodi:docname="MiniRamp.svg">
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
+   sodipodi:docname="Miniramp.svg">
   <defs
      id="defs2">
     <linearGradient
@@ -359,9 +359,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="7.9999996"
-     inkscape:cx="24.157311"
-     inkscape:cy="32.939277"
+     inkscape:zoom="3.9999998"
+     inkscape:cx="28.347476"
+     inkscape:cy="327.62829"
      inkscape:document-units="px"
      inkscape:current-layer="layer7"
      showgrid="true"
@@ -527,7 +527,7 @@
      inkscape:label="background"
      style="display:inline">
     <path
-       style="display:inline;opacity:1;fill:#efefad;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0.48607072;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+       style="display:inline;opacity:1;fill:#fdf6e3;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0.48607072;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
        d="M 1.984375,196.45833 H 21.828128 V 297.00001 H 1.984375 Z"
        id="rect817"
        inkscape:connector-curvature="0"

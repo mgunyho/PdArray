@@ -158,6 +158,7 @@ struct MsDisplayWidget : TextBox {
 		module = m;
 		box.size = Vec(30, 27);
 		letter_spacing = -2.0f;
+		backgroundColor = nvgRGB(0xee, 0xe8, 0xd5);
 	}
 
 	void updateDisplayValue(float v) {
