@@ -91,6 +91,7 @@ struct Array : Module {
 			json_array_append_new(arr, json_real(x));
 		}
 		json_object_set(root, "arrayData", arr);
+		json_decref(arr);
 		return root;
 	}
 
@@ -328,7 +329,6 @@ struct ArrayDisplay : OpaqueWidget {
 	}
 
 	void onButton(const event::Button &e) override {
-		//TODO: don't draw on right-click?
 		//TODO: don't draw if lock modules is enabled
 		bool ctrl = (APP->window->getMods() & RACK_MOD_MASK) == RACK_MOD_CTRL;
 		if(e.button == GLFW_MOUSE_BUTTON_LEFT && e.action == GLFW_PRESS

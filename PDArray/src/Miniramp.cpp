@@ -236,7 +236,7 @@ struct MinirampWidget : ModuleWidget {
 	MinirampWidget(Miniramp *module) {
 		setModule(module);
 		this->module = module;
-		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Miniramp.svg"))); //TODO: make less ugly
+		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Miniramp.svg")));
 
 		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
 		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
