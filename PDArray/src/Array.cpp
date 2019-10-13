@@ -330,9 +330,9 @@ struct ArrayDisplay : OpaqueWidget {
 	void onButton(const event::Button &e) override {
 		//TODO: don't draw on right-click?
 		//TODO: don't draw if lock modules is enabled
-		//TODO: don't draw on ctrl+drag?
+		bool ctrl = (APP->window->getMods() & RACK_MOD_MASK) == RACK_MOD_CTRL;
 		if(e.button == GLFW_MOUSE_BUTTON_LEFT && e.action == GLFW_PRESS
-				&& module->enableEditing) {
+				&& module->enableEditing && !ctrl) {
 			e.consume(this);
 			dragPosition = e.pos;
 		}
