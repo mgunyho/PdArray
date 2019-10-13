@@ -356,17 +356,17 @@ struct ArrayDisplay : OpaqueWidget {
 
 		// int() rounds down, so the upper limit of rescale is buffer.size() without -1.
 		int s = module->buffer.size();
-		int boxx = box.size.x;
-		int boxy = box.size.y;
-		int i1 = clamp(int(rescale(dragPosition_old.x, 0, boxx, 0, s)), 0, s - 1);
-		int i2 = clamp(int(rescale(dragPosition.x,     0, boxx, 0, s)), 0, s - 1);
+		math::Vec bs = box.size;
+		int i1 = clamp(int(rescale(dragPosition_old.x, 0, bs.x, 0, s)), 0, s - 1);
+		int i2 = clamp(int(rescale(dragPosition.x,     0, bs.x, 0, s)), 0, s - 1);
 
 		if(abs(i1 - i2) < 2) {
-			float y = clamp(rescale(dragPosition.y, 0, boxy, 1.f, 0.f), 0.f, 1.f);
+			float y = clamp(rescale(dragPosition.y, 0, bs.y, 1.f, 0.f), 0.f, 1.f);
 			module->buffer[i2] = y;
 		} else {
-			float y1 = clamp(rescale(dragPosition_old.y, 0, boxy, 1.f, 0.f), 0.f, 1.f);
-			float y2 = clamp(rescale(dragPosition.y,     0, boxy, 1.f, 0.f), 0.f, 1.f);
+			// mouse moved more than one index, interpolate
+			float y1 = clamp(rescale(dragPosition_old.y, 0, bs.y, 1.f, 0.f), 0.f, 1.f);
+			float y2 = clamp(rescale(dragPosition.y,     0, bs.y, 1.f, 0.f), 0.f, 1.f);
 			if(i2 < i1) {
 				std::swap(i1, i2);
 				std::swap(y1, y2);
@@ -451,6 +451,7 @@ struct NumberTextField : TextField {
 			TextField::onSelectText(e);
 		}
 	}
+
 	void step() override {
 		TextField::step();
 		// eh, kinda hacky - is there any way to do this just once after the module has been initialized? after dataFromJson?
