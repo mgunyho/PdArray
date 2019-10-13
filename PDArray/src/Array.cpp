@@ -14,6 +14,7 @@
 //TODO: prevent audio clicking at the last sample
 //TODO: undo history? hard?
 //TODO: show duration corresponding to sample count
+//TODO: click on rec LED to enable?
 
 struct Array : Module {
 	enum ParamIds {
@@ -522,6 +523,7 @@ struct ArrayModuleWidget : ModuleWidget {
 		setModule(module);
 		this->module = module;
 
+		//TODO: some logo somewhere
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Array.svg")));
 
 		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
