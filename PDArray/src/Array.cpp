@@ -1,6 +1,7 @@
 #include "plugin.hpp"
 #include "window.hpp" // windowIsModPressed
 #include "osdialog.h"
+#include "settings.hpp" // settings::*
 #include <GLFW/glfw3.h> // key codes
 #include <algorithm> // std::min, std::swap
 #define DR_WAV_IMPLEMENTATION
@@ -330,7 +331,6 @@ struct ArrayDisplay : OpaqueWidget {
 		//TODO: don't draw on right-click?
 		//TODO: don't draw if lock modules is enabled
 		//TODO: don't draw on ctrl+drag?
-		//TODO: fix drawing position when zoomed...
 		if(e.button == GLFW_MOUSE_BUTTON_LEFT && e.action == GLFW_PRESS
 				&& module->enableEditing) {
 			e.consume(this);
@@ -352,7 +352,8 @@ struct ArrayDisplay : OpaqueWidget {
 		OpaqueWidget::onDragMove(e);
 		if(!module->enableEditing) return;
 		Vec dragPosition_old = dragPosition;
-		dragPosition = dragPosition.plus(e.mouseDelta);
+		float zoom = std::pow(2.f, settings::zoom);
+		dragPosition = dragPosition.plus(e.mouseDelta.div(zoom)); // take zoom into account
 
 		// int() rounds down, so the upper limit of rescale is buffer.size() without -1.
 		int s = module->buffer.size();
