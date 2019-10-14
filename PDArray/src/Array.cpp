@@ -2,6 +2,7 @@
 #include "window.hpp" // windowIsModPressed
 #include "osdialog.h"
 #include "settings.hpp" // settings::*
+#include "random.hpp"
 #include <GLFW/glfw3.h> // key codes
 #include <algorithm> // std::min, std::swap
 #define DR_WAV_IMPLEMENTATION
@@ -15,6 +16,7 @@
 //TODO: undo history? hard?
 //TODO: show duration corresponding to sample count
 //TODO: click on rec LED to enable?
+//TODO: visual representation choice right-click submenu
 
 struct Array : Module {
 	enum ParamIds {
@@ -125,6 +127,13 @@ struct Array : Module {
 		boundaryMode = INTERP_PERIODIC;
 		enableEditing = true;
 		initBuffer();
+	}
+
+	void onRandomize() override {
+		Module::onRandomize();
+		for(int i = 0; i < buffer.size(); i++) {
+			buffer[i] = random::uniform();
+		}
 	}
 };
 
@@ -239,6 +248,7 @@ void Array::process(const ProcessArgs &args) {
 		float c = buffer[ic];
 		float d = buffer[id];
 
+		// Pd algorithm magic
 		float frac = phase * size - i; // fractional part of phase
 		float y = b + frac * (
 				c - b - 0.1666667f * (1.f - frac) * (
