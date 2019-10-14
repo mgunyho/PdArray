@@ -11,13 +11,13 @@ interpolated values, using the same interpolation algorithm as Pd.
 [**TODO**: basic image - show smooth vs step here?]
 
 PdArray can be used as an envelope generator, sequencer, sample player,
-waveshaper or in a number of weird and interesting ways.
+waveshaper or in a number of other weird and interesting ways.
 
 The plugin also contains a small module called Miniramp to easily record or
 read out the array sequentially.
 
-## Array
 
+## Array
 Array is the main module of the PdArray plugin. This is its interface:
 
 [**TODO**: image showing buttons + inputs]
@@ -90,6 +90,7 @@ application if you wish to load it starting from another position.
 After loading a sample, drawing will be locked (but you
 can unlock it from the right-click menu).
 
+
 ## Miniramp
 
 [**TODO**: image of miniramp]
@@ -101,6 +102,14 @@ linear or logarithmic scaling as selected by the LIN/LOG switch. You can
 control the ramp duration / speed with the CV input. When you send a trigger to
 TRG IN, RAMP will output the ramp and the GATE output will output 10V during
 the ramp, useful for e.g. the REC input of Array.
+
+
+## Contributing
+If you have suggestions or feedback or find a bug or whatever, feel free to open
+an issue or a pull request in this repository!
+
+Building the modules follows the [standard procedure](https://vcvrack.com/manual/PluginDevelopmentTutorial.html#creating-the-template-plugin):
+`RACK_DIR=/path/to/Rack_SDK/ make install`.
 
 
 ## Licenses
