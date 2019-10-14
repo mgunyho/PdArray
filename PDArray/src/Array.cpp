@@ -10,13 +10,13 @@
 
 #include <iostream>
 
-//TODO: preiodic interp right click submenu
 //TODO: load buffer from text/csv file?
 //TODO: prevent audio clicking at the last sample
 //TODO: undo history? hard?
 //TODO: show duration corresponding to sample count
 //TODO: click on rec LED to enable?
-//TODO: visual representation choice right-click submenu
+//TODO: visual representation choice right-click submenu (stairs (current), lines, points, bars)
+//TODO: reinterpolate array on resize (+right-click menu option for that)
 
 struct Array : Module {
 	enum ParamIds {
@@ -508,10 +508,10 @@ struct ArrayEnableEditingMenuItem : MenuItem {
 	}
 };
 
-struct ArrayInterpModeMenuItem : MenuItem {
+struct ArrayInterpModeChildMenuItem : MenuItem {
 	Array *module;
 	Array::InterpBoundaryMode mode;
-	ArrayInterpModeMenuItem(Array *pModule,
+	ArrayInterpModeChildMenuItem(Array *pModule,
 			Array::InterpBoundaryMode pMode,
 			std::string label):
 		MenuItem() {
@@ -522,6 +522,19 @@ struct ArrayInterpModeMenuItem : MenuItem {
 	}
 	void onAction(const event::Action &e) override {
 		module->boundaryMode = mode;
+	}
+};
+
+struct ArrayInterpModeMenuItem : MenuItem {
+	Array* module;
+	Menu* createChildMenu() override {
+		Menu* menu = new Menu();
+
+		menu->addChild(new ArrayInterpModeChildMenuItem(this->module, Array::INTERP_CONSTANT, "Constant"));
+		menu->addChild(new ArrayInterpModeChildMenuItem(this->module, Array::INTERP_MIRROR, "Mirror"));
+		menu->addChild(new ArrayInterpModeChildMenuItem(this->module, Array::INTERP_PERIODIC, "Periodic"));
+
+		return menu;
 	}
 };
 
@@ -589,15 +602,11 @@ struct ArrayModuleWidget : ModuleWidget {
 			edItem->valueToSet = !arr->enableEditing;
 			menu->addChild(edItem);
 
-			//TODO: replace with sub-menu
-			auto *interpModeLabel = new MenuLabel();
-			interpModeLabel->text = "Interpolation at boundary";
-			menu->addChild(new MenuLabel());
-			menu->addChild(interpModeLabel);
-			menu->addChild(new ArrayInterpModeMenuItem(this->module, Array::INTERP_CONSTANT, "Constant"));
-			menu->addChild(new ArrayInterpModeMenuItem(this->module, Array::INTERP_MIRROR, "Mirror"));
-			menu->addChild(new ArrayInterpModeMenuItem(this->module, Array::INTERP_PERIODIC, "Periodic"));
-
+			auto* interpModeSubMenu = new ArrayInterpModeMenuItem;
+			interpModeSubMenu->text = "Interpolation at boundary";
+			interpModeSubMenu->rightText = RIGHT_ARROW;
+			interpModeSubMenu->module = this->module;
+			menu->addChild(interpModeSubMenu);
 		}
 
 	}
