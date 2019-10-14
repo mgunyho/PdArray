@@ -76,7 +76,8 @@ struct Array : Module {
 	void process(const ProcessArgs &args) override;
 
 	void resizeBuffer(unsigned int newSize) {
-		buffer.resize(newSize, 0.f);
+		bool outputIsSigned = params[OUTPUT_RANGE_PARAM].getValue() < 1.5f;
+		buffer.resize(newSize, outputIsSigned ? 0.5f : 0.f);
 	}
 
 	void loadSample(std::string path);
@@ -131,7 +132,7 @@ struct Array : Module {
 
 	void onRandomize() override {
 		Module::onRandomize();
-		for(int i = 0; i < buffer.size(); i++) {
+		for(unsigned int i = 0; i < buffer.size(); i++) {
 			buffer[i] = random::uniform();
 		}
 	}
