@@ -343,7 +343,6 @@ struct ArrayDisplay : OpaqueWidget {
 	}
 
 	void onButton(const event::Button &e) override {
-		//TODO: don't draw if lock modules is enabled
 		bool ctrl = (APP->window->getMods() & RACK_MOD_MASK) == RACK_MOD_CTRL;
 		if(e.button == GLFW_MOUSE_BUTTON_LEFT && e.action == GLFW_PRESS
 				&& module->enableEditing && !ctrl) {
@@ -555,7 +554,7 @@ struct ArrayModuleWidget : ModuleWidget {
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Array.svg")));
 
 		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
-		addChild(createWidget<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
+		//addChild(createWidget<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
 		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 		addChild(createWidget<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
