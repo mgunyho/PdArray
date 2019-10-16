@@ -83,10 +83,15 @@ the audio is playing for interesting effects!
 ### Loading and playing samples
 [**TODO**: image of sample loaded into PdArray + playback (using LFO? or miniramp?)]
 By right-clicking on the Array module, you can load a wav sample file. The
-array will contain the first N samples of the audio file, where N is the array
-size set in the module. The audio file will always be loaded from the
-beginning, so you will need to trim your file with an external audio editing
-application if you wish to load it starting from another position.
+number in the right-click menu shows the duration of the loaded sample with the
+current sample rate. After selecting a file, the array will contain the first N
+samples of the audio file, where N is the array size shown in the SIZE display.
+The audio file will always be loaded from the beginning, so you will need to
+trim your file with an external audio editing application if you wish to load
+it starting from another position.
+
+Playing back a sample works the same way as reading the array in general: input
+a voltage to POS and connect the outputs to wherever.
 
 After loading a sample, drawing will be locked (but you
 can unlock it from the right-click menu).
