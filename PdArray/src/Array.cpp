@@ -574,8 +574,8 @@ struct ArrayModuleWidget : ModuleWidget {
 		addChild(display);
 
 		sizeSelector = new NumberTextField(module);
-		sizeSelector->box.pos = Vec(175, 295);
-		sizeSelector->box.size.x = 50;
+		sizeSelector->box.pos = Vec(174, 295);
+		sizeSelector->box.size.x = 51; // additional pixel, otherwise last digit gets put on next line on some zoom levels
 		addChild(sizeSelector);
 	}
 
