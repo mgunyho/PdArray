@@ -493,12 +493,14 @@ struct ArrayFileSelectItem : MenuItem {
 	Array *module;
 	void onAction(const event::Action &e) override {
 		std::string dir = module->lastLoadedPath.empty() ? asset::user("") : rack::string::directory(module->lastLoadedPath);
-		char *path = osdialog_file(OSDIALOG_OPEN, dir.c_str(), NULL, NULL);
+		osdialog_filters* filters = osdialog_filters_parse(".wav files:wav");
+		char *path = osdialog_file(OSDIALOG_OPEN, dir.c_str(), NULL, filters);
 		if(path) {
 			module->loadSample(path);
 			module->lastLoadedPath = path;
 			free(path);
 		}
+		osdialog_filters_free(filters);
 	}
 };
 
