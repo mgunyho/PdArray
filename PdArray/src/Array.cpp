@@ -13,7 +13,6 @@
 //TODO: load buffer from text/csv file?
 //TODO: prevent audio clicking at the last sample
 //TODO: undo history? hard?
-//TODO: show duration corresponding to sample count
 //TODO: visual representation choice right-click submenu (stairs (current), lines, points, bars)
 //TODO: reinterpolate array on resize (+right-click menu option for that)
 
@@ -51,6 +50,7 @@ struct Array : Module {
 	float phases[MAX_POLY_CHANNELS];
 	int nChannels = 1;
 	float recPhase = 0.f;
+	float sampleRate; // so that it can be read by the UI
 	dsp::SchmittTrigger recTrigger;
 	std::vector<float> buffer;
 	std::string lastLoadedPath;
@@ -163,6 +163,7 @@ void Array::loadSample(std::string path) {
 
 void Array::process(const ProcessArgs &args) {
 	float deltaTime = args.sampleTime;
+	sampleRate = args.sampleRate;
 
 	float phaseMin, phaseMax;
 	float prange = params[PHASE_RANGE_PARAM].getValue();
@@ -599,7 +600,9 @@ struct ArrayModuleWidget : ModuleWidget {
 			menu->addChild(bufResetItem);
 
 			auto *fsItem = new ArrayFileSelectItem();
+			float duration = arr->buffer.size() * 1.f / arr->sampleRate;
 			fsItem->text = "Load .wav file";
+			fsItem->rightText = string::f("(%.2f s)", duration);
 			fsItem->module = arr;
 			menu->addChild(fsItem);
 
