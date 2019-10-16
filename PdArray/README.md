@@ -6,7 +6,8 @@ into the array either by manually drawing, recording an input, or loading a
 sample. A CV input controls the position of a cursor for reading out the array
 values. There are two outputs: one will output the stepped values of the array
 directly (useful for e.g. sequencing), and the other will output smooth
-interpolated values, using the same interpolation algorithm as Pd.
+interpolated values, using the same interpolation algorithm as the `tabread4~`
+object in Pd.
 
 [**TODO**: basic image - show smooth vs step here?]
 
@@ -28,7 +29,7 @@ play back. The value at this position will then be output to OUT STEP and OUT
 SMTH. The OUT STEP output contains the array values directly, while OUT SMTH
 will output smoothed (interpolated) values.
 
-[**TOD**: image showing smooth vs step (?)]
+[**TODO**: image showing smooth vs step (?)]
 
 The POS input supports polyphony. When a polyphonic cable is inserted into POS,
 each voltage in the input will have its own cursor, and the OUT STEP and OUT
