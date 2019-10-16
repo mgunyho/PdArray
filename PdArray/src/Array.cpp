@@ -14,7 +14,6 @@
 //TODO: prevent audio clicking at the last sample
 //TODO: undo history? hard?
 //TODO: show duration corresponding to sample count
-//TODO: click on rec LED to enable?
 //TODO: visual representation choice right-click submenu (stairs (current), lines, points, bars)
 //TODO: reinterpolate array on resize (+right-click menu option for that)
 
@@ -22,6 +21,7 @@ struct Array : Module {
 	enum ParamIds {
 		PHASE_RANGE_PARAM,
 		OUTPUT_RANGE_PARAM,
+		REC_ENABLE_PARAM,
 		NUM_PARAMS
 	};
 	enum InputIds {
@@ -69,6 +69,7 @@ struct Array : Module {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 		configParam(Array::OUTPUT_RANGE_PARAM, 0, 2, 0, "Recording and output range");
 		configParam(Array::PHASE_RANGE_PARAM, 0, 2, 2, "Position CV range");
+		configParam(Array::REC_ENABLE_PARAM, 0.f, 1.f, 0.f, "Record");
 		for(int i = 0; i < MAX_POLY_CHANNELS; i++) phases[i] = 0.f;
 		initBuffer();
 	}
@@ -196,7 +197,7 @@ void Array::process(const ProcessArgs &args) {
 	recPhase = clamp(rescale(inputs[REC_PHASE_INPUT].getVoltage(), phaseMin, phaseMax, 0.f, 1.f), 0.f, 1.f);
 	int ri = int(recPhase * size);
 	recTrigger.process(rescale(inputs[REC_ENABLE_INPUT].getVoltage(), 0.1f, 2.f, 0.f, 1.f));
-	bool rec = recTrigger.isHigh();
+	bool rec = recTrigger.isHigh() || (params[REC_ENABLE_PARAM].getValue() > 0.5f);
 	if(rec) {
 		buffer[ri] = clamp(rescale(inputs[REC_SIGNAL_INPUT].getVoltage(), inOutMin, inOutMax, 0.f, 1.f), 0.f, 1.f);
 	}
@@ -567,7 +568,14 @@ struct ArrayModuleWidget : ModuleWidget {
 		addParam(createParam<CKSSThree>(Vec(107.5f, 290), module, Array::OUTPUT_RANGE_PARAM));
 		addParam(createParam<CKSSThree>(Vec(27.5f, 290), module, Array::PHASE_RANGE_PARAM));
 
-		addChild(createLightCentered<MediumLight<RedLight>>(Vec(207.5f, 355), module, Array::REC_LIGHT));
+		auto recButtonLight = createLightCentered<MediumLight<RedLight>>(Vec(207.5f, 355), module, Array::REC_LIGHT);
+		addChild(recButtonLight);
+
+		auto recButton = createParam<Switch>(Vec(207.5f, 355), module, Array::REC_ENABLE_PARAM);
+		recButton->box.size = recButtonLight->box.size;
+		recButton->box.pos = recButtonLight->box.pos;
+		recButton->momentary = true;
+		addParam(recButton);
 
 		display = new ArrayDisplay(module);
 		display->box.pos = Vec(5, 20);

@@ -51,11 +51,11 @@ array values at once.  The array values are saved in the patch file, so be
 aware that patch files may become large if you have a large SIZE.
 
 The bottom row contains CV inputs related to recording. The REC POS dictates
-the position in the array where a recorded value will be written. The expected
+the position in the array where a recorded value will be written. Its expected
 values are set using POS RANGE, just as for the playback POS. Input the signal
-or values you want to record to the REC IN input and send a gate voltage to the
-REC input to record it. The red LED indicates when recording is on. Recording
-is only monophonic.
+or values you want to record to the REC IN input, and click and hold the REC
+LED or send a gate voltage to the REC input to record. Recording is only
+monophonic.
 
 Right-clicking on the module will open up some additional options, like
 initializing the array, loading an audio file and setting the interpolation
