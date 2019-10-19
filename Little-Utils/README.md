@@ -8,8 +8,8 @@ instead of faithful analog emulation. Here's all of them:
 
 Most of these modules were born out of me yelling "How the hell is this not in
 Fundamental?!". Much of the functionality is available in other plugin packs,
-but I didn't want to download 30 modules just to add two numbers together. Oh
-and I also tried to make them look nice.
+but I didn't want to download 30 modules just to add two numbers together. I
+also tried to make them look nice.
 
 All modules except for Button have polyphonic support.
 
@@ -49,7 +49,7 @@ the offset is in volts or semitones. It can be used to create e.g. chords.
 
 ![bias/semitone](screenshots/bias_semitone.png)
 
-If an output is disconnected but an input above it is connected, the input
+If an input is disconnected but an input above it is connected, the input
 signal is propagated downwards, much like with 8Vert from Fundamental. The LED
 color of an output indicates which input it is receiving.
 
