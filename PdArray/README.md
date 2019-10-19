@@ -126,5 +126,5 @@ Building the modules follows the [standard procedure](https://vcvrack.com/manual
 The source code and panel artwork are licensed under the MIT license (see
 [LICENSE](LICENSE.txt)). This repo also contains the fonts used for creating
 the panels: Overpass is licensed under the Open Font License (see
-[here](fonts/OFL.txt)) and Roboto is licensed under the Apache 2 License (see
-[here](fonts/APACHE2.txt)).
+[here](res/fonts/OFL.txt)) and Roboto is licensed under the Apache 2 License
+(see [here](res/fonts/APACHE2.txt)).
