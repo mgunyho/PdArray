@@ -7,9 +7,9 @@
   "author": "Márton Gunyhó",
   "authorEmail": "",
   "authorUrl": "",
-  "pluginUrl": "https://github.com/mgunyho/vcvrack-plugins/tree/master/PdArray",
-  "manualUrl": "https://github.com/mgunyho/vcvrack-plugins/tree/master/PdArray",
-  "sourceUrl": "https://github.com/mgunyho/vcvrack-plugins/tree/master/PdArray",
+  "pluginUrl": "https://github.com/mgunyho/PdArray",
+  "manualUrl": "https://github.com/mgunyho/PdArray",
+  "sourceUrl": "https://github.com/mgunyho/PdArray",
   "donateUrl": "",
   "modules": [
     {
