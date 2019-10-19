@@ -1,13 +1,13 @@
 # PdArray
 
-PdArray is a VCV Rack module that allows creating custom envelopes, much like
-the `array` object in [Pure Data](https://puredata.info/). You can enter values
-into the array either by manually drawing, recording an input, or loading a
-sample. A CV input controls the position of a cursor for reading out the array
-values. There are two outputs: one will output the stepped values of the array
-directly (useful for e.g. sequencing), and the other will output smooth
-interpolated values, using the same interpolation algorithm as the `tabread4~`
-object in Pd.
+PdArray is a plugin for the [VCV Rack](https://vcvrack.com/) virtual modular
+synthesizer that allows creating custom envelopes, much like the `array` object
+in [Pure Data](https://puredata.info/). You can enter values into the array
+either by manually drawing, recording an input, or loading a sample. A CV input
+controls the position of a cursor for reading out the array values. There are
+two outputs: one will output the stepped values of the array directly (useful
+for e.g. sequencing), and the other will output smooth interpolated values,
+using the same interpolation algorithm as the `tabread4~` object in Pd.
 
 ![main screenshot](screenshots/main.png)
 
