@@ -550,7 +550,6 @@ struct ArrayModuleWidget : ModuleWidget {
 		setModule(module);
 		this->module = module;
 
-		//TODO: some logo somewhere
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Array.svg")));
 
 		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
@@ -608,7 +607,7 @@ struct ArrayModuleWidget : ModuleWidget {
 			menu->addChild(fsItem);
 
 			auto *edItem = new ArrayEnableEditingMenuItem();
-			edItem->text = "Disable drawing"; //TODO: better description (mention mouse)
+			edItem->text = "Disable drawing";
 			edItem->module = arr;
 			edItem->rightText = CHECKMARK(!arr->enableEditing);
 			edItem->valueToSet = !arr->enableEditing;

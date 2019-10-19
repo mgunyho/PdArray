@@ -9,8 +9,7 @@ const float MAX_EXPONENT = 1.0f;
 
 // quick and dirty copy-paste of LittleUtils PulseGenerator.
 // TODO: move modules that are shared with LittleUtils common folder
-// TODO: tweak gate/ramp port vertical positions
-// TODO: show sample count corresponding to duration (needs more space - remove CV?)
+// TODO: show sample count corresponding to duration on mouse over (see ParamWidget::onEnter)
 // TODO: add trigger buttton (another reason to remove cv)
 
 // based on PulseGeneraotr in include/util/digital.hpp
@@ -68,7 +67,8 @@ struct Miniramp : Module {
 
 	dsp::SchmittTrigger inputTrigger[MAX_POLY_CHANNELS];
 	CustomPulseGenerator gateGen[MAX_POLY_CHANNELS];
-	float ramp_duration = 0.5f;
+	float ramp_base_duration = 0.5f; // ramp duration without CV
+	float ramp_duration;
 	float cv_scale = 0.f; // cv_scale = +- 1 -> 10V CV changes duration by +-10s
 
 	Miniramp() {
@@ -81,6 +81,7 @@ struct Miniramp : Module {
 					"Ramp duration");
 		configParam(Miniramp::CV_AMT_PARAM, -1.f, 1.f, 0.f, "CV amount");
 		configParam(Miniramp::LIN_LOG_MODE_PARAM, 0.f, 1.f, 1.f, "Linear/Logarithmic mode");
+		ramp_duration = ramp_base_duration;
 	}
 
 	void process(const ProcessArgs &args) override;
@@ -96,11 +97,10 @@ void Miniramp::process(const ProcessArgs &args) {
 	float cv_amt = params[CV_AMT_PARAM].getValue();
 	float cv_voltage = inputs[RAMP_LENGTH_INPUT].getVoltage();
 
-	//TODO: update this to match pulseGenerator
 	if(params[LIN_LOG_MODE_PARAM].getValue() < 0.5f) {
 		// linear mode
 		cv_scale = cv_amt;
-		ramp_duration = clamp(knob_value + cv_voltage * cv_amt, 0.f, 10.f);
+		ramp_base_duration = knob_value;
 	} else {
 		// logarithmic mode
 		float exponent = rescale(knob_value,
@@ -112,14 +112,14 @@ void Miniramp::process(const ProcessArgs &args) {
 		// decrease exponent by one so that 10V maps to 1.0 (100%) CV.
 		cv_scale = powf(10.0f, cv_exponent - 1.f) * signum(cv_amt); // take sign into account
 
-		ramp_duration = clamp(
-				powf(10.0f, exponent) + cv_voltage * cv_scale,
-				0.f, 10.f);
+		ramp_base_duration = powf(10.0f, exponent);
 	}
+	ramp_duration = clamp(ramp_base_duration + cv_voltage * cv_scale, 0.f, 10.f);
 
 	for(int c = 0; c < channels; c++) {
 		bool triggered = inputTrigger[c].process(rescale(
 					inputs[TRIG_INPUT].getVoltage(c), 0.1f, 2.f, 0.f, 1.f));
+
 		if(triggered && ramp_duration > 0.f) {
 			gateGen[c].trigger(ramp_duration);
 		}
