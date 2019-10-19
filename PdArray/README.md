@@ -9,7 +9,7 @@ directly (useful for e.g. sequencing), and the other will output smooth
 interpolated values, using the same interpolation algorithm as the `tabread4~`
 object in Pd.
 
-[**TODO**: basic image - show smooth vs step here?]
+![main screenshot](screenshots/main.png)
 
 PdArray can be used as an envelope generator, sequencer, sample player,
 waveshaper or in a number of other weird and interesting ways.
@@ -21,15 +21,13 @@ read out the array sequentially.
 ## Array
 Array is the main module of the PdArray plugin. This is its interface:
 
-[**TODO**: image showing buttons + inputs]
+![interface](screenshots/interface.png)
 
 On the top row, you will find one input and two outputs. The POS input takes a
 CV (or audio) signal which determines which value from the array to read, or
 play back. The value at this position will then be output to OUT STEP and OUT
 SMTH. The OUT STEP output contains the array values directly, while OUT SMTH
 will output smoothed (interpolated) values.
-
-[**TODO**: image showing smooth vs step (?)]
 
 The POS input supports polyphony. When a polyphonic cable is inserted into POS,
 each voltage in the input will have its own cursor, and the OUT STEP and OUT
@@ -61,11 +59,14 @@ Right-clicking on the module will open up some additional options, like
 initializing the array, loading an audio file and setting the interpolation
 mode.
 
-### Drawing envelopes or sequences
-[**TODO**: image of a sequencer-like array + an envelope-like array] The most
-basic usage of PdArray is to just draw an envelope or a sequence of values with
-your mouse. Increase the SIZE to get a smoother array, although you can get
-reasonably smooth envelopes with a small SIZE if you use the OUT SMTH output.
+### Drawing sequences or envelopes
+
+![sequence and envelope](screenshots/sequencer-envelope.png)
+
+The most basic usage of PdArray is to just draw a sequence of values or an
+envelope with your mouse. Increase the SIZE to get a smoother array, although
+you can get reasonably smooth envelopes with a small SIZE if you use the OUT
+SMTH output.
 
 ### Recording
 Input a ramp or LFO signal to REC POS, send audio or CV (or anything really) to
@@ -73,7 +74,8 @@ REC IN, send a high gate to the REC input and watch how the input signal gets
 imprinted to the array in real time.
 
 ### Using PdArray as a waveshaper
-[**TODO**: image showing waveshaping]
+
+![waveshaper](screenshots/waveshaper.png)
 
 PdArray can be easily used as a waveshaper by either drawing or recording a
 waveshaper curve, and then sending an audio signal to the POS CV input, with a
@@ -81,7 +83,9 @@ POS RANGE of +-10V for audio signals. You can even re-record the curve while
 the audio is playing for interesting effects!
 
 ### Loading and playing samples
-[**TODO**: image of sample loaded into PdArray + playback (using LFO? or miniramp?)]
+
+![playing samples](screenshots/sample-player.png)
+
 By right-clicking on the Array module, you can load a wav sample file. The
 number in the right-click menu shows the duration of the loaded sample with the
 current sample rate. After selecting a file, the array will contain the first N
@@ -93,13 +97,13 @@ it starting from another position.
 Playing back a sample works the same way as reading the array in general: input
 a voltage to POS and connect the outputs to wherever.
 
-After loading a sample, drawing will be locked (but you
-can unlock it from the right-click menu).
+After loading a sample, drawing will be locked (but you can unlock it from the
+right-click menu).
 
 
 ## Miniramp
 
-[**TODO**: image of miniramp]
+![miniramp](screenshots/miniramp.png)
 
 Miniramp is a small envelope generator that outputs a linear ramp from 0 to 10V
 in the time specified by a knob and optionally a CV. The duration of the ramp
