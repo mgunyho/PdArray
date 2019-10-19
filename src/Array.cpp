@@ -145,7 +145,7 @@ void Array::loadSample(std::string path) {
 	float* pSampleData = drwav_open_file_and_read_pcm_frames_f32(path.c_str(), &channels, &sampleRate, &totalPCMFrameCount);
 
 	if (pSampleData != NULL) {
-		int newSize = std::min(totalPCMFrameCount, buffer.size());
+		int newSize = std::min((unsigned long) totalPCMFrameCount, buffer.size());
 		buffer.clear();
 		buffer.reserve(newSize);
 		for(unsigned int i = 0; i < newSize * channels; i = i + channels) {
