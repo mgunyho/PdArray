@@ -34,13 +34,13 @@ each voltage in the input will have its own cursor, and the OUT STEP and OUT
 SMTH outputs will output polyphonic signals at each of the cursors.
 
 The POS RANGE switch can be used to select the expected range of the POS input;
-use +10V for e.g. unipolar LFO's and Miniramp, +-5V for bipolar LFO's and +-10V
-for audio signals.  Similarly, the I/O RANGE switch selects the range of values
-that you wish to record and what the outputs will have. Setting the switch to
-+10V means that the top edge of the visual representation of the array
-corresponds to +10V and the bottom edge to 0V, while for +-5 and 10 the top and
-bottom edges of the array are plus and minus 5 or 10 volts, respectively, and
-the middle corresponds to 0V.
+use +10V for e.g. unipolar LFO's and Miniramp, +-5V for bipolar LFO's and audio
+signals.  Similarly, the I/O RANGE switch selects the range of values that you
+wish to record and what the outputs will have. Setting the switch to +10V means
+that the top edge of the visual representation of the array corresponds to +10V
+and the bottom edge to 0V, while for +-5 and 10 the top and bottom edges of the
+array are plus and minus 5 or 10 volts, respectively, and the middle
+corresponds to 0V.
 
 The SIZE screen displays the current number of elements in the array. You can
 click on the screen to type a value up to 999999. If the array has more
@@ -70,8 +70,8 @@ SMTH output.
 
 ### Recording
 Input a ramp or LFO signal to REC POS, send audio or CV (or anything really) to
-REC IN, send a high gate to the REC input and watch how the input signal gets
-imprinted to the array in real time.
+REC IN, send a high gate to the REC input or click on the LED, and watch how
+the input signal gets imprinted to the array in real time.
 
 ### Using PdArray as a waveshaper
 
@@ -79,8 +79,8 @@ imprinted to the array in real time.
 
 PdArray can be easily used as a waveshaper by either drawing or recording a
 waveshaper curve, and then sending an audio signal to the POS CV input, with a
-POS RANGE of +-10V for audio signals. You can even re-record the curve while
-the audio is playing for interesting effects!
+POS RANGE of +-5V for audio signals. You can even re-record the curve while the
+audio is playing for interesting effects!
 
 ### Loading and playing samples
 
