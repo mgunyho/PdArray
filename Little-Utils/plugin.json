@@ -1,15 +1,15 @@
 {
   "slug": "LittleUtils",
   "name": "Little Utils",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "MIT",
   "brand": "",
   "author": "Márton Gunyhó",
   "authorEmail": "",
   "authorUrl": "",
-  "pluginUrl": "",
-  "manualUrl": "",
-  "sourceUrl": "",
+  "pluginUrl": "https://github.com/mgunyho/vcvrack-plugins/tree/master/Little-Utils",
+  "manualUrl": "https://github.com/mgunyho/vcvrack-plugins/tree/master/Little-Utils",
+  "sourceUrl": "https://github.com/mgunyho/vcvrack-plugins/tree/master/Little-Utils",
   "donateUrl": "",
   "modules": [
     {

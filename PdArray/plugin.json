@@ -1,36 +1,36 @@
 {
   "slug": "PdArray",
   "name": "PdArray",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "MIT",
   "brand": "",
   "author": "Márton Gunyhó",
   "authorEmail": "",
   "authorUrl": "",
-  "pluginUrl": "",
-  "manualUrl": "",
-  "sourceUrl": "",
+  "pluginUrl": "https://github.com/mgunyho/vcvrack-plugins/tree/master/PdArray",
+  "manualUrl": "https://github.com/mgunyho/vcvrack-plugins/tree/master/PdArray",
+  "sourceUrl": "https://github.com/mgunyho/vcvrack-plugins/tree/master/PdArray",
   "donateUrl": "",
   "modules": [
     {
       "slug": "Array",
       "name": "Array",
-      "description": "",
+      "description": "Draw or record sequences, envelopes or audio",
       "tags": [
-        "Envelope generator",
-        "Function generator",
-        "Sampler",
-        "Visual",
-        "Waveshaper"
+        "envelope generator",
+        "function generator",
+        "sampler",
+        "visual",
+        "waveshaper"
       ]
     },
     {
       "slug": "Miniramp",
       "name": "Miniramp",
-      "description": "",
+      "description": "Generate a ramp from 0V to 10V with a given duration",
       "tags": [
-        "Envelope generator",
-        "Utility"
+        "envelope generator",
+        "utility"
       ]
     }
   ]
