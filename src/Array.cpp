@@ -595,7 +595,7 @@ struct ArrayModuleWidget : ModuleWidget {
 			menu->addChild(new MenuLabel()); // spacer
 
 			auto *bufResetItem = new ArrayResetBufferItem();
-			bufResetItem->text = "Rreset array contents";
+			bufResetItem->text = "Reset array contents";
 			bufResetItem->module = arr;
 			menu->addChild(bufResetItem);
 
