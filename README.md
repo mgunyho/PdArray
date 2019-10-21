@@ -65,8 +65,8 @@ mode.
 
 The most basic usage of PdArray is to just draw a sequence of values or an
 envelope with your mouse. Increase the SIZE to get a smoother array, although
-you can get reasonably smooth envelopes with a small SIZE if you use the OUT
-SMTH output.
+you can get reasonably smooth envelopes even with a small SIZE if you use the
+OUT SMTH output.
 
 ### Recording
 Input a ramp or LFO signal to REC POS, send audio or CV (or anything really) to
@@ -79,15 +79,15 @@ the input signal gets imprinted to the array in real time.
 
 PdArray can be easily used as a waveshaper by either drawing or recording a
 waveshaper curve, and then sending an audio signal to the POS CV input, with a
-POS RANGE of +-5V for audio signals. You can even re-record the curve while the
-audio is playing for interesting effects!
+POS RANGE of +-5V for typical audio signals. You can even re-record the curve
+while the audio is playing for interesting effects!
 
 ### Loading and playing samples
 
 ![playing samples](screenshots/sample-player.png)
 
 By right-clicking on the Array module, you can load a wav sample file. The
-number in the right-click menu shows the duration of the loaded sample with the
+number in the right-click menu shows the duration of the loaded sample at the
 current sample rate. After selecting a file, the array will contain the first N
 samples of the audio file, where N is the array size shown in the SIZE display.
 The audio file will always be loaded from the beginning, so you will need to
@@ -106,12 +106,12 @@ right-click menu).
 ![miniramp](screenshots/miniramp.png)
 
 Miniramp is a small envelope generator that outputs a linear ramp from 0 to 10V
-in the time specified by a knob and optionally a CV. The duration of the ramp
-is shown on the bottom. The large knob controls the base duration, either with
-linear or logarithmic scaling as selected by the LIN/LOG switch. You can
-control the ramp duration / speed with the CV input. When you send a trigger to
-TRG IN, RAMP will output the ramp and the GATE output will output 10V during
-the ramp, useful for e.g. the REC input of Array.
+in a certain time. The duration of the ramp is shown on the bottom. The large
+knob controls the base duration, either with linear or logarithmic scaling as
+selected by the LIN/LOG switch. You can control the ramp duration / speed with
+the CV input and CV amount knob. When you send a trigger to TRG IN, RAMP will
+output the ramp, and the GATE output will output 10V while the ramp is in
+progress, useful for e.g. the REC input of Array.
 
 
 ## Contributing
