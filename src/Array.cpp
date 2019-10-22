@@ -417,6 +417,28 @@ struct NumberTextField : TextField {
 		return !s.empty() && it == s.end();
 	}
 
+	void onButton(const event::Button& e) override {
+
+		event::Button ee = e;
+
+		// make right-click behave the same as left click
+		if(e.button == GLFW_MOUSE_BUTTON_RIGHT) {
+			ee.button = GLFW_MOUSE_BUTTON_LEFT;
+		}
+
+		TextField::onButton(ee);
+
+		if(ee.action == GLFW_PRESS && ee.button == GLFW_MOUSE_BUTTON_LEFT) {
+			// HACK
+			APP->event->setSelected(this);
+		}
+
+		if(ee.isConsumed()) {
+			e.consume(ee.getTarget());
+		}
+
+	}
+
 	void onAction(const event::Action &e) override {
 		if(text.size() > 0) {
 			int n = stoi(text); // text should always contain only digits
