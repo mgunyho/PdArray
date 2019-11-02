@@ -211,13 +211,13 @@ void Array::process(const ProcessArgs &args) {
 		float phase = clamp(rescale(inputs[PHASE_INPUT].getVoltage(chan), phaseMin, phaseMax, 0.f, 1.f), 0.f, 1.f);
 		phases[chan] = phase;
 		// direct output
-		int i_step = clamp(std::lround(phase * (size - 1)), 0, size - 1);
+		int i_step = clamp((int) std::floor(phase * size), 0, size - 1);
 		outputs[STEP_OUTPUT].setVoltage(rescale(buffer[i_step], 0.f, 1.f, inOutMin, inOutMax), chan);
 
 		// interpolated output, based on tabread4_tilde_perform() in
 		// https://github.com/pure-data/pure-data/blob/master/src/d_array.c
-		//TODO: make symmetric (based on range polarity (?)) -- sensible/possible?
-		int i = clamp(std::lround(phase * (size - 1)), 0, size - 1);
+		//TODO: adjust symmetry of surrounding indices (based on range polarity)?
+		int i = i_step;
 		int ia, ib, ic, id;
 		switch(boundaryMode) {
 			case INTERP_CONSTANT:
