@@ -12,9 +12,23 @@
 
 //TODO: load buffer from text/csv file?
 //TODO: prevent audio clicking at the last sample
-//TODO: undo history? hard?
+//TODO: undo history? hard? memory intensive?
 //TODO: visual representation choice right-click submenu (stairs (current), lines, points, bars)
 //TODO: reinterpolate array on resize (+right-click menu option for that)
+
+struct RangeParamQuantity : ParamQuantity {
+	std::string getDisplayValueString() override {
+		if(!module) return "";
+		float v = getDisplayValue();
+		if(v > 1.5f) {
+			return "0..10";
+		} else if (v > 0.5f) {
+			return "-5..5";
+		} else {
+			return "-10..10";
+		}
+	}
+};
 
 struct Array : Module {
 	enum ParamIds {
@@ -67,8 +81,8 @@ struct Array : Module {
 
 	Array() {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
-		configParam(Array::OUTPUT_RANGE_PARAM, 0, 2, 0, "Recording and output range");
-		configParam(Array::PHASE_RANGE_PARAM, 0, 2, 2, "Position CV range");
+		configParam<RangeParamQuantity>(Array::OUTPUT_RANGE_PARAM, 0, 2, 0, "Recording and output range", "V");
+		configParam<RangeParamQuantity>(Array::PHASE_RANGE_PARAM, 0, 2, 2, "Position CV range", "V");
 		configParam(Array::REC_ENABLE_PARAM, 0.f, 1.f, 0.f, "Record");
 		for(int i = 0; i < MAX_POLY_CHANNELS; i++) phases[i] = 0.f;
 		initBuffer();
