@@ -21,7 +21,8 @@
         "function generator",
         "sampler",
         "visual",
-        "waveshaper"
+        "waveshaper",
+        "polyphonic"
       ]
     },
     {
@@ -30,7 +31,8 @@
       "description": "Generate a ramp from 0V to 10V with a given duration",
       "tags": [
         "envelope generator",
-        "utility"
+        "utility",
+        "polyphonic"
       ]
     }
   ]
