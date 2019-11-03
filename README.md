@@ -14,8 +14,10 @@ using the same interpolation algorithm as the `tabread4~` object in Pd.
 PdArray can be used as an envelope generator, sequencer, sample player,
 waveshaper or in a number of other weird and interesting ways.
 
-The plugin also contains a small module called Miniramp to easily record or
-read out the array sequentially.
+The plugin also contains two small companion modules called Miniramp and
+Ministep.  Miniramp can be used to to easily record or read out the array
+sequentially, while Ministep helps with stepping through the array using a
+clock, like a traditional sequencer.
 
 
 ## Array
@@ -115,6 +117,29 @@ selected by the LIN/LOG switch. You can control the ramp duration / speed with
 the CV input and CV amount knob. When you send a trigger to TRG IN, RAMP will
 output the ramp, and the GATE output will output 10V while the ramp is in
 progress, useful for e.g. the REC input of Array.
+
+
+## Ministep
+
+![ministep](screenshots/ministep.png)
+
+Ministep can be used to step through an Array, like a sequencer. Sending a
+trigger to INC increments the counter, while a trigger to DEC decrements it.
+The RST input resets the counter to 1. You can click on the MAX display to
+change the maximum number of steps, up to 999.
+
+By default, the output will be 10V divided into N steps, where N is the maximum
+number. This way, it is easy to use with an Array whose SIZE is set equal to N.
+However, from a right-click menu, you can also configure Ministep to output the
+step number directly as a voltage. In this mode, step 1 outputs 0V, step 2
+outputs 1V and so on.
+
+For polyphonic signals, there will be one counter per channel. Sending a
+monophonic trigger to the reset input resets all channels, while a polyphonic
+trigger can be used to reset individual channels.
+
+By detecting the falling edge of the output or applying a threshold to the
+output value near zero, you can also use Ministep as a clock divider!
 
 
 ## Contributing
