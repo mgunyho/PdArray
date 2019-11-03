@@ -69,6 +69,9 @@ you can get reasonably smooth envelopes even with a small SIZE if you use the
 OUT SMTH output.
 
 ### Recording
+
+![recording](screenshots/record.png)
+
 Input a ramp or LFO signal to REC POS, send audio or CV (or anything really) to
 REC IN, send a high gate to the REC input or click on the LED, and watch how
 the input signal gets imprinted to the array in real time.
