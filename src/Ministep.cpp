@@ -126,6 +126,7 @@ void Ministep::process(const ProcessArgs &args) {
 	outputs[STEP_OUTPUT].setChannels(channels);
 }
 
+//TODO: replace with something like EditableTextBox in LittleUtils?
 struct NStepsSelector : NumberTextField {
 	Ministep *module;
 
@@ -133,6 +134,7 @@ struct NStepsSelector : NumberTextField {
 		module = m;
 		validText = string::f("%u", module ? module->nSteps : 1);
 		text = validText;
+		maxCharacters = 3;
 	};
 
 	void onNumberSet(const int n) override {
@@ -170,7 +172,7 @@ struct MinistepWidget : ModuleWidget {
 		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 48),  module, Ministep::INCREMENT_INPUT));
 		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 96),  module, Ministep::DECREMENT_INPUT));
 		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 144), module, Ministep::RESET_INPUT));
-		addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 223), module, Ministep::STEP_OUTPUT));
+		addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 249), module, Ministep::STEP_OUTPUT));
 
 		//addChild(createTinyLightForPort<GreenLight>(Vec(22.5, 240), module, Miniramp::RAMP_LIGHT));
 		//addChild(createTinyLightForPort<GreenLight>(Vec(22.5, 288), module, Miniramp::GATE_LIGHT));
@@ -181,9 +183,8 @@ struct MinistepWidget : ModuleWidget {
 		//addChild(msDisplay);
 
 		nStepsSelector = new NStepsSelector(module);
-		nStepsSelector->box.pos = Vec(7.5, 304);
+		nStepsSelector->box.pos = Vec(7.5, 317);
 		nStepsSelector->box.size.x = 30;
-		nStepsSelector->box.size.y = 34;
 		addChild(nStepsSelector);
 
 	}
