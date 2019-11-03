@@ -423,14 +423,14 @@ struct ArraySizeSelector : NumberTextField {
 		text = validText;
 	};
 
-	void onNumberSet(int n) override {
+	void onNumberSet(const int n) override {
 		if(module) {
 			module->resizeBuffer(n);
 		}
 	}
 
 	void step() override {
-		TextField::step();
+		NumberTextField::step();
 		// eh, kinda hacky - is there any way to do this just once after the module has been initialized? after dataFromJson?
 		if(module) {
 			if(APP->event->selectedWidget != this) {
