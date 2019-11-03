@@ -8,6 +8,8 @@
 #define DR_WAV_IMPLEMENTATION
 #include "dr_wav.h" // for reading wav files
 
+#include "Widgets.hpp"
+
 #include <iostream>
 
 //TODO: load buffer from text/csv file?
@@ -413,45 +415,16 @@ struct ArrayDisplay : OpaqueWidget {
 
 
 // TextField that only allows inputting numbers
-struct NumberTextField : TextField {
+struct ArraySizeSelector : NumberTextField {
 	int maxCharacters = 6;
 	Array *module;
 	std::string validText = "1";
 
-	NumberTextField(Array *m) : TextField() {
+	ArraySizeSelector(Array *m) : NumberTextField() {
 		module = m;
 		validText = string::f("%u", module ? module->buffer.size() : 1);
 		text = validText;
 	};
-
-	bool isNumber(const std::string& s) {
-		// shamelessly copypasted from https://stackoverflow.com/questions/4654636/how-to-determine-if-a-string-is-a-number-with-c
-		std::string::const_iterator it = s.begin();
-		while (it != s.end() && std::isdigit(*it)) ++it;
-		return !s.empty() && it == s.end();
-	}
-
-	void onButton(const event::Button& e) override {
-
-		event::Button ee = e;
-
-		// make right-click behave the same as left click
-		if(e.button == GLFW_MOUSE_BUTTON_RIGHT) {
-			ee.button = GLFW_MOUSE_BUTTON_LEFT;
-		}
-
-		TextField::onButton(ee);
-
-		if(ee.action == GLFW_PRESS && ee.button == GLFW_MOUSE_BUTTON_LEFT) {
-			// HACK
-			APP->event->setSelected(this);
-		}
-
-		if(ee.isConsumed()) {
-			e.consume(ee.getTarget());
-		}
-
-	}
 
 	void onAction(const event::Action &e) override {
 		if(text.size() > 0) {
@@ -465,41 +438,6 @@ struct NumberTextField : TextField {
 		//if(gFocusedWidget == this) gFocusedWidget = NULL;
 		if(APP->event->selectedWidget == this) APP->event->selectedWidget = NULL; //TODO: replace with onSelect / onDeselect (?) -- at least emit onDeselect, compare to TextField (?)
 		e.consume(this);
-	}
-
-	void onSelectKey(const event::SelectKey &e) override {
-		//TODO: compare this to onSelectKey in Little-Utils/src/Widgets.cpp
-		if(e.key == GLFW_KEY_V && (e.mods & RACK_MOD_MASK) == RACK_MOD_CTRL) {
-			// prevent pasting too long text
-			int pasteLength = maxCharacters - TextField::text.size();
-			if(pasteLength > 0) {
-				std::string newText(glfwGetClipboardString(APP->window->win));
-				if(newText.size() > pasteLength) newText.erase(pasteLength);
-				if(isNumber(newText)) insertText(newText);
-			}
-			e.consume(this);
-
-		} else if(e.key == GLFW_KEY_ESCAPE) {
-			// same as pressing enter
-			event::Action eAction;
-			onAction(eAction);
-			event::Deselect eDeselect;
-			onDeselect(eDeselect);
-			APP->event->selectedWidget = NULL;
-			e.consume(this);
-
-		} else {
-			TextField::onSelectKey(e);
-		}
-	}
-
-	void onSelectText(const event::SelectText &e) override {
-		// assuming GLFW number keys are contiguous
-		if(text.size() < maxCharacters
-				&& GLFW_KEY_0  <= e.codepoint
-				&& e.codepoint <= GLFW_KEY_9) {
-			TextField::onSelectText(e);
-		}
 	}
 
 	void step() override {
@@ -579,7 +517,7 @@ struct ArrayInterpModeMenuItem : MenuItem {
 
 struct ArrayModuleWidget : ModuleWidget {
 	ArrayDisplay *display;
-	NumberTextField *sizeSelector;
+	ArraySizeSelector *sizeSelector;
 	Array *module;
 
 	ArrayModuleWidget(Array *module) {
@@ -618,7 +556,7 @@ struct ArrayModuleWidget : ModuleWidget {
 		display->box.pos = Vec(5, 20);
 		addChild(display);
 
-		sizeSelector = new NumberTextField(module);
+		sizeSelector = new ArraySizeSelector(module);
 		sizeSelector->box.pos = Vec(174, 295);
 		sizeSelector->box.size.x = 51; // additional pixel, otherwise last digit gets put on next line on some zoom levels
 		addChild(sizeSelector);
