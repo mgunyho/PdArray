@@ -1,6 +1,5 @@
 #include "plugin.hpp"
 
-//TODO: right-click menu to toggle "reset resets all polyphonic channels"
 //TODO: right-click menu to toggle output mode: 10V / nSteps <-> 1V / step
 //TODO: right-click menu to offset phase by 0.5 step
 
@@ -39,7 +38,6 @@ struct Ministep : Module {
 
 	void onReset() override {
 		nSteps = DEFAULT_NSTEPS;
-		//currentStep = 0;
 		for(int i = 0; i < MAX_POLY_CHANNELS; i++) currentStep[i] = 0;
 	}
 
@@ -134,22 +132,22 @@ struct MinistepWidget : ModuleWidget {
 	MinistepWidget(Ministep *module) {
 		setModule(module);
 		this->module = module;
-		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Miniramp.svg"))); //TODO
+		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Ministep.svg")));
 
 		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
 		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
 		//addParam(createParam<CKSS>(Vec(7.5, 60), module, Miniramp::LIN_LOG_MODE_PARAM));
 
-		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 151), module, Ministep::RESET_INPUT));
-		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 192), module, Ministep::INCREMENT_INPUT));
-		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 240), module, Ministep::DECREMENT_INPUT));
-		addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 288), module, Ministep::STEP_OUTPUT));
+		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 48),  module, Ministep::INCREMENT_INPUT));
+		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 96),  module, Ministep::DECREMENT_INPUT));
+		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 144), module, Ministep::RESET_INPUT));
+		addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 227), module, Ministep::STEP_OUTPUT));
 
 		//addChild(createTinyLightForPort<GreenLight>(Vec(22.5, 240), module, Miniramp::RAMP_LIGHT));
 		//addChild(createTinyLightForPort<GreenLight>(Vec(22.5, 288), module, Miniramp::GATE_LIGHT));
 
-		//TODO: display
+		//TODO: displays
 		//msDisplay = new MsDisplayWidget(module);
 		//msDisplay->box.pos = Vec(7.5, 308);
 		//addChild(msDisplay);
