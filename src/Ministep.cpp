@@ -3,7 +3,7 @@
 #include "Widgets.hpp"
 
 //TODO: right-click menu to toggle output mode: 10V / nSteps <-> 1V / step
-//TODO: right-click menu to offset phase by 0.5 step
+//TODO: scale input: allow incrementing multiple steps with a single trigger
 
 constexpr int DEFAULT_NSTEPS = 10;
 
@@ -31,6 +31,7 @@ struct Ministep : Module {
 	dsp::SchmittTrigger decTrigger[MAX_POLY_CHANNELS];
 	int nSteps = DEFAULT_NSTEPS;
 	int currentStep[MAX_POLY_CHANNELS];
+	bool offsetByHalfStep = false;
 
 	Ministep() {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
@@ -47,6 +48,7 @@ struct Ministep : Module {
 		json_t *root = json_object();
 
 		json_object_set_new(root, "nSteps", json_integer(nSteps));
+		json_object_set_new(root, "offsetByHalfStep", json_boolean(offsetByHalfStep));
 
 		json_t *currentStep_J = json_array();
 		for(int i = 0; i < MAX_POLY_CHANNELS; i++) {
@@ -61,6 +63,7 @@ struct Ministep : Module {
 
 	void dataFromJson(json_t *root) override {
 		json_t *nSteps_J = json_object_get(root, "nSteps");
+		json_t *offsetByHalfStep_J = json_object_get(root, "offsetByHalfStep");
 		json_t *currentStep_J = json_object_get(root, "currentStep");
 
 		if(nSteps_J) {
@@ -70,8 +73,10 @@ struct Ministep : Module {
 			}
 		}
 
-		//if(currentStep_J)
-		//	currentStep = json_integer_value(currentStep_J);
+		if(offsetByHalfStep_J) {
+			offsetByHalfStep = json_boolean_value(offsetByHalfStep_J);
+		}
+
 		if(currentStep_J) {
 			for(int i = 0; i < MAX_POLY_CHANNELS; i++) {
 				json_t *step = json_array_get(currentStep_J, i);
@@ -191,6 +196,14 @@ struct NStepsSelector : NumberTextField {
 	}
 };
 
+struct OffsetByHalfStepMenuItem : MenuItem {
+	Ministep *module;
+	bool valueToSet;
+	void onAction(const event::Action &e) override {
+		module->offsetByHalfStep = valueToSet;
+	}
+};
+
 struct MinistepWidget : ModuleWidget {
 	Ministep *module;
 	CurrentStepDisplayWidget *currentStepDisplay;
@@ -223,6 +236,19 @@ struct MinistepWidget : ModuleWidget {
 		nStepsSelector->box.size.x = 30;
 		addChild(nStepsSelector);
 
+	}
+
+	void appendContextMenu(ui::Menu *menu) override {
+		if(module) {
+			menu->addChild(new MenuLabel());
+
+			auto *offsetMenuItem = new OffsetByHalfStepMenuItem();
+			offsetMenuItem->text = "Offset output by half step";
+			offsetMenuItem->module = module;
+			offsetMenuItem->rightText = CHECKMARK(module->offsetByHalfStep);
+			offsetMenuItem->valueToSet = !module->offsetByHalfStep;
+			menu->addChild(offsetMenuItem);
+		}
 	}
 };
 
