@@ -106,7 +106,7 @@ struct Array : Module {
 	json_t *dataToJson() override {
 		json_t *root = json_object();
 		json_object_set_new(root, "enableEditing", json_boolean(enableEditing));
-		json_object_set_new(root, "boundaryMode", json_real(boundaryMode));
+		json_object_set_new(root, "boundaryMode", json_integer(boundaryMode));
 		json_t *arr = json_array();
 		for(float x : buffer) {
 			json_array_append_new(arr, json_real(x));
@@ -125,7 +125,7 @@ struct Array : Module {
 			enableEditing = json_boolean_value(enableEditing_J);
 		}
 		if(boundaryMode_J) {
-			int bm = int(json_real_value(boundaryMode_J));
+			int bm = int(json_integer_value(boundaryMode_J));
 			if(bm < NUM_INTERP_MODES) {
 				boundaryMode = static_cast<InterpBoundaryMode>(bm);
 			}
