@@ -13,6 +13,7 @@ struct TextBox : TransparentWidget {
 	NVGcolor defaultTextColor;
 	NVGcolor textColor; // This can be used to temporarily override text color
 	NVGcolor backgroundColor;
+	int textAlign;
 
 	//TODO: create<...>() thing with position as argument?
 	TextBox() {
@@ -25,6 +26,7 @@ struct TextBox : TransparentWidget {
 		font_size = 20;
 		letter_spacing = 0.f;
 		textOffset = Vec(box.size.x * 0.5f, 0.f);
+		textAlign = NVG_ALIGN_CENTER | NVG_ALIGN_TOP;
 	}
 
 	virtual void setText(std::string s) { text = s; }
@@ -45,7 +47,7 @@ struct TextBox : TransparentWidget {
 
 			nvgFontSize(vg, font_size);
 			nvgTextLetterSpacing(vg, letter_spacing);
-			nvgTextAlign(vg, NVG_ALIGN_CENTER | NVG_ALIGN_TOP);
+			nvgTextAlign(vg, textAlign);
 			nvgText(vg, textOffset.x, textOffset.y, text.c_str(), NULL);
 		}
 
