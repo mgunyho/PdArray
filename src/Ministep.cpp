@@ -126,13 +126,49 @@ void Ministep::process(const ProcessArgs &args) {
 	outputs[STEP_OUTPUT].setChannels(channels);
 }
 
+struct CurrentStepDisplayWidget : TextBox {
+	Ministep *module;
+	int previousDisplayValue = 1;
+
+	CurrentStepDisplayWidget(Ministep *m) : TextBox() {
+		font = APP->window->uiFont; // default blendish font (same as TextField)
+		module = m;
+		box.size = Vec(30, 21);
+		font_size = 14;
+		textAlign = NVG_ALIGN_RIGHT | NVG_ALIGN_TOP;
+		textOffset = Vec(box.size.x - 4, 3.5);
+
+		//backgroundColor = nvgRGB(0xef, 0xe8, 0xd5); // solarized base2
+		backgroundColor = nvgRGB(0x78, 0x78, 0x78);
+
+		if(module) {
+			previousDisplayValue = module->currentStep[0];
+		}
+
+		setText(string::f("%u", previousDisplayValue));
+	}
+
+	//TODO: override draw(), draw progress bars for all counters if polyphonic
+
+	void step() override {
+		TextBox::step();
+		if(module) {
+			int v = module->currentStep[0] + 1;
+			if(v != previousDisplayValue) {
+				setText(string::f("%u", v));
+			}
+			previousDisplayValue = v;
+		}
+	}
+};
+
 //TODO: replace with something like EditableTextBox in LittleUtils?
 struct NStepsSelector : NumberTextField {
 	Ministep *module;
 
 	NStepsSelector(Ministep *m) : NumberTextField() {
 		module = m;
-		validText = string::f("%u", module ? module->nSteps : 1);
+		validText = string::f("%u", module ? module->nSteps : DEFAULT_NSTEPS);
 		text = validText;
 		maxCharacters = 3;
 	};
@@ -157,6 +193,7 @@ struct NStepsSelector : NumberTextField {
 
 struct MinistepWidget : ModuleWidget {
 	Ministep *module;
+	CurrentStepDisplayWidget *currentStepDisplay;
 	NStepsSelector *nStepsSelector;
 
 	MinistepWidget(Ministep *module) {
@@ -177,10 +214,9 @@ struct MinistepWidget : ModuleWidget {
 		//addChild(createTinyLightForPort<GreenLight>(Vec(22.5, 240), module, Miniramp::RAMP_LIGHT));
 		//addChild(createTinyLightForPort<GreenLight>(Vec(22.5, 288), module, Miniramp::GATE_LIGHT));
 
-		//TODO: displays
-		//msDisplay = new MsDisplayWidget(module);
-		//msDisplay->box.pos = Vec(7.5, 308);
-		//addChild(msDisplay);
+		currentStepDisplay = new CurrentStepDisplayWidget(module);
+		currentStepDisplay->box.pos = Vec(7.5, 280);
+		addChild(currentStepDisplay);
 
 		nStepsSelector = new NStepsSelector(module);
 		nStepsSelector->box.pos = Vec(7.5, 317);
