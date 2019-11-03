@@ -45,7 +45,6 @@ struct Ministep : Module {
 		json_t *root = json_object();
 
 		json_object_set_new(root, "nSteps", json_integer(nSteps));
-		//json_object_set_new(root, "currentStep", json_integer(currentStep));
 
 		json_t *currentStep_J = json_array();
 		for(int i = 0; i < MAX_POLY_CHANNELS; i++) {
@@ -59,7 +58,7 @@ struct Ministep : Module {
 	}
 
 	void dataFromJson(json_t *root) override {
-		json_t *nSteps_J = json_object_get(root, "currentStep");
+		json_t *nSteps_J = json_object_get(root, "nSteps");
 		json_t *currentStep_J = json_object_get(root, "currentStep");
 
 		if(nSteps_J) {
