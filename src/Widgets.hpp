@@ -127,4 +127,21 @@ struct NumberTextField : TextField {
 		}
 	}
 
+	// custom event, called from within onAction
+	virtual void onNumberSet(const int n) {};
+
+	void onAction(const event::Action &e) override {
+		if(text.size() > 0) {
+			int n = stoi(text); // text should always contain only digits
+			if(n > 0) {
+				validText = string::f("%u", n);
+				onNumberSet(n);
+			}
+		}
+		text = validText;
+		//if(gFocusedWidget == this) gFocusedWidget = NULL;
+		if(APP->event->selectedWidget == this) APP->event->selectedWidget = NULL; //TODO: replace with onSelect / onDeselect (?) -- at least emit onDeselect, compare to TextField (?)
+		e.consume(this);
+	}
+
 };

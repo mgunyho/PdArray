@@ -414,11 +414,8 @@ struct ArrayDisplay : OpaqueWidget {
 };
 
 
-// TextField that only allows inputting numbers
 struct ArraySizeSelector : NumberTextField {
-	int maxCharacters = 6;
 	Array *module;
-	std::string validText = "1";
 
 	ArraySizeSelector(Array *m) : NumberTextField() {
 		module = m;
@@ -426,18 +423,10 @@ struct ArraySizeSelector : NumberTextField {
 		text = validText;
 	};
 
-	void onAction(const event::Action &e) override {
-		if(text.size() > 0) {
-			int n = stoi(text); // text should always contain only digits
-			if(n > 0) {
-				validText = string::f("%u", n);
-				module->resizeBuffer(n);
-			}
+	void onNumberSet(int n) override {
+		if(module) {
+			module->resizeBuffer(n);
 		}
-		text = validText;
-		//if(gFocusedWidget == this) gFocusedWidget = NULL;
-		if(APP->event->selectedWidget == this) APP->event->selectedWidget = NULL; //TODO: replace with onSelect / onDeselect (?) -- at least emit onDeselect, compare to TextField (?)
-		e.consume(this);
 	}
 
 	void step() override {
