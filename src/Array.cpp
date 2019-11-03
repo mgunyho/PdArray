@@ -576,7 +576,7 @@ struct ArrayModuleWidget : ModuleWidget {
 			edItem->valueToSet = !arr->enableEditing;
 			menu->addChild(edItem);
 
-			auto* interpModeSubMenu = new ArrayInterpModeMenuItem;
+			auto *interpModeSubMenu = new ArrayInterpModeMenuItem();
 			interpModeSubMenu->text = "Interpolation at boundary";
 			interpModeSubMenu->rightText = RIGHT_ARROW;
 			interpModeSubMenu->module = this->module;

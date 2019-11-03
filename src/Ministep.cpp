@@ -2,7 +2,6 @@
 
 #include "Widgets.hpp"
 
-//TODO: right-click menu to toggle output mode: 10V / nSteps <-> 1V / step
 //TODO: scale input: allow incrementing multiple steps with a single trigger
 
 constexpr int DEFAULT_NSTEPS = 10;
@@ -13,7 +12,7 @@ struct Ministep : Module {
 	};
 	enum InpuIds {
 		RESET_INPUT,
-		//SCALE_INPUT, //TODO: is there enough space?
+		//SCALE_INPUT,
 		INCREMENT_INPUT,
 		DECREMENT_INPUT,
 		NUM_INPUTS
@@ -26,12 +25,18 @@ struct Ministep : Module {
 		NUM_LIGHTS
 	};
 
+	enum OutputScaleMode {
+		SCALE_10V_PER_NSTEPS,
+		SCALE_1V_PER_STEP
+	};
+
 	dsp::SchmittTrigger rstTrigger[MAX_POLY_CHANNELS];
 	dsp::SchmittTrigger incTrigger[MAX_POLY_CHANNELS];
 	dsp::SchmittTrigger decTrigger[MAX_POLY_CHANNELS];
 	int nSteps = DEFAULT_NSTEPS;
 	int currentStep[MAX_POLY_CHANNELS];
 	bool offsetByHalfStep = false;
+	OutputScaleMode outputScaleMode = SCALE_10V_PER_NSTEPS;
 
 	Ministep() {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
@@ -49,6 +54,7 @@ struct Ministep : Module {
 
 		json_object_set_new(root, "nSteps", json_integer(nSteps));
 		json_object_set_new(root, "offsetByHalfStep", json_boolean(offsetByHalfStep));
+		json_object_set_new(root, "outputScaleMode", json_integer(outputScaleMode));
 
 		json_t *currentStep_J = json_array();
 		for(int i = 0; i < MAX_POLY_CHANNELS; i++) {
@@ -65,6 +71,7 @@ struct Ministep : Module {
 		json_t *nSteps_J = json_object_get(root, "nSteps");
 		json_t *offsetByHalfStep_J = json_object_get(root, "offsetByHalfStep");
 		json_t *currentStep_J = json_object_get(root, "currentStep");
+		json_t *outputScaleMode_J = json_object_get(root, "outputScaleMode");
 
 		if(nSteps_J) {
 			nSteps = json_integer_value(nSteps_J);
@@ -75,6 +82,11 @@ struct Ministep : Module {
 
 		if(offsetByHalfStep_J) {
 			offsetByHalfStep = json_boolean_value(offsetByHalfStep_J);
+		}
+
+		if(outputScaleMode_J) {
+			int sm = json_integer_value(outputScaleMode_J);
+			outputScaleMode = static_cast<OutputScaleMode>(sm);
 		}
 
 		if(currentStep_J) {
@@ -125,8 +137,9 @@ void Ministep::process(const ProcessArgs &args) {
 		}
 		currentStep[c] = step;
 
-		float phase = currentStep[c] * 1.f / nSteps;
-		outputs[STEP_OUTPUT].setVoltage(phase * 10.f, c);
+		float phase = (currentStep[c] + (offsetByHalfStep ? 0.5f : 0.0f));
+		float v = outputScaleMode == SCALE_10V_PER_NSTEPS ? phase * 10.f / nSteps : phase;
+		outputs[STEP_OUTPUT].setVoltage(v, c);
 	}
 	outputs[STEP_OUTPUT].setChannels(channels);
 }
@@ -196,6 +209,38 @@ struct NStepsSelector : NumberTextField {
 	}
 };
 
+struct OutputScaleModeChildMenuItem : MenuItem {
+	Ministep *module;
+	Ministep::OutputScaleMode mode;
+	OutputScaleModeChildMenuItem(Ministep *m,
+			                     Ministep::OutputScaleMode pMode,
+								 std::string label) : MenuItem() {
+		module = m;
+		mode = pMode;
+		text = label;
+		rightText = CHECKMARK(module->outputScaleMode == mode);
+	}
+
+	void onAction(const event::Action &e) override {
+		module->outputScaleMode = mode;
+	}
+};
+
+struct OutputScaleModeMenuItem : MenuItem {
+	Ministep *module;
+	Menu *createChildMenu() override {
+		Menu *menu = new Menu();
+
+		menu->addChild(new OutputScaleModeChildMenuItem(module,
+					                                    Ministep::SCALE_10V_PER_NSTEPS,
+														"0..10V"));
+		menu->addChild(new OutputScaleModeChildMenuItem(module,
+					                                    Ministep::SCALE_1V_PER_STEP,
+														"1V per step"));
+		return menu;
+	}
+};
+
 struct OffsetByHalfStepMenuItem : MenuItem {
 	Ministep *module;
 	bool valueToSet;
@@ -241,6 +286,12 @@ struct MinistepWidget : ModuleWidget {
 	void appendContextMenu(ui::Menu *menu) override {
 		if(module) {
 			menu->addChild(new MenuLabel());
+
+			auto *smMenuItem = new OutputScaleModeMenuItem();
+			smMenuItem->text = "Output mode";
+			smMenuItem->rightText = RIGHT_ARROW;
+			smMenuItem->module = module;
+			menu->addChild(smMenuItem);
 
 			auto *offsetMenuItem = new OffsetByHalfStepMenuItem();
 			offsetMenuItem->text = "Offset output by half step";
