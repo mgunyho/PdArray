@@ -1,5 +1,7 @@
 #include "plugin.hpp"
 
+#include "Widgets.hpp"
+
 //TODO: right-click menu to toggle output mode: 10V / nSteps <-> 1V / step
 //TODO: right-click menu to offset phase by 0.5 step
 
@@ -124,9 +126,36 @@ void Ministep::process(const ProcessArgs &args) {
 	outputs[STEP_OUTPUT].setChannels(channels);
 }
 
+struct NStepsSelector : NumberTextField {
+	Ministep *module;
+
+	NStepsSelector(Ministep *m) : NumberTextField() {
+		module = m;
+		validText = string::f("%u", module ? module->nSteps : 1);
+		text = validText;
+	};
+
+	void onNumberSet(const int n) override {
+		if(module) {
+			module->nSteps = n;
+		}
+	}
+
+	void step() override {
+		NumberTextField::step();
+		// is this CPU intensive to do on every step?
+		if(module) {
+			if(APP->event->selectedWidget != this) {
+				validText = string::f("%u", module->nSteps);
+				text = validText;
+			}
+		}
+	}
+};
+
 struct MinistepWidget : ModuleWidget {
 	Ministep *module;
-	//MsDisplayWidget *msDisplay;
+	NStepsSelector *nStepsSelector;
 
 	MinistepWidget(Ministep *module) {
 		setModule(module);
@@ -141,7 +170,7 @@ struct MinistepWidget : ModuleWidget {
 		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 48),  module, Ministep::INCREMENT_INPUT));
 		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 96),  module, Ministep::DECREMENT_INPUT));
 		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 144), module, Ministep::RESET_INPUT));
-		addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 227), module, Ministep::STEP_OUTPUT));
+		addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 223), module, Ministep::STEP_OUTPUT));
 
 		//addChild(createTinyLightForPort<GreenLight>(Vec(22.5, 240), module, Miniramp::RAMP_LIGHT));
 		//addChild(createTinyLightForPort<GreenLight>(Vec(22.5, 288), module, Miniramp::GATE_LIGHT));
@@ -151,10 +180,11 @@ struct MinistepWidget : ModuleWidget {
 		//msDisplay->box.pos = Vec(7.5, 308);
 		//addChild(msDisplay);
 
-		//auto cvKnob = createParamCentered<CustomTrimpot>(Vec(22.5, 110), module,
-		//		Miniramp::CV_AMT_PARAM);
-		//cvKnob->display = msDisplay;
-		//addParam(cvKnob);
+		nStepsSelector = new NStepsSelector(module);
+		nStepsSelector->box.pos = Vec(7.5, 304);
+		nStepsSelector->box.size.x = 30;
+		nStepsSelector->box.size.y = 34;
+		addChild(nStepsSelector);
 
 	}
 };
