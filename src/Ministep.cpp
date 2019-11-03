@@ -35,6 +35,7 @@ struct Ministep : Module {
 	dsp::SchmittTrigger decTrigger[MAX_POLY_CHANNELS];
 	int nSteps = DEFAULT_NSTEPS;
 	int currentStep[MAX_POLY_CHANNELS];
+	int nChannels = 1;
 	bool offsetByHalfStep = false;
 	OutputScaleMode outputScaleMode = SCALE_10V_PER_NSTEPS;
 
@@ -60,7 +61,6 @@ struct Ministep : Module {
 		for(int i = 0; i < MAX_POLY_CHANNELS; i++) {
 			json_array_append_new(currentStep_J, json_integer(currentStep[i]));
 		}
-
 		json_object_set(root, "currentStep", currentStep_J);
 		json_decref(currentStep_J);
 
@@ -104,7 +104,7 @@ struct Ministep : Module {
 };
 
 void Ministep::process(const ProcessArgs &args) {
-	const int channels = std::max(
+	nChannels = std::max(
 			std::max(
 				inputs[INCREMENT_INPUT].getChannels(),
 				inputs[DECREMENT_INPUT].getChannels()
@@ -112,7 +112,7 @@ void Ministep::process(const ProcessArgs &args) {
 			std::max(inputs[RESET_INPUT].getChannels(), 1)
 			);
 
-	for(int c = 0; c < channels; c++) {
+	for(int c = 0; c < nChannels; c++) {
 		bool rstTriggered = rstTrigger[c].process(
 				rescale(inputs[RESET_INPUT].getPolyVoltage(c), 0.1f, 2.f, 0.f, 1.f)
 			);
@@ -141,7 +141,7 @@ void Ministep::process(const ProcessArgs &args) {
 		float v = outputScaleMode == SCALE_10V_PER_NSTEPS ? phase * 10.f / nSteps : phase;
 		outputs[STEP_OUTPUT].setVoltage(v, c);
 	}
-	outputs[STEP_OUTPUT].setChannels(channels);
+	outputs[STEP_OUTPUT].setChannels(nChannels);
 }
 
 struct CurrentStepDisplayWidget : TextBox {
@@ -166,7 +166,28 @@ struct CurrentStepDisplayWidget : TextBox {
 		setText(string::f("%u", previousDisplayValue));
 	}
 
-	//TODO: override draw(), draw progress bars for all counters if polyphonic
+	void draw(const DrawArgs &args) override {
+		if(!module || module->nChannels == 1) {
+			TextBox::draw(args);
+		} else {
+			setText("");
+			TextBox::draw(args);
+
+			const auto vg = args.vg;
+			int n = module->nChannels;
+			float xrange = box.size.x - 4;
+			float w = xrange / n;
+			for(int i = 0; i < n; i++) {
+				float h = (module->currentStep[i] + 1)  * 1.f / module->nSteps * box.size.y;
+				float y = box.size.y - h;
+				float x = i * 1.f / n * xrange + 2;
+				nvgFillColor(vg, textColor);
+				nvgBeginPath(vg);
+				nvgRect(vg, x, y, w, h);
+				nvgFill(vg);
+			}
+		}
+	}
 
 	void step() override {
 		TextBox::step();
