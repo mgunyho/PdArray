@@ -294,7 +294,7 @@ struct MinistepWidget : ModuleWidget {
 
 		nStepsSelector = new NStepsSelector(module);
 		nStepsSelector->box.pos = Vec(7.5, 317);
-		nStepsSelector->box.size.x = 30;
+		nStepsSelector->box.size.x = 30.2;
 		addChild(nStepsSelector);
 
 	}
