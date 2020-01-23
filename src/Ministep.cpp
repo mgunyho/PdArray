@@ -12,7 +12,7 @@ struct Ministep : Module {
 	};
 	enum InpuIds {
 		RESET_INPUT,
-		//SCALE_INPUT,
+		SCALE_INPUT,
 		INCREMENT_INPUT,
 		DECREMENT_INPUT,
 		NUM_INPUTS
@@ -25,6 +25,12 @@ struct Ministep : Module {
 		NUM_LIGHTS
 	};
 
+	//TODO: right-click menu for this
+	enum StepScaleMode {
+		SCALE_ABSOLUTE,
+		SCALE_RELATIVE
+	};
+
 	enum OutputScaleMode {
 		SCALE_10V_PER_NSTEPS,
 		SCALE_1V_PER_STEP
@@ -35,8 +41,10 @@ struct Ministep : Module {
 	dsp::SchmittTrigger decTrigger[MAX_POLY_CHANNELS];
 	int nSteps = DEFAULT_NSTEPS;
 	int currentStep[MAX_POLY_CHANNELS];
+	int currentScale = 1; //TODO: polyphony
 	int nChannels = 1;
 	bool offsetByHalfStep = false;
+	StepScaleMode stepScaleMode = SCALE_ABSOLUTE;
 	OutputScaleMode outputScaleMode = SCALE_10V_PER_NSTEPS;
 
 	Ministep() {
@@ -112,6 +120,12 @@ void Ministep::process(const ProcessArgs &args) {
 			std::max(inputs[RESET_INPUT].getChannels(), 1)
 			);
 
+	float s = inputs[SCALE_INPUT].getNormalPolyVoltage(1.0, 0); //TODO: polyphony
+	if(stepScaleMode == SCALE_RELATIVE) {
+		s *= nSteps / 10.0f;
+	}
+	currentScale = int(s); // round towards zero
+
 	for(int c = 0; c < nChannels; c++) {
 		bool rstTriggered = rstTrigger[c].process(
 				rescale(inputs[RESET_INPUT].getPolyVoltage(c), 0.1f, 2.f, 0.f, 1.f)
@@ -128,9 +142,9 @@ void Ministep::process(const ProcessArgs &args) {
 			step = 0;
 		} else {
 			if(incTriggered && !decTriggered) {
-				step += 1;
+				step += currentScale;
 			} else if (decTriggered && !incTriggered) {
-				step -= 1;
+				step -= currentScale;
 			} // if both are triggered, do nothing
 
 			step = (step + nSteps) % nSteps;
@@ -286,6 +300,7 @@ struct MinistepWidget : ModuleWidget {
 		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 48),  module, Ministep::INCREMENT_INPUT));
 		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 96),  module, Ministep::DECREMENT_INPUT));
 		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 144), module, Ministep::RESET_INPUT));
+		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 200),  module, Ministep::SCALE_INPUT)); //TODO: position
 		addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 249), module, Ministep::STEP_OUTPUT));
 
 		currentStepDisplay = new CurrentStepDisplayWidget(module);
