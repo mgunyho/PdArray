@@ -24,7 +24,6 @@ struct Ministep : Module {
 		NUM_LIGHTS
 	};
 
-	//TODO: right-click menu for this
 	enum StepScaleMode {
 		SCALE_ABSOLUTE,
 		SCALE_RELATIVE
@@ -318,6 +317,26 @@ struct ScaleModeChildMenuItem : MenuItem {
 	}
 };
 
+struct StepScaleModeChildMenuItem : ScaleModeChildMenuItem<Ministep::StepScaleMode> {
+	StepScaleModeChildMenuItem(Ministep *m, Ministep::StepScaleMode pMode,
+	                           std::string label)
+		:  ScaleModeChildMenuItem(m, pMode, &m->stepScaleMode, label) {};
+};
+
+struct StepScaleModeMenuItem : MenuItem {
+	Ministep *module;
+	Menu *createChildMenu() override {
+		Menu *menu = new Menu();
+		menu->addChild(new StepScaleModeChildMenuItem(module,
+		                                              Ministep::SCALE_RELATIVE,
+		                                              "10V = max"));
+		menu->addChild(new StepScaleModeChildMenuItem(module,
+		                                              Ministep::SCALE_ABSOLUTE,
+		                                              "1V per step"));
+		return menu;
+	}
+};
+
 struct OutputScaleModeChildMenuItem : ScaleModeChildMenuItem<Ministep::OutputScaleMode> {
 	OutputScaleModeChildMenuItem(Ministep *m, Ministep::OutputScaleMode pMode,
 	                             std::string label)
@@ -386,11 +405,17 @@ struct MinistepWidget : ModuleWidget {
 		if(module) {
 			menu->addChild(new MenuLabel());
 
-			auto *smMenuItem = new OutputScaleModeMenuItem();
-			smMenuItem->text = "Output mode";
-			smMenuItem->rightText = RIGHT_ARROW;
-			smMenuItem->module = module;
-			menu->addChild(smMenuItem);
+			auto *stepSMMenuItem = new StepScaleModeMenuItem();
+			stepSMMenuItem->text = "Scale mode";
+			stepSMMenuItem->rightText = RIGHT_ARROW;
+			stepSMMenuItem->module = module;
+			menu->addChild(stepSMMenuItem);
+
+			auto *outSMMenuItem = new OutputScaleModeMenuItem();
+			outSMMenuItem->text = "Output mode";
+			outSMMenuItem->rightText = RIGHT_ARROW;
+			outSMMenuItem->module = module;
+			menu->addChild(outSMMenuItem);
 
 			auto *offsetMenuItem = new OffsetByHalfStepMenuItem();
 			offsetMenuItem->text = "Offset output by half step";
