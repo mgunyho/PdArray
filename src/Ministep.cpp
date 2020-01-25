@@ -170,7 +170,7 @@ struct PolyIntDisplayWidget : TextBox {
 		box.size = Vec(30, 21);
 		font_size = 14;
 		textAlign = NVG_ALIGN_RIGHT | NVG_ALIGN_TOP;
-		textOffset = Vec(box.size.x - 4, 3.5);
+		textOffset = Vec(box.size.x - 3, 3.5);
 
 		//backgroundColor = nvgRGB(0xef, 0xe8, 0xd5); // solarized base2
 		backgroundColor = nvgRGB(0x78, 0x78, 0x78);
