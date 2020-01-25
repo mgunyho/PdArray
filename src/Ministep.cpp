@@ -159,13 +159,15 @@ void Ministep::process(const ProcessArgs &args) {
 	outputs[STEP_OUTPUT].setChannels(nChannels);
 }
 
-struct CurrentStepDisplayWidget : TextBox {
+struct PolyIntDisplayWidget : TextBox {
 	Ministep *module;
+	int *polyValueToDisplay;
 	int previousDisplayValue = 1;
 
-	CurrentStepDisplayWidget(Ministep *m) : TextBox() {
+	PolyIntDisplayWidget(Ministep *m, int *valueToDisplay) : TextBox() {
 		font = APP->window->uiFont; // default blendish font (same as TextField)
 		module = m;
+		polyValueToDisplay = valueToDisplay;
 		box.size = Vec(30, 21);
 		font_size = 14;
 		textAlign = NVG_ALIGN_RIGHT | NVG_ALIGN_TOP;
@@ -175,7 +177,7 @@ struct CurrentStepDisplayWidget : TextBox {
 		backgroundColor = nvgRGB(0x78, 0x78, 0x78);
 
 		if(module) {
-			previousDisplayValue = module->currentStep[0];
+			previousDisplayValue = polyValueToDisplay[0];
 		}
 
 		setText(string::f("%u", previousDisplayValue));
@@ -193,7 +195,7 @@ struct CurrentStepDisplayWidget : TextBox {
 			float xrange = box.size.x - 4;
 			float w = xrange / n;
 			for(int i = 0; i < n; i++) {
-				float h = (module->currentStep[i] + 1)  * 1.f / module->nSteps * box.size.y;
+				float h = (polyValueToDisplay[i] + 1)  * 1.f / module->nSteps * box.size.y;
 				float y = box.size.y - h;
 				float x = i * 1.f / n * xrange + 2;
 				nvgFillColor(vg, textColor);
@@ -207,7 +209,7 @@ struct CurrentStepDisplayWidget : TextBox {
 	void step() override {
 		TextBox::step();
 		if(module) {
-			int v = module->currentStep[0] + 1;
+			int v = polyValueToDisplay[0] + 1;
 			if(v != previousDisplayValue) {
 				setText(string::f("%u", v));
 			}
@@ -287,7 +289,7 @@ struct OffsetByHalfStepMenuItem : MenuItem {
 
 struct MinistepWidget : ModuleWidget {
 	Ministep *module;
-	CurrentStepDisplayWidget *currentStepDisplay;
+	PolyIntDisplayWidget *currentStepDisplay;
 	NStepsSelector *nStepsSelector;
 
 	MinistepWidget(Ministep *module) {
@@ -304,7 +306,7 @@ struct MinistepWidget : ModuleWidget {
 		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 4*47), module, Ministep::SCALE_INPUT));
 		addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 261), module, Ministep::STEP_OUTPUT));
 
-		currentStepDisplay = new CurrentStepDisplayWidget(module);
+		currentStepDisplay = new PolyIntDisplayWidget(module, module->currentStep);
 		currentStepDisplay->box.pos = Vec(7.5, 280);
 		addChild(currentStepDisplay);
 
