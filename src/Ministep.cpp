@@ -1,6 +1,7 @@
 #include "plugin.hpp"
 
 #include "Widgets.hpp"
+#include "Util.hpp"
 
 //TODO: scale input: allow incrementing multiple steps with a single trigger
 
@@ -183,6 +184,9 @@ struct PolyIntDisplayWidget : TextBox {
 		setText(string::f("%u", previousDisplayValue));
 	}
 
+	// this function set s the vertical position of the bar for each value in polyValueToDisplay
+	virtual void getBarVPos(int i, float *h, float *y) { *h = 0; *y = box.size.y; }
+
 	void draw(const DrawArgs &args) override {
 		if(!module || module->nChannels == 1) {
 			TextBox::draw(args);
@@ -195,8 +199,8 @@ struct PolyIntDisplayWidget : TextBox {
 			float xrange = box.size.x - 4;
 			float w = xrange / n;
 			for(int i = 0; i < n; i++) {
-				float h = (polyValueToDisplay[i] + 1)  * 1.f / module->nSteps * box.size.y;
-				float y = box.size.y - h;
+				float h, y;
+				getBarVPos(i, &h, &y);
 				float x = i * 1.f / n * xrange + 2;
 				nvgFillColor(vg, textColor);
 				nvgBeginPath(vg);
@@ -217,6 +221,42 @@ struct PolyIntDisplayWidget : TextBox {
 		}
 	}
 };
+
+struct ScaleDisplayWidget : PolyIntDisplayWidget {
+	int maxValue = 1;
+	ScaleDisplayWidget(Ministep *m, int *valueToDisplay)
+		: PolyIntDisplayWidget(m, valueToDisplay) {};
+	void getBarVPos(int i, float *h, float *y) override {
+		if(i == 0) {
+			// hacky way to avoid repeating this loop for all i
+			maxValue = 1;
+			for(int j = 0; j < module->nChannels; j++) {
+				maxValue = std::max(std::abs(polyValueToDisplay[j]), maxValue);
+			}
+		}
+		//return polyValueToDisplay[i] * 0.5f / maxVal + 0.5;
+		int val = polyValueToDisplay[i];
+		if(val == 0) {
+			*h = 1.0f;
+			*y = 0.5f * box.size.y - 0.5f;
+		} else {
+			*h = val * 0.5f / maxValue * box.size.y;
+			*y = 0.5f * box.size.y - *h + 0.5f * signum(1.0f * val);
+		}
+	}
+};
+
+struct CurrentStepDisplayWidget : PolyIntDisplayWidget {
+	CurrentStepDisplayWidget(Ministep *m, int *valueToDisplay)
+		: PolyIntDisplayWidget(m, valueToDisplay) {};
+	void getBarVPos(int i, float *h, float *y) override {
+		*h = (polyValueToDisplay[i] + 1) * 1.f / module->nSteps * box.size.y;
+		*y = box.size.y - *h;
+	}
+};
+
+
+
 
 //TODO: replace with something like EditableTextBox in LittleUtils?
 struct NStepsSelector : NumberTextField {
@@ -289,7 +329,8 @@ struct OffsetByHalfStepMenuItem : MenuItem {
 
 struct MinistepWidget : ModuleWidget {
 	Ministep *module;
-	PolyIntDisplayWidget *currentStepDisplay;
+	ScaleDisplayWidget *scaleDisplay;
+	CurrentStepDisplayWidget *currentStepDisplay;
 	NStepsSelector *nStepsSelector;
 
 	MinistepWidget(Ministep *module) {
@@ -306,7 +347,11 @@ struct MinistepWidget : ModuleWidget {
 		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 4*47), module, Ministep::SCALE_INPUT));
 		addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 261), module, Ministep::STEP_OUTPUT));
 
-		currentStepDisplay = new PolyIntDisplayWidget(module, module->currentStep);
+		scaleDisplay = new ScaleDisplayWidget(module, module->currentScale);
+		scaleDisplay->box.pos = Vec(7.5, 208);
+		addChild(scaleDisplay);
+
+		currentStepDisplay = new CurrentStepDisplayWidget(module, module->currentStep);
 		currentStepDisplay->box.pos = Vec(7.5, 280);
 		addChild(currentStepDisplay);
 
