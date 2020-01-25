@@ -42,7 +42,7 @@ struct Ministep : Module {
 	int currentScale[MAX_POLY_CHANNELS];
 	int nChannels = 1;
 	bool offsetByHalfStep = false;
-	StepScaleMode stepScaleMode = SCALE_ABSOLUTE;
+	StepScaleMode stepScaleMode = SCALE_RELATIVE;
 	OutputScaleMode outputScaleMode = SCALE_10V_PER_NSTEPS;
 
 	Ministep() {
