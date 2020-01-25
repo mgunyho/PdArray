@@ -350,7 +350,7 @@ struct OutputScaleModeMenuItem : MenuItem {
 
 		menu->addChild(new OutputScaleModeChildMenuItem(module,
 		                                                Ministep::SCALE_10V_PER_NSTEPS,
-		                                                "0..10V"));
+		                                                "max = 10V"));
 		menu->addChild(new OutputScaleModeChildMenuItem(module,
 		                                                Ministep::SCALE_1V_PER_STEP,
 		                                                "1V per step"));
