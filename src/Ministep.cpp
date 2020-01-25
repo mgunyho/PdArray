@@ -11,9 +11,9 @@ struct Ministep : Module {
 	};
 	enum InpuIds {
 		RESET_INPUT,
-		SCALE_INPUT,
 		INCREMENT_INPUT,
 		DECREMENT_INPUT,
+		SCALE_INPUT,
 		NUM_INPUTS
 	};
 	enum OutputIds {
