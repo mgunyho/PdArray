@@ -131,11 +131,15 @@ void Ministep::process(const ProcessArgs &args) {
 				rescale(inputs[DECREMENT_INPUT].getPolyVoltage(c), 0.1f, 2.f, 0.f, 1.f)
 			);
 
-		float s = inputs[SCALE_INPUT].getNormalPolyVoltage(1.0, c);
-		if(stepScaleMode == SCALE_RELATIVE) {
-			s *= nSteps / 10.0f;
+		if(inputs[SCALE_INPUT].isConnected()) {
+			float s = inputs[SCALE_INPUT].getPolyVoltage(c);
+			if(stepScaleMode == SCALE_RELATIVE) {
+				s *= nSteps / 10.0f;
+			}
+			currentScale[c] = int(s); // round towards zero
+		} else {
+			currentScale[c] = 1;
 		}
-		currentScale[c] = int(s); // round towards zero
 
 		int step = currentStep[c];
 		if(rstTriggered) {
