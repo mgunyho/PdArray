@@ -41,7 +41,7 @@ struct Ministep : Module {
 	dsp::SchmittTrigger decTrigger[MAX_POLY_CHANNELS];
 	int nSteps = DEFAULT_NSTEPS;
 	int currentStep[MAX_POLY_CHANNELS];
-	int currentScale = 1; //TODO: polyphony
+	int currentScale[MAX_POLY_CHANNELS];
 	int nChannels = 1;
 	bool offsetByHalfStep = false;
 	StepScaleMode stepScaleMode = SCALE_ABSOLUTE;
@@ -120,11 +120,6 @@ void Ministep::process(const ProcessArgs &args) {
 			std::max(inputs[RESET_INPUT].getChannels(), 1)
 			);
 
-	float s = inputs[SCALE_INPUT].getNormalPolyVoltage(1.0, 0); //TODO: polyphony
-	if(stepScaleMode == SCALE_RELATIVE) {
-		s *= nSteps / 10.0f;
-	}
-	currentScale = int(s); // round towards zero
 
 	for(int c = 0; c < nChannels; c++) {
 		bool rstTriggered = rstTrigger[c].process(
@@ -137,14 +132,20 @@ void Ministep::process(const ProcessArgs &args) {
 				rescale(inputs[DECREMENT_INPUT].getPolyVoltage(c), 0.1f, 2.f, 0.f, 1.f)
 			);
 
+		float s = inputs[SCALE_INPUT].getNormalPolyVoltage(1.0, c);
+		if(stepScaleMode == SCALE_RELATIVE) {
+			s *= nSteps / 10.0f;
+		}
+		currentScale[c] = int(s); // round towards zero
+
 		int step = currentStep[c];
 		if(rstTriggered) {
 			step = 0;
 		} else {
 			if(incTriggered && !decTriggered) {
-				step += currentScale;
+				step += currentScale[c];
 			} else if (decTriggered && !incTriggered) {
-				step -= currentScale;
+				step -= currentScale[c];
 			} // if both are triggered, do nothing
 
 			step = (step + nSteps) % nSteps;
