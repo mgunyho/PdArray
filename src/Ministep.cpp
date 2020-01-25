@@ -3,8 +3,6 @@
 #include "Widgets.hpp"
 #include "Util.hpp"
 
-//TODO: scale input: allow incrementing multiple steps with a single trigger
-
 constexpr int DEFAULT_NSTEPS = 10;
 
 struct Ministep : Module {
@@ -181,9 +179,11 @@ struct PolyIntDisplayWidget : TextBox {
 			previousDisplayValue = polyValueToDisplay[0];
 		}
 
-		setText(string::f("%u", previousDisplayValue));
+		setText(string::f("%i", previousDisplayValue));
 	}
 
+	// determine the value to display in monophonic mode
+	virtual int getSingleValue() { return polyValueToDisplay[0]; }
 	// this function set s the vertical position of the bar for each value in polyValueToDisplay
 	virtual void getBarVPos(int i, float *h, float *y) { *h = 0; *y = box.size.y; }
 
@@ -213,9 +213,9 @@ struct PolyIntDisplayWidget : TextBox {
 	void step() override {
 		TextBox::step();
 		if(module) {
-			int v = polyValueToDisplay[0] + 1;
+			int v = getSingleValue();
 			if(v != previousDisplayValue) {
-				setText(string::f("%u", v));
+				setText(string::f("%i", v));
 			}
 			previousDisplayValue = v;
 		}
@@ -226,6 +226,7 @@ struct ScaleDisplayWidget : PolyIntDisplayWidget {
 	int maxValue = 1;
 	ScaleDisplayWidget(Ministep *m, int *valueToDisplay)
 		: PolyIntDisplayWidget(m, valueToDisplay) {};
+
 	void getBarVPos(int i, float *h, float *y) override {
 		if(i == 0) {
 			// hacky way to avoid repeating this loop for all i
@@ -249,6 +250,10 @@ struct ScaleDisplayWidget : PolyIntDisplayWidget {
 struct CurrentStepDisplayWidget : PolyIntDisplayWidget {
 	CurrentStepDisplayWidget(Ministep *m, int *valueToDisplay)
 		: PolyIntDisplayWidget(m, valueToDisplay) {};
+
+	// display step 0 as '1'
+	int getSingleValue() override { return polyValueToDisplay[0] + 1; }
+
 	void getBarVPos(int i, float *h, float *y) override {
 		*h = (polyValueToDisplay[i] + 1) * 1.f / module->nSteps * box.size.y;
 		*y = box.size.y - *h;
