@@ -123,23 +123,37 @@ progress, useful for e.g. the REC input of Array.
 
 ![ministep](screenshots/ministep.png)
 
-Ministep can be used to step through an Array, like a sequencer. Sending a
-trigger to INC increments the counter, while a trigger to DEC decrements it.
-The RST input resets the counter to 1. You can click on the MAX display to
-change the maximum number of steps, up to 999.
+Ministep is a counter that can be used to step through an Array, like a
+sequencer. The current value of the counter is shown on the middle display.
+Sending a trigger to INC increments the counter, while a trigger to DEC
+decrements it. The RST input resets the counter to 1. You can click on the MAX
+display to change the maximum number of steps, up to 999.
+
+The SCL CV input controls how much the counter increments/decrements on each
+step. The step size is shown on the top display. When no cable is connected,
+the step size is 1, but note that connecting a 0V signal sets the step size to
+zero (you can also input negative values!). By default, setting SCL to 10 volts
+makes the step size equal to MAX, but the behavior can be changed to make one
+volt correspond to one step from the "scale mode" right-click menu. The step
+size is always rounded towards zero.
 
 By default, the output will be 10V divided into N steps, where N is the maximum
 number. This way, it is easy to use with an Array whose SIZE is set equal to N.
-However, from a right-click menu, you can also configure Ministep to output the
-step number directly as a voltage. In this mode, step 1 outputs 0V, step 2
-outputs 1V and so on.
+However, from the "output mode" right-click menu, you can also configure
+Ministep to output the step number directly as a voltage. In this mode, step 1
+outputs 0V, step 2 outputs 1V and so on.
 
 For polyphonic signals, there will be one counter per channel. Sending a
 monophonic trigger to the reset input resets all channels, while a polyphonic
-trigger can be used to reset individual channels.
+trigger can be used to reset individual channels. Similarly, a monophonic CV
+connected to SCL scales the step size of all channels, while a polyphonic
+signal affects each channel separately.
 
 By detecting the falling edge of the output or applying a threshold to the
-output value near zero, you can also use Ministep as a clock divider!
+output value near zero, you can use Ministep as a clock divider! Fiddling with
+SCL can also lead to interesting results. A step size that has few divisors can
+be used to generate somewhat random voltages, or triggering the increment at
+audio rate and adjusting the step size can create interesting harmonics.
 
 
 ## Contributing
