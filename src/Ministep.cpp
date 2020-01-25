@@ -292,21 +292,32 @@ struct NStepsSelector : NumberTextField {
 	}
 };
 
-struct OutputScaleModeChildMenuItem : MenuItem {
+template <typename T>
+struct ScaleModeChildMenuItem : MenuItem {
 	Ministep *module;
-	Ministep::OutputScaleMode mode;
-	OutputScaleModeChildMenuItem(Ministep *m,
-			                     Ministep::OutputScaleMode pMode,
-								 std::string label) : MenuItem() {
+	//T is either Ministep::OutputScaleMode or Ministep::StepScaleMode
+	T mode;
+	// modeParam is either Ministep->outputScaleMode or Ministep->stepScaleMode
+	T *modeParam;
+	ScaleModeChildMenuItem(Ministep *m, T pMode, T *pModeParam,
+	                       std::string label) : MenuItem() {
 		module = m;
 		mode = pMode;
+		modeParam = pModeParam;
 		text = label;
-		rightText = CHECKMARK(module->outputScaleMode == mode);
+		rightText = CHECKMARK(*modeParam == mode);
 	}
 
 	void onAction(const event::Action &e) override {
-		module->outputScaleMode = mode;
+		//module->outputScaleMode = mode;
+		*modeParam = mode;
 	}
+};
+
+struct OutputScaleModeChildMenuItem : ScaleModeChildMenuItem<Ministep::OutputScaleMode> {
+	OutputScaleModeChildMenuItem(Ministep *m, Ministep::OutputScaleMode pMode,
+	                             std::string label)
+		:  ScaleModeChildMenuItem(m, pMode, &m->outputScaleMode, label) {};
 };
 
 struct OutputScaleModeMenuItem : MenuItem {
@@ -315,11 +326,11 @@ struct OutputScaleModeMenuItem : MenuItem {
 		Menu *menu = new Menu();
 
 		menu->addChild(new OutputScaleModeChildMenuItem(module,
-					                                    Ministep::SCALE_10V_PER_NSTEPS,
-														"0..10V"));
+		                                                Ministep::SCALE_10V_PER_NSTEPS,
+		                                                "0..10V"));
 		menu->addChild(new OutputScaleModeChildMenuItem(module,
-					                                    Ministep::SCALE_1V_PER_STEP,
-														"1V per step"));
+		                                                Ministep::SCALE_1V_PER_STEP,
+		                                                "1V per step"));
 		return menu;
 	}
 };
