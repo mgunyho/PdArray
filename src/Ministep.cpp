@@ -61,6 +61,7 @@ struct Ministep : Module {
 
 		json_object_set_new(root, "nSteps", json_integer(nSteps));
 		json_object_set_new(root, "offsetByHalfStep", json_boolean(offsetByHalfStep));
+		json_object_set_new(root, "stepScaleMode", json_integer(stepScaleMode));
 		json_object_set_new(root, "outputScaleMode", json_integer(outputScaleMode));
 
 		json_t *currentStep_J = json_array();
@@ -77,6 +78,7 @@ struct Ministep : Module {
 		json_t *nSteps_J = json_object_get(root, "nSteps");
 		json_t *offsetByHalfStep_J = json_object_get(root, "offsetByHalfStep");
 		json_t *currentStep_J = json_object_get(root, "currentStep");
+		json_t *stepScaleMode_J = json_object_get(root, "stepScaleMode");
 		json_t *outputScaleMode_J = json_object_get(root, "outputScaleMode");
 
 		if(nSteps_J) {
@@ -88,6 +90,11 @@ struct Ministep : Module {
 
 		if(offsetByHalfStep_J) {
 			offsetByHalfStep = json_boolean_value(offsetByHalfStep_J);
+		}
+
+		if(stepScaleMode_J) {
+			int sm = json_integer_value(stepScaleMode_J);
+			stepScaleMode = static_cast<StepScaleMode>(sm);
 		}
 
 		if(outputScaleMode_J) {
