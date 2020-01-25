@@ -297,11 +297,11 @@ struct MinistepWidget : ModuleWidget {
 		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
 		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 1*48), module, Ministep::INCREMENT_INPUT));
-		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 2*48), module, Ministep::DECREMENT_INPUT));
-		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 3*48), module, Ministep::RESET_INPUT));
-		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 4*48), module, Ministep::SCALE_INPUT));
-		addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 249), module, Ministep::STEP_OUTPUT));
+		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 1*47), module, Ministep::INCREMENT_INPUT));
+		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 2*47), module, Ministep::DECREMENT_INPUT));
+		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 3*47), module, Ministep::RESET_INPUT));
+		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 4*47), module, Ministep::SCALE_INPUT));
+		addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 261), module, Ministep::STEP_OUTPUT));
 
 		currentStepDisplay = new CurrentStepDisplayWidget(module);
 		currentStepDisplay->box.pos = Vec(7.5, 280);
