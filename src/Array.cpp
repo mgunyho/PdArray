@@ -456,12 +456,14 @@ struct ArrayResetBufferItem : MenuItem {
 // https://github.com/cfoulc/cf/blob/master/src/PLAYER.cpp
 struct ArrayFileSelectItem : MenuItem {
 	Array *module;
+	bool resizeBuffer;
+
 	void onAction(const event::Action &e) override {
 		std::string dir = module->lastLoadedPath.empty() ? asset::user("") : rack::string::directory(module->lastLoadedPath);
 		osdialog_filters* filters = osdialog_filters_parse(".wav files:wav");
 		char *path = osdialog_file(OSDIALOG_OPEN, dir.c_str(), NULL, filters);
 		if(path) {
-			module->loadSample(path);
+			module->loadSample(path, resizeBuffer);
 			module->lastLoadedPath = path;
 			free(path);
 		}
@@ -565,12 +567,23 @@ struct ArrayModuleWidget : ModuleWidget {
 			bufResetItem->module = arr;
 			menu->addChild(bufResetItem);
 
+			{
 			auto *fsItem = new ArrayFileSelectItem();
 			float duration = arr->buffer.size() * 1.f / arr->sampleRate;
-			fsItem->text = "Load .wav file";
+			fsItem->resizeBuffer = false;
+			fsItem->text = "Load .wav file...";
 			fsItem->rightText = string::f("(%.2f s)", duration);
 			fsItem->module = arr;
 			menu->addChild(fsItem);
+			}
+
+			{
+			auto *fsItem = new ArrayFileSelectItem();
+			fsItem->resizeBuffer = true;
+			fsItem->text = "Load .wav file and resize array...";
+			fsItem->module = arr;
+			menu->addChild(fsItem);
+			}
 
 			auto *edItem = new ArrayEnableEditingMenuItem();
 			edItem->text = "Disable drawing";
