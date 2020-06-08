@@ -17,7 +17,6 @@
 //TODO: undo history? hard? memory intensive?
 //TODO: visual representation choice right-click submenu (stairs (current), lines, points, bars)
 //TODO: reinterpolate array on resize (+right-click menu option for that)
-//TODO: save lastLoadedPath to json? (what happens when you put a nonexistent path to osDialog?)
 //TODO: add option to not save array data to patch file
 
 struct RangeParamQuantity : ParamQuantity {
@@ -109,6 +108,7 @@ struct Array : Module {
 		json_t *root = json_object();
 		json_object_set_new(root, "enableEditing", json_boolean(enableEditing));
 		json_object_set_new(root, "boundaryMode", json_integer(boundaryMode));
+		json_object_set_new(root, "lastLoadedPath", json_string(lastLoadedPath.c_str()));
 		json_t *arr = json_array();
 		for(float x : buffer) {
 			json_array_append_new(arr, json_real(x));
@@ -122,6 +122,7 @@ struct Array : Module {
 		json_t *enableEditing_J = json_object_get(root, "enableEditing");
 		json_t *boundaryMode_J = json_object_get(root, "boundaryMode");
 		json_t *arr = json_object_get(root, "arrayData");
+		json_t *lastLoadedPath_J = json_object_get(root, "lastLoadedPath");
 
 		if(enableEditing_J) {
 			enableEditing = json_boolean_value(enableEditing_J);
@@ -132,14 +133,19 @@ struct Array : Module {
 				boundaryMode = static_cast<InterpBoundaryMode>(bm);
 			}
 		}
+		if(lastLoadedPath_J) {
+			lastLoadedPath = std::string(json_string_value(lastLoadedPath_J));
+		}
 
-		if(arr) {
+		if(json_array_size(arr) > 0) {
 			buffer.clear();
 			size_t i;
 			json_t *val;
 			json_array_foreach(arr, i, val) {
 				buffer.push_back(json_real_value(val));
 			}
+		} else if(!lastLoadedPath.empty()) {
+			loadSample(lastLoadedPath, true);
 		}
 	}
 
