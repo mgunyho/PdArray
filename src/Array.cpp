@@ -99,7 +99,7 @@ struct Array : Module {
 		buffer.resize(newSize, outputIsSigned ? 0.5f : 0.f);
 	}
 
-	void loadSample(std::string path);
+	void loadSample(std::string path, bool resizeBuf = false);
 
 	// TODO: if array is large enough (how large?) encode as base64?
 	// see https://stackoverflow.com/questions/45508360/quickest-way-to-encode-vector-of-floats-into-hex-or-base64binary
@@ -157,21 +157,22 @@ struct Array : Module {
 	}
 };
 
-void Array::loadSample(std::string path) {
+void Array::loadSample(std::string path, bool resizeBuf) {
 	unsigned int channels, sampleRate;
 	drwav_uint64 totalPCMFrameCount;
 	float* pSampleData = drwav_open_file_and_read_pcm_frames_f32(path.c_str(), &channels, &sampleRate, &totalPCMFrameCount);
 
 	if (pSampleData != NULL) {
-		int newSize = std::min((unsigned long) totalPCMFrameCount, (unsigned long) buffer.size());
-		buffer.clear();
-		buffer.reserve(newSize);
-		for(unsigned int i = 0; i < newSize * channels; i = i + channels) {
-			float s = pSampleData[i];
+		unsigned long nSamplesToRead = std::min((unsigned long) totalPCMFrameCount, 999999UL);
+		int newSize = resizeBuf ? nSamplesToRead : buffer.size();
+		buffer.resize(newSize, 0);
+		for(unsigned long i = 0; i < nSamplesToRead; i++) {
+			int ii = i * channels;
+			float s = pSampleData[ii];
 			if(channels == 2) {
-				s = (s + pSampleData[i + 1]) * 0.5f; // mix stereo channels, good idea?
+				s = (s + pSampleData[ii + 1]) * 0.5f; // mix stereo channels, good idea?
 			}
-			buffer.push_back((s + 1.f) * 0.5f); // rescale from -1 .. 1 to 0..1
+			buffer[i] = (s + 1.f) * 0.5f;
 		}
 		enableEditing = false;
 	}
