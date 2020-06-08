@@ -1,5 +1,9 @@
 # Changelog for PdArray
 
+## v1.0.4 (2020-06-08)
+
+- Add option to resize Array when loading a sample ([#9](https://github.com/mgunyho/PdArray/issues/9))
+
 ## v1.0.3 (2020-01-25)
 
 - Fixed issue with Ministep display ([#8](https://github.com/mgunyho/PdArray/issues/8))
