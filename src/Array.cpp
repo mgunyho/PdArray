@@ -17,6 +17,8 @@
 //TODO: undo history? hard? memory intensive?
 //TODO: visual representation choice right-click submenu (stairs (current), lines, points, bars)
 //TODO: reinterpolate array on resize (+right-click menu option for that)
+//TODO: save lastLoadedPath to json? (what happens when you put a nonexistent path to osDialog?)
+//TODO: add option to not save array data to patch file
 
 struct RangeParamQuantity : ParamQuantity {
 	std::string getDisplayValueString() override {
