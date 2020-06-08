@@ -1,6 +1,6 @@
 # Changelog for PdArray
 
-## v1.0.4 (2020-06-08)
+## v1.0.4 (unreleased)
 
 - Add option to resize Array when loading a sample ([#9](https://github.com/mgunyho/PdArray/issues/9))
 
