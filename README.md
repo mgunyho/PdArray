@@ -91,10 +91,16 @@ while the audio is playing for interesting effects!
 
 ![playing samples](screenshots/sample-player.png)
 
-By right-clicking on the Array module, you can load a wav sample file. The
-number in the right-click menu shows the duration of the loaded sample at the
-current sample rate. After selecting a file, the array will contain the first N
-samples of the audio file, where N is the array size shown in the SIZE display.
+By right-clicking on the Array module, you can load a wav sample file. You can
+choose to keep the current SIZE of the array when loading the file, or you can
+automatically resize the array to the number of samples in the wav file, up to
+the maximum of 999999 samples. In the non-resizing version, the number in the
+right-click menu shows the duration of the loaded sample at the current sample
+rate. After selecting a file, the array will contain the first N samples of the
+audio file, where N is the array size shown in the SIZE display. If N is larger
+than the number of samples in the wav file, the rest of the array will be left
+unchanged.
+
 The audio file will always be loaded from the beginning, so you will need to
 trim your file with an external audio editing application if you wish to load
 it starting from another position.
