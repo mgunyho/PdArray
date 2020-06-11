@@ -123,9 +123,9 @@ struct Array : Module {
 			json_object_set(root, "arrayData", arr);
 			json_decref(arr);
 		} else if(saveMode == SAVE_PATH_TO_SAMPLE) {
-			json_object_set(root, "arrayData", json_string(lastLoadedPath.c_str()));
+			json_object_set_new(root, "arrayData", json_string(lastLoadedPath.c_str()));
 		} else if(saveMode == DONT_SAVE_DATA) {
-			json_object_set(root, "arrayData", json_integer(buffer.size()));
+			json_object_set_new(root, "arrayData", json_integer(buffer.size()));
 		}
 		return root;
 	}
