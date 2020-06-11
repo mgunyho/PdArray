@@ -3,10 +3,10 @@
 ## v1.0.4 (unreleased)
 
 - Add option to resize Array when loading a sample ([#9](https://github.com/mgunyho/PdArray/issues/9))
+- Fixed issue with Ministep display (for real this time) ([#8](https://github.com/mgunyho/PdArray/issues/8))
 
 ## v1.0.3 (2020-01-25)
 
-- Fixed issue with Ministep display ([#8](https://github.com/mgunyho/PdArray/issues/8))
 - Added scale parameter to Ministep
 
 ## v1.0.2 (2019-11-03)
