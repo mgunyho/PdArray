@@ -47,8 +47,9 @@ corresponds to 0V.
 The SIZE screen displays the current number of elements in the array. You can
 click on the screen to type a value up to 999999. If the array has more
 elements than there are pixels on the display, drawing will affect multiple
-array values at once.  The array values are saved in the patch file, so be
-aware that patch files may become large if you have a large SIZE.
+array values at once. The array values are saved in the patch file, so be aware
+that patch files may become large if you have a large SIZE. This behavior can
+be changed from the "Data persistence" right-click menu.
 
 The bottom row contains CV inputs related to recording. The REC POS dictates
 the position in the array where a recorded value will be written. Its expected
@@ -110,6 +111,9 @@ a voltage to POS and connect the outputs to wherever.
 
 After loading a sample, drawing will be locked (but you can unlock it from the
 right-click menu).
+
+If you want to automatically load the audio file the next time you open the
+patch, you can set "Data persistence" to "Save path to loaded sample".
 
 
 ## Miniramp
