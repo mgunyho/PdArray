@@ -17,7 +17,6 @@
 //TODO: undo history? hard? memory intensive?
 //TODO: visual representation choice right-click submenu (stairs (current), lines, points, bars)
 //TODO: reinterpolate array on resize (+right-click menu option for that)
-//TODO: add option to not save array data to patch file
 
 struct RangeParamQuantity : ParamQuantity {
 	std::string getDisplayValueString() override {
@@ -528,6 +527,19 @@ struct ArrayEnumSettingChildMenuItem : MenuItem {
 	}
 };
 
+struct ArrayDataSaveModeMenuItem : MenuItem {
+	Array *module;
+	Menu* createChildMenu() override {
+		Menu* menu = new Menu();
+
+		menu->addChild(new ArrayEnumSettingChildMenuItem<Array::DataSaveMode>(this->module, Array::SAVE_FULL_DATA, "Save full array data to patch file", &module->saveMode));
+		menu->addChild(new ArrayEnumSettingChildMenuItem<Array::DataSaveMode>(this->module, Array::SAVE_PATH_TO_SAMPLE, "Save path to loaded sample", &module->saveMode));
+		menu->addChild(new ArrayEnumSettingChildMenuItem<Array::DataSaveMode>(this->module, Array::DONT_SAVE_DATA, "Don't save array data", &module->saveMode));
+
+		return menu;
+	}
+};
+
 struct ArrayInterpModeMenuItem : MenuItem {
 	Array* module;
 	Menu* createChildMenu() override {
@@ -623,6 +635,12 @@ struct ArrayModuleWidget : ModuleWidget {
 			edItem->rightText = CHECKMARK(!arr->enableEditing);
 			edItem->valueToSet = !arr->enableEditing;
 			menu->addChild(edItem);
+
+			auto *saveModeSubMenu = new ArrayDataSaveModeMenuItem();
+			saveModeSubMenu->text = "Data persistence";
+			saveModeSubMenu->rightText = RIGHT_ARROW;
+			saveModeSubMenu->module = this->module;
+			menu->addChild(saveModeSubMenu);
 
 			auto *interpModeSubMenu = new ArrayInterpModeMenuItem();
 			interpModeSubMenu->text = "Interpolation at boundary";
