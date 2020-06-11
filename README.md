@@ -15,7 +15,7 @@ PdArray can be used as an envelope generator, sequencer, sample player,
 waveshaper or in a number of other weird and interesting ways.
 
 The plugin also contains two small companion modules called Miniramp and
-Ministep.  Miniramp can be used to to easily record or read out the array
+Ministep. Miniramp can be used to to easily record or read out the array
 sequentially, while Ministep helps with stepping through the array using a
 clock, like a traditional sequencer.
 
@@ -37,7 +37,7 @@ SMTH outputs will output polyphonic signals at each of the cursors.
 
 The POS RANGE switch can be used to select the expected range of the POS input;
 use +10V for e.g. unipolar LFO's and Miniramp, +-5V for bipolar LFO's and audio
-signals.  Similarly, the I/O RANGE switch selects the range of values that you
+signals. Similarly, the I/O RANGE switch selects the range of values that you
 wish to record and what the outputs will have. Setting the switch to +10V means
 that the top edge of the visual representation of the array corresponds to +10V
 and the bottom edge to 0V, while for +-5 and 10 the top and bottom edges of the
