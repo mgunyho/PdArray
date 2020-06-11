@@ -64,6 +64,12 @@ struct Array : Module {
 		NUM_INTERP_MODES
 	};
 
+	enum DataSaveMode {
+		SAVE_FULL_DATA,
+		SAVE_PATH_TO_SAMPLE,
+		DONT_SAVE_DATA,
+	};
+
 	float phases[MAX_POLY_CHANNELS];
 	int nChannels = 1;
 	float recPhase = 0.f;
@@ -72,6 +78,7 @@ struct Array : Module {
 	std::vector<float> buffer;
 	std::string lastLoadedPath;
 	bool enableEditing = true;
+	DataSaveMode saveMode = SAVE_FULL_DATA;
 	InterpBoundaryMode boundaryMode = INTERP_PERIODIC;
 
 	void initBuffer() {
