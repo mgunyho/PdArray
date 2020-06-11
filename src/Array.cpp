@@ -505,20 +505,26 @@ struct ArrayEnableEditingMenuItem : MenuItem {
 	}
 };
 
-struct ArrayInterpModeChildMenuItem : MenuItem {
+// Generic child menu item for selecting one of many enum values
+// E is the enum, memberToSet is a pointer to the member variable which is a variant of said enum
+template <typename E>
+struct ArrayEnumSettingChildMenuItem : MenuItem {
 	Array *module;
-	Array::InterpBoundaryMode mode;
-	ArrayInterpModeChildMenuItem(Array *pModule,
-			Array::InterpBoundaryMode pMode,
-			std::string label):
+	E mode;
+	E *memberToSet;
+	ArrayEnumSettingChildMenuItem(Array *pModule,
+			E pMode,
+			std::string label,
+			E *pMemberToSet):
 		MenuItem() {
 			module = pModule;
 			mode = pMode;
 			text = label;
-			rightText = CHECKMARK(module->boundaryMode == mode);
-	}
+			memberToSet = pMemberToSet;
+			rightText = CHECKMARK(*memberToSet == mode);
+		}
 	void onAction(const event::Action &e) override {
-		module->boundaryMode = mode;
+		*memberToSet = mode;
 	}
 };
 
@@ -527,9 +533,9 @@ struct ArrayInterpModeMenuItem : MenuItem {
 	Menu* createChildMenu() override {
 		Menu* menu = new Menu();
 
-		menu->addChild(new ArrayInterpModeChildMenuItem(this->module, Array::INTERP_CONSTANT, "Constant"));
-		menu->addChild(new ArrayInterpModeChildMenuItem(this->module, Array::INTERP_MIRROR, "Mirror"));
-		menu->addChild(new ArrayInterpModeChildMenuItem(this->module, Array::INTERP_PERIODIC, "Periodic"));
+		menu->addChild(new ArrayEnumSettingChildMenuItem<Array::InterpBoundaryMode>(this->module, Array::INTERP_CONSTANT, "Constant", &module->boundaryMode));
+		menu->addChild(new ArrayEnumSettingChildMenuItem<Array::InterpBoundaryMode>(this->module, Array::INTERP_MIRROR, "Mirror", &module->boundaryMode));
+		menu->addChild(new ArrayEnumSettingChildMenuItem<Array::InterpBoundaryMode>(this->module, Array::INTERP_PERIODIC, "Periodic", &module->boundaryMode));
 
 		return menu;
 	}
