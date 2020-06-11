@@ -116,19 +116,25 @@ struct Array : Module {
 		json_object_set_new(root, "enableEditing", json_boolean(enableEditing));
 		json_object_set_new(root, "boundaryMode", json_integer(boundaryMode));
 		json_object_set_new(root, "lastLoadedPath", json_string(lastLoadedPath.c_str()));
-		json_t *arr = json_array();
-		for(float x : buffer) {
-			json_array_append_new(arr, json_real(x));
+		if(saveMode == SAVE_FULL_DATA) {
+			json_t *arr = json_array();
+			for(float x : buffer) {
+				json_array_append_new(arr, json_real(x));
+			}
+			json_object_set(root, "arrayData", arr);
+			json_decref(arr);
+		} else if(saveMode == SAVE_PATH_TO_SAMPLE) {
+			json_object_set(root, "arrayData", json_string(lastLoadedPath.c_str()));
+		} else if(saveMode == DONT_SAVE_DATA) {
+			json_object_set(root, "arrayData", json_integer(buffer.size()));
 		}
-		json_object_set(root, "arrayData", arr);
-		json_decref(arr);
 		return root;
 	}
 
 	void dataFromJson(json_t *root) override {
 		json_t *enableEditing_J = json_object_get(root, "enableEditing");
 		json_t *boundaryMode_J = json_object_get(root, "boundaryMode");
-		json_t *arr = json_object_get(root, "arrayData");
+		json_t *arrayData_J = json_object_get(root, "arrayData");
 		json_t *lastLoadedPath_J = json_object_get(root, "lastLoadedPath");
 
 		if(enableEditing_J) {
@@ -144,15 +150,22 @@ struct Array : Module {
 			lastLoadedPath = std::string(json_string_value(lastLoadedPath_J));
 		}
 
-		if(json_array_size(arr) > 0) {
+		if(json_array_size(arrayData_J) > 0) {
 			buffer.clear();
 			size_t i;
 			json_t *val;
-			json_array_foreach(arr, i, val) {
+			json_array_foreach(arrayData_J, i, val) {
 				buffer.push_back(json_real_value(val));
 			}
-		} else if(!lastLoadedPath.empty()) {
+			saveMode = SAVE_FULL_DATA;
+		} else if(json_string_value(arrayData_J) != NULL) {
+			lastLoadedPath = std::string(json_string_value(arrayData_J));
 			loadSample(lastLoadedPath, true);
+			saveMode = SAVE_PATH_TO_SAMPLE;
+		} else if(json_integer_value(arrayData_J) > 0) {
+			buffer.clear();
+			resizeBuffer(json_integer_value(arrayData_J));
+			saveMode = DONT_SAVE_DATA;
 		}
 	}
 
