@@ -2,7 +2,8 @@
 
 ## v1.0.4 (unreleased)
 
-- Add option to resize Array when loading a sample ([#9](https://github.com/mgunyho/PdArray/issues/9))
+- Add option to resize Array when loading an audio file ([#9](https://github.com/mgunyho/PdArray/issues/9))
+- Add "Data persistence" option - it's now possible to avoid saving the array data to the patch file, or to automatically reload an audio file when the patch is loaded
 - Fixed issue with Ministep display (for real this time) ([#8](https://github.com/mgunyho/PdArray/issues/8))
 
 ## v1.0.3 (2020-01-25)
