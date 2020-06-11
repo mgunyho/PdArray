@@ -402,8 +402,9 @@ struct MinistepWidget : ModuleWidget {
 		addChild(currentStepDisplay);
 
 		nStepsSelector = new NStepsSelector(module);
-		nStepsSelector->box.pos = Vec(7.5, 317);
-		nStepsSelector->box.size.x = 30.2;
+		// some extra spacing to prevent text from overflowing to next line on some zoom levels
+		nStepsSelector->box.pos = Vec(7.0, 317);
+		nStepsSelector->box.size.x = 32;
 		addChild(nStepsSelector);
 
 	}
