@@ -635,6 +635,13 @@ struct ArrayModuleWidget : ModuleWidget {
 			bufResetItem->module = arr;
 			menu->addChild(bufResetItem);
 
+			auto *edItem = new ArrayEnableEditingMenuItem();
+			edItem->text = "Disable drawing";
+			edItem->module = arr;
+			edItem->rightText = CHECKMARK(!arr->enableEditing);
+			edItem->valueToSet = !arr->enableEditing;
+			menu->addChild(edItem);
+
 			{
 			auto *fsItem = new ArrayFileSelectItem();
 			float duration = arr->buffer.size() * 1.f / arr->sampleRate;
@@ -652,13 +659,6 @@ struct ArrayModuleWidget : ModuleWidget {
 			fsItem->module = arr;
 			menu->addChild(fsItem);
 			}
-
-			auto *edItem = new ArrayEnableEditingMenuItem();
-			edItem->text = "Disable drawing";
-			edItem->module = arr;
-			edItem->rightText = CHECKMARK(!arr->enableEditing);
-			edItem->valueToSet = !arr->enableEditing;
-			menu->addChild(edItem);
 
 			auto *saveModeSubMenu = new ArrayDataSaveModeMenuItem();
 			saveModeSubMenu->text = "Data persistence";
