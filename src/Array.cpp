@@ -63,6 +63,12 @@ struct Array : Module {
 		NUM_INTERP_MODES
 	};
 
+	enum RecordingMode {
+		GATE,
+		TOGGLE,
+		NUM_REC_MODES
+	};
+
 	enum DataSaveMode {
 		SAVE_FULL_DATA,
 		SAVE_PATH_TO_SAMPLE,
@@ -74,7 +80,10 @@ struct Array : Module {
 	int nChannels = 1;
 	float recPhase = 0.f;
 	float sampleRate; // so that it can be read by the UI
+	RecordingMode recMode = GATE;
 	dsp::SchmittTrigger recTrigger;
+	dsp::SchmittTrigger recClickTrigger;
+	bool isRecording = false;
 	std::vector<float> buffer;
 	std::string lastLoadedPath;
 	bool enableEditing = true;
@@ -242,12 +251,18 @@ void Array::process(const ProcessArgs &args) {
 	// recording
 	recPhase = clamp(rescale(inputs[REC_PHASE_INPUT].getVoltage(), phaseMin, phaseMax, 0.f, 1.f), 0.f, 1.f);
 	int ri = int(recPhase * size);
-	recTrigger.process(rescale(inputs[REC_ENABLE_INPUT].getVoltage(), 0.1f, 2.f, 0.f, 1.f));
-	bool rec = recTrigger.isHigh() || (params[REC_ENABLE_PARAM].getValue() > 0.5f);
-	if(rec) {
+	bool recWasTriggered = recTrigger.process(rescale(inputs[REC_ENABLE_INPUT].getVoltage(), 0.1f, 2.f, 0.f, 1.f));
+	bool recWasClicked = recClickTrigger.process(params[REC_ENABLE_PARAM].getValue());
+
+	if(recMode == GATE) {
+		isRecording = recTrigger.isHigh() || recClickTrigger.isHigh();
+	} else if(recMode == TOGGLE && (recWasTriggered || recWasClicked)) {
+		isRecording = !isRecording;
+	}
+	if(isRecording) {
 		buffer[ri] = clamp(rescale(inputs[REC_SIGNAL_INPUT].getVoltage(), inOutMin, inOutMax, 0.f, 1.f), 0.f, 1.f);
 	}
-	lights[REC_LIGHT].setSmoothBrightness(rec, deltaTime);
+	lights[REC_LIGHT].setSmoothBrightness(isRecording, deltaTime);
 
 	nChannels = inputs[PHASE_INPUT].getChannels();
 	outputs[STEP_OUTPUT].setChannels(nChannels);
