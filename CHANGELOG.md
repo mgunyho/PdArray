@@ -1,5 +1,9 @@
 # Changelog for PdArray
 
+## v1.0.5 (2020-06-19)
+
+- Added option to enable recording either with a gate or trigger signal
+
 ## v1.0.4 (2020-06-11)
 
 - Add option to resize Array when loading an audio file ([#9](https://github.com/mgunyho/PdArray/issues/9))
