@@ -124,6 +124,7 @@ struct Array : Module {
 		json_t *root = json_object();
 		json_object_set_new(root, "enableEditing", json_boolean(enableEditing));
 		json_object_set_new(root, "boundaryMode", json_integer(boundaryMode));
+		json_object_set_new(root, "recMode", json_integer(recMode));
 		json_object_set_new(root, "lastLoadedPath", json_string(lastLoadedPath.c_str()));
 		if(saveMode == SAVE_FULL_DATA) {
 			json_t *arr = json_array();
@@ -143,6 +144,7 @@ struct Array : Module {
 	void dataFromJson(json_t *root) override {
 		json_t *enableEditing_J = json_object_get(root, "enableEditing");
 		json_t *boundaryMode_J = json_object_get(root, "boundaryMode");
+		json_t *recMode_J = json_object_get(root, "recMode");
 		json_t *arrayData_J = json_object_get(root, "arrayData");
 		json_t *lastLoadedPath_J = json_object_get(root, "lastLoadedPath");
 
@@ -153,6 +155,12 @@ struct Array : Module {
 			int bm = int(json_integer_value(boundaryMode_J));
 			if(bm < NUM_INTERP_MODES) {
 				boundaryMode = static_cast<InterpBoundaryMode>(bm);
+			}
+		}
+		if(recMode_J) {
+			int rm = int(json_integer_value(recMode_J));
+			if(rm < NUM_REC_MODES) {
+				recMode = static_cast<RecordingMode>(rm);
 			}
 		}
 		if(lastLoadedPath_J) {
