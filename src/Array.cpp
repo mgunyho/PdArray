@@ -558,6 +558,17 @@ struct ArrayEnumSettingChildMenuItem : MenuItem {
 	}
 };
 
+struct ArrayRecordingModeMenuItem : MenuItemWithRightArrow {
+	Array *module;
+	Menu* createChildMenu() override {
+		Menu *menu = new Menu();
+		menu->addChild(new ArrayEnumSettingChildMenuItem<Array::RecordingMode>(this->module, Array::GATE, "Gate", &module->recMode));
+		menu->addChild(new ArrayEnumSettingChildMenuItem<Array::RecordingMode>(this->module, Array::TOGGLE, "Toggle", &module->recMode));
+
+		return menu;
+	}
+};
+
 struct ArrayDataSaveModeMenuItem : MenuItemWithRightArrow {
 	Array *module;
 	Menu* createChildMenu() override {
@@ -648,6 +659,11 @@ struct ArrayModuleWidget : ModuleWidget {
 			edItem->rightText = CHECKMARK(!arr->enableEditing);
 			edItem->valueToSet = !arr->enableEditing;
 			menu->addChild(edItem);
+
+			auto *rmItem = new ArrayRecordingModeMenuItem();
+			rmItem->text = "Recording mode";
+			rmItem->module = this->module;
+			menu->addChild(rmItem);
 
 			{
 			auto *fsItem = new ArrayFileSelectItem();
