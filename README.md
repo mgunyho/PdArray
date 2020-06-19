@@ -79,6 +79,12 @@ Input a ramp or LFO signal to REC POS, send audio or CV (or anything really) to
 REC IN, send a high gate to the REC input or click on the LED, and watch how
 the input signal gets imprinted to the array in real time.
 
+By right-clicking on the module, you can switch between gate and toggle modes
+for recording. In gate mode, the input is recorded while the REC input is high
+(or you hold down the LED), while in toggle mode, recording is toggled on or
+off by a trigger to the REC input or when clicking the LED, as the name
+suggests.
+
 ### Using PdArray as a waveshaper
 
 ![waveshaper](screenshots/waveshaper.png)
