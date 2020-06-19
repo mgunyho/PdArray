@@ -501,6 +501,13 @@ struct ArrayResetBufferItem : MenuItem {
 	}
 };
 
+struct ArraySortBufferItem : MenuItem {
+	Array *module;
+	void onAction(const event::Action &e) override {
+		std::sort(module->buffer.begin(), module->buffer.end());
+	}
+};
+
 // file selection dialog, based on PLAYERItem in cf
 // https://github.com/cfoulc/cf/blob/master/src/PLAYER.cpp
 struct ArrayFileSelectItem : MenuItem {
@@ -652,6 +659,11 @@ struct ArrayModuleWidget : ModuleWidget {
 			bufResetItem->text = "Reset array contents";
 			bufResetItem->module = arr;
 			menu->addChild(bufResetItem);
+
+			auto *bufSortItem = new ArraySortBufferItem();
+			bufSortItem->text = "Sort array contents";
+			bufSortItem->module = arr;
+			menu->addChild(bufSortItem);
 
 			auto *edItem = new ArrayEnableEditingMenuItem();
 			edItem->text = "Disable drawing";
