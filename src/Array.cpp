@@ -528,6 +528,13 @@ struct ArrayEnableEditingMenuItem : MenuItem {
 	}
 };
 
+// For slight DRY
+struct MenuItemWithRightArrow : MenuItem {
+	MenuItemWithRightArrow(): MenuItem() {
+		rightText = RIGHT_ARROW;
+	};
+};
+
 // Generic child menu item for selecting one of many enum values
 // E is the enum, memberToSet is a pointer to the member variable which is a variant of said enum
 template <typename E>
@@ -551,7 +558,7 @@ struct ArrayEnumSettingChildMenuItem : MenuItem {
 	}
 };
 
-struct ArrayDataSaveModeMenuItem : MenuItem {
+struct ArrayDataSaveModeMenuItem : MenuItemWithRightArrow {
 	Array *module;
 	Menu* createChildMenu() override {
 		Menu* menu = new Menu();
@@ -564,7 +571,7 @@ struct ArrayDataSaveModeMenuItem : MenuItem {
 	}
 };
 
-struct ArrayInterpModeMenuItem : MenuItem {
+struct ArrayInterpModeMenuItem : MenuItemWithRightArrow {
 	Array* module;
 	Menu* createChildMenu() override {
 		Menu* menu = new Menu();
@@ -662,13 +669,11 @@ struct ArrayModuleWidget : ModuleWidget {
 
 			auto *saveModeSubMenu = new ArrayDataSaveModeMenuItem();
 			saveModeSubMenu->text = "Data persistence";
-			saveModeSubMenu->rightText = RIGHT_ARROW;
 			saveModeSubMenu->module = this->module;
 			menu->addChild(saveModeSubMenu);
 
 			auto *interpModeSubMenu = new ArrayInterpModeMenuItem();
 			interpModeSubMenu->text = "Interpolation at boundary";
-			interpModeSubMenu->rightText = RIGHT_ARROW;
 			interpModeSubMenu->module = this->module;
 			menu->addChild(interpModeSubMenu);
 		}
