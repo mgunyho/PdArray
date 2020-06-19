@@ -67,6 +67,7 @@ struct Array : Module {
 		SAVE_FULL_DATA,
 		SAVE_PATH_TO_SAMPLE,
 		DONT_SAVE_DATA,
+		NUM_DATA_SAVING_MODES,
 	};
 
 	float phases[MAX_POLY_CHANNELS];
