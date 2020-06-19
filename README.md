@@ -59,8 +59,8 @@ LED or send a gate voltage to the REC input to record. Recording is only
 monophonic.
 
 Right-clicking on the module will open up some additional options, like
-initializing the array, loading an audio file and setting the interpolation
-mode.
+initializing or sorting the array, loading an audio file and setting the
+interpolation mode.
 
 ### Drawing sequences or envelopes
 
