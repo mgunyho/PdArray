@@ -207,9 +207,10 @@ void Array::loadSample(std::string path, bool resizeBuf) {
 
 	if (pSampleData != NULL) {
 		unsigned long nSamplesToRead = std::min((unsigned long) totalPCMFrameCount, 999999UL);
-		int newSize = resizeBuf ? nSamplesToRead : buffer.size();
+		unsigned long newSize = resizeBuf ? nSamplesToRead : buffer.size();
 		buffer.resize(newSize, 0);
-		for(unsigned long i = 0; i < nSamplesToRead; i++) {
+		unsigned long max_i = std::min(newSize, nSamplesToRead);
+		for(unsigned long i = 0; i < max_i; i++) {
 			int ii = i * channels;
 			float s = pSampleData[ii];
 			if(channels == 2) {
