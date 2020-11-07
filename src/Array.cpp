@@ -509,6 +509,15 @@ struct ArrayResetBufferItem : MenuItem {
 	}
 };
 
+struct ArraySetBufferToZeroItem : MenuItem {
+	Array *module;
+	void onAction(const event::Action &e) override {
+		auto& buf = module->buffer;
+		printf("zero value: %f\n", module->getZeroValue());
+		std::fill(buf.begin(), buf.end(), module->getZeroValue());
+	}
+};
+
 struct ArraySortBufferItem : MenuItem {
 	Array *module;
 	void onAction(const event::Action &e) override {
@@ -667,6 +676,11 @@ struct ArrayModuleWidget : ModuleWidget {
 			bufResetItem->text = "Reset array contents";
 			bufResetItem->module = arr;
 			menu->addChild(bufResetItem);
+
+			auto *bufSetToZeroItem = new ArraySetBufferToZeroItem();
+			bufSetToZeroItem->text = "Set array contents to zero";
+			bufSetToZeroItem->module = arr;
+			menu->addChild(bufSetToZeroItem);
 
 			auto *bufSortItem = new ArraySortBufferItem();
 			bufSortItem->text = "Sort array contents";
