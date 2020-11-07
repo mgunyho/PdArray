@@ -109,9 +109,16 @@ struct Array : Module {
 
 	void process(const ProcessArgs &args) override;
 
-	void resizeBuffer(unsigned int newSize) {
+	float getZeroValue() {
+		// The buffer internal values are always 0..1. Depending on the
+		// signedness of the output, the buffer value corresponding to 0V
+		// output is either 0.0 or 0.5. This function returns that value.
 		bool outputIsSigned = params[OUTPUT_RANGE_PARAM].getValue() < 1.5f;
-		buffer.resize(newSize, outputIsSigned ? 0.5f : 0.f);
+		return outputIsSigned ? 0.5f : 0.f;
+	}
+
+	void resizeBuffer(unsigned int newSize) {
+		buffer.resize(newSize, getZeroValue());
 	}
 
 	void loadSample(std::string path, bool resizeBuf = false);
