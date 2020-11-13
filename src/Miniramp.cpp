@@ -261,6 +261,37 @@ struct CustomTrimpot : Trimpot {
 	}
 };
 
+struct MinirampFinishedModeChildMenuItem : MenuItem {
+	Miniramp *module;
+	Miniramp::RampFinishedMode mode;
+	MinirampFinishedModeChildMenuItem(
+			Miniramp *m,
+			Miniramp::RampFinishedMode pMode,
+			std::string label) : MenuItem() {
+		module = m;
+		mode = pMode;
+		text = label;
+		rightText = CHECKMARK(module->rampFinishedMode == mode);
+	}
+	void onAction(const event::Action &e) override {
+		module->rampFinishedMode = mode;
+	}
+};
+
+struct MinirampFinishedModeMenuItem : MenuItemWithRightArrow {
+	Miniramp *module;
+	Menu *createChildMenu() override {
+		Menu *menu = new Menu();
+		menu->addChild(new MinirampFinishedModeChildMenuItem(module,
+															 Miniramp::RAMP_FINISHED_0,
+															 "0V"));
+		menu->addChild(new MinirampFinishedModeChildMenuItem(module,
+															 Miniramp::RAMP_FINISHED_10,
+															 "10V"));
+		return menu;
+	}
+};
+
 struct MinirampWidget : ModuleWidget {
 	Miniramp *module;
 	MsDisplayWidget *msDisplay;
@@ -295,6 +326,15 @@ struct MinirampWidget : ModuleWidget {
 		cvKnob->display = msDisplay;
 		addParam(cvKnob);
 
+	}
+
+	void appendContextMenu(ui::Menu *menu) override {
+		if(module) {
+			auto *finishModeMenuItem = new MinirampFinishedModeMenuItem();
+			finishModeMenuItem->text = "Ramp value when finished";
+			finishModeMenuItem->module = module;
+			menu->addChild(finishModeMenuItem);
+		}
 	}
 
 };
