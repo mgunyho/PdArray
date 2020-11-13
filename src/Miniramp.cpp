@@ -64,12 +64,18 @@ struct Miniramp : Module {
 		GATE_LIGHT,
 		NUM_LIGHTS
 	};
+	enum RampFinishedMode {
+		RAMP_FINISHED_0,
+		RAMP_FINISHED_10,
+		NUM_RAMP_FINISHED_MODES
+	};
 
 	dsp::SchmittTrigger inputTrigger[MAX_POLY_CHANNELS];
 	CustomPulseGenerator gateGen[MAX_POLY_CHANNELS];
 	float ramp_base_duration = 0.5f; // ramp duration without CV
 	float ramp_duration;
 	float cv_scale = 0.f; // cv_scale = +- 1 -> 10V CV changes duration by +-10s
+	RampFinishedMode rampFinishedMode = RAMP_FINISHED_0;
 
 	Miniramp() {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
@@ -129,9 +135,16 @@ void Miniramp::process(const ProcessArgs &args) {
 
 		bool gate = gateGen[c].process(deltaTime);
 
-		float ramp_v = gate ?
-			clamp(gateGen[c].time/gateGen[c].triggerDuration * 10.f, 0.f, 10.f) :
-			0.f;
+		float ramp_v;
+		if(gate) {
+			ramp_v = clamp(gateGen[c].time/gateGen[c].triggerDuration * 10.f, 0.f, 10.f);
+		} else {
+			if(rampFinishedMode == RAMP_FINISHED_0) {
+				ramp_v = 0;
+			} else {
+				ramp_v = 10;
+			}
+		}
 
 		outputs[RAMP_OUTPUT].setVoltage(ramp_v, c);
 		outputs[GATE_OUTPUT].setVoltage(gate ? 10.0f : 0.0f, c);
