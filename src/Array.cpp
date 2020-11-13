@@ -551,13 +551,6 @@ struct ArrayEnableEditingMenuItem : MenuItem {
 	}
 };
 
-// For slight DRY
-struct MenuItemWithRightArrow : MenuItem {
-	MenuItemWithRightArrow(): MenuItem() {
-		rightText = RIGHT_ARROW;
-	};
-};
-
 // Generic child menu item for selecting one of many enum values
 // E is the enum, memberToSet is a pointer to the member variable which is a variant of said enum
 template <typename E>

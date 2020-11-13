@@ -147,3 +147,10 @@ struct NumberTextField : TextField {
 	}
 
 };
+
+// For slight DRY
+struct MenuItemWithRightArrow : MenuItem {
+	MenuItemWithRightArrow(): MenuItem() {
+		rightText = RIGHT_ARROW;
+	};
+};
