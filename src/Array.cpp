@@ -121,6 +121,17 @@ struct Array : Module {
 		buffer.resize(newSize, getZeroValue());
 	}
 
+	size_t numFadeSamples() {
+		// Calculate the clicking prevention fade size (in samples)
+		// based on the current buffer size.
+		size_t n = buffer.size();
+		if(n < 5) {
+			return 0;
+		} else {
+			return std::min<size_t>(n / 100 + 2, 100u);
+		}
+	}
+
 	void loadSample(std::string path, bool resizeBuf = false);
 
 	// TODO: if array is large enough (how large?) encode as base64?
@@ -524,6 +535,14 @@ struct ArraySortBufferItem : MenuItem {
 	}
 };
 
+struct ArrayAddFadesMenuItem : MenuItem {
+	Array *module;
+	ArrayAddFadesMenuItem(Array *pModule) {
+		module = pModule;
+		rightText = string::f("%u samples", module->numFadeSamples());
+	}
+};
+
 // file selection dialog, based on PLAYERItem in cf
 // https://github.com/cfoulc/cf/blob/master/src/PLAYER.cpp
 struct ArrayFileSelectItem : MenuItem {
@@ -678,6 +697,10 @@ struct ArrayModuleWidget : ModuleWidget {
 			bufSortItem->text = "Sort array contents";
 			bufSortItem->module = arr;
 			menu->addChild(bufSortItem);
+
+			auto *addFadesItem = new ArrayAddFadesMenuItem(arr);
+			addFadesItem->text = "Add fade in/out to prevent clicks";
+			menu->addChild(addFadesItem);
 
 			auto *edItem = new ArrayEnableEditingMenuItem();
 			edItem->text = "Disable drawing";
