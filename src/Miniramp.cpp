@@ -90,6 +90,23 @@ struct Miniramp : Module {
 		ramp_duration = ramp_base_duration;
 	}
 
+	json_t *dataToJson() override {
+		json_t *root = json_object();
+		json_object_set_new(root, "rampFinishedMode", json_integer(rampFinishedMode));
+
+		return root;
+	}
+
+	void dataFromJson(json_t *root) override {
+		json_t *rampFinished_J = json_object_get(root, "rampFinishedMode");
+		if(rampFinished_J) {
+			int rfm = int(json_integer_value(rampFinished_J));
+			if(rfm < NUM_RAMP_FINISHED_MODES) {
+				rampFinishedMode = static_cast<RampFinishedMode>(rfm);
+			}
+		}
+	}
+
 	void process(const ProcessArgs &args) override;
 
 };
