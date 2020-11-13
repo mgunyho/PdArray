@@ -513,7 +513,6 @@ struct ArraySetBufferToZeroItem : MenuItem {
 	Array *module;
 	void onAction(const event::Action &e) override {
 		auto& buf = module->buffer;
-		printf("zero value: %f\n", module->getZeroValue());
 		std::fill(buf.begin(), buf.end(), module->getZeroValue());
 	}
 };
