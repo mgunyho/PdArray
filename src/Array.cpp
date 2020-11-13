@@ -128,7 +128,7 @@ struct Array : Module {
 		if(n < 5) {
 			return 0;
 		} else {
-			return std::min<size_t>(n / 100 + 2, 100u);
+			return std::min<size_t>(n / 100 + 2, 200);
 		}
 	}
 
@@ -540,6 +540,20 @@ struct ArrayAddFadesMenuItem : MenuItem {
 	ArrayAddFadesMenuItem(Array *pModule) {
 		module = pModule;
 		rightText = string::f("%u samples", module->numFadeSamples());
+	}
+
+	void onAction(const event::Action &e) override {
+		size_t nFade = module->numFadeSamples();
+		auto& buf = module->buffer;
+		size_t bufSize = buf.size();
+		float zero = module->getZeroValue();
+		if(nFade > 1) {
+			for(unsigned int i = 0; i < nFade; i++) {
+				float fac = i * 1.f / (nFade - 1);
+				buf[i] = crossfade(zero, buf[i], fac);
+				buf[bufSize - 1 - i] = crossfade(zero, buf[bufSize - 1 - i], fac);
+			}
+		}
 	}
 };
 
