@@ -122,6 +122,26 @@ If you want to automatically load the audio file the next time you open the
 patch, you can set "Data persistence" to "Save path to loaded sample".
 
 
+#### Preventing clicks in sample playback
+
+The Array module gives you a lot of freedom in the way you can play back
+samples, but this comes with some downsides. If the sample you are using
+doesn't start or end at a [zero crossing](https://en.wikipedia.org/wiki/Zero_crossing),
+you may hear a click during playback.
+
+There are a couple of ways to deal with this. A simple trick is to click the
+Array REC button once with the REC POS and REC IN ports disconnected. This way,
+the first sample in the array will be set to zero. A slightly better method is
+to use the "Add fade in/out to prevent clicks" option in the right-click menu
+of Array, which creates short fades at the array start and end (the length is
+indicated in the right-click menu as a number of samples, or data points, in
+the array). This should work well for most samples, but note that if you're not
+using the "save full array data to patch" setting, this will not be saved the
+next time you open the patch. Lastly, if you're playing back the samples using
+Miniramp (see below), you can also try changing the "ramp value when finished"
+setting from the right-click menu.
+
+
 ## Miniramp
 
 ![miniramp](screenshots/miniramp.png)
@@ -133,6 +153,12 @@ selected by the LIN/LOG switch. You can control the ramp duration / speed with
 the CV input and CV amount knob. When you send a trigger to TRG IN, RAMP will
 output the ramp, and the GATE output will output 10V while the ramp is in
 progress, useful for e.g. the REC input of Array.
+
+You can right-click on Miniramp to control how it behaves after the ramp has
+finished. By default, the output value will reset to 0V, but if the 10V option
+is selected, the output value will remain at 10V. This may help preventing
+clicks if you're using Miniramp for playing back samples using PdArray.
+
 
 
 ## Ministep

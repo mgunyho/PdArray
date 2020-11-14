@@ -121,6 +121,17 @@ struct Array : Module {
 		buffer.resize(newSize, getZeroValue());
 	}
 
+	size_t numFadeSamples() {
+		// Calculate the clicking prevention fade size (in samples)
+		// based on the current buffer size.
+		size_t n = buffer.size();
+		if(n < 5) {
+			return 0;
+		} else {
+			return std::min<size_t>(n / 100 + 2, 200);
+		}
+	}
+
 	void loadSample(std::string path, bool resizeBuf = false);
 
 	// TODO: if array is large enough (how large?) encode as base64?
@@ -524,6 +535,28 @@ struct ArraySortBufferItem : MenuItem {
 	}
 };
 
+struct ArrayAddFadesMenuItem : MenuItem {
+	Array *module;
+	ArrayAddFadesMenuItem(Array *pModule) {
+		module = pModule;
+		rightText = string::f("%u samples", module->numFadeSamples());
+	}
+
+	void onAction(const event::Action &e) override {
+		size_t nFade = module->numFadeSamples();
+		auto& buf = module->buffer;
+		size_t bufSize = buf.size();
+		float zero = module->getZeroValue();
+		if(nFade > 1) {
+			for(unsigned int i = 0; i < nFade; i++) {
+				float fac = i * 1.f / (nFade - 1);
+				buf[i] = crossfade(zero, buf[i], fac);
+				buf[bufSize - 1 - i] = crossfade(zero, buf[bufSize - 1 - i], fac);
+			}
+		}
+	}
+};
+
 // file selection dialog, based on PLAYERItem in cf
 // https://github.com/cfoulc/cf/blob/master/src/PLAYER.cpp
 struct ArrayFileSelectItem : MenuItem {
@@ -549,13 +582,6 @@ struct ArrayEnableEditingMenuItem : MenuItem {
 	void onAction(const event::Action &e) override {
 		module->enableEditing = valueToSet;
 	}
-};
-
-// For slight DRY
-struct MenuItemWithRightArrow : MenuItem {
-	MenuItemWithRightArrow(): MenuItem() {
-		rightText = RIGHT_ARROW;
-	};
 };
 
 // Generic child menu item for selecting one of many enum values
@@ -685,6 +711,10 @@ struct ArrayModuleWidget : ModuleWidget {
 			bufSortItem->text = "Sort array contents";
 			bufSortItem->module = arr;
 			menu->addChild(bufSortItem);
+
+			auto *addFadesItem = new ArrayAddFadesMenuItem(arr);
+			addFadesItem->text = "Add fade in/out to prevent clicks";
+			menu->addChild(addFadesItem);
 
 			auto *edItem = new ArrayEnableEditingMenuItem();
 			edItem->text = "Disable drawing";

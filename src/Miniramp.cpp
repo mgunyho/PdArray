@@ -64,12 +64,18 @@ struct Miniramp : Module {
 		GATE_LIGHT,
 		NUM_LIGHTS
 	};
+	enum RampFinishedMode {
+		RAMP_FINISHED_0,
+		RAMP_FINISHED_10,
+		NUM_RAMP_FINISHED_MODES
+	};
 
 	dsp::SchmittTrigger inputTrigger[MAX_POLY_CHANNELS];
 	CustomPulseGenerator gateGen[MAX_POLY_CHANNELS];
 	float ramp_base_duration = 0.5f; // ramp duration without CV
 	float ramp_duration;
 	float cv_scale = 0.f; // cv_scale = +- 1 -> 10V CV changes duration by +-10s
+	RampFinishedMode rampFinishedMode = RAMP_FINISHED_0;
 
 	Miniramp() {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
@@ -82,6 +88,23 @@ struct Miniramp : Module {
 		configParam(Miniramp::CV_AMT_PARAM, -1.f, 1.f, 0.f, "CV amount");
 		configParam(Miniramp::LIN_LOG_MODE_PARAM, 0.f, 1.f, 1.f, "Linear/Logarithmic mode");
 		ramp_duration = ramp_base_duration;
+	}
+
+	json_t *dataToJson() override {
+		json_t *root = json_object();
+		json_object_set_new(root, "rampFinishedMode", json_integer(rampFinishedMode));
+
+		return root;
+	}
+
+	void dataFromJson(json_t *root) override {
+		json_t *rampFinished_J = json_object_get(root, "rampFinishedMode");
+		if(rampFinished_J) {
+			int rfm = int(json_integer_value(rampFinished_J));
+			if(rfm < NUM_RAMP_FINISHED_MODES) {
+				rampFinishedMode = static_cast<RampFinishedMode>(rfm);
+			}
+		}
 	}
 
 	void process(const ProcessArgs &args) override;
@@ -129,9 +152,16 @@ void Miniramp::process(const ProcessArgs &args) {
 
 		bool gate = gateGen[c].process(deltaTime);
 
-		float ramp_v = gate ?
-			clamp(gateGen[c].time/gateGen[c].triggerDuration * 10.f, 0.f, 10.f) :
-			0.f;
+		float ramp_v;
+		if(gate) {
+			ramp_v = clamp(gateGen[c].time/gateGen[c].triggerDuration * 10.f, 0.f, 10.f);
+		} else {
+			if(rampFinishedMode == RAMP_FINISHED_0) {
+				ramp_v = 0;
+			} else {
+				ramp_v = 10;
+			}
+		}
 
 		outputs[RAMP_OUTPUT].setVoltage(ramp_v, c);
 		outputs[GATE_OUTPUT].setVoltage(gate ? 10.0f : 0.0f, c);
@@ -231,6 +261,37 @@ struct CustomTrimpot : Trimpot {
 	}
 };
 
+struct MinirampFinishedModeChildMenuItem : MenuItem {
+	Miniramp *module;
+	Miniramp::RampFinishedMode mode;
+	MinirampFinishedModeChildMenuItem(
+			Miniramp *m,
+			Miniramp::RampFinishedMode pMode,
+			std::string label) : MenuItem() {
+		module = m;
+		mode = pMode;
+		text = label;
+		rightText = CHECKMARK(module->rampFinishedMode == mode);
+	}
+	void onAction(const event::Action &e) override {
+		module->rampFinishedMode = mode;
+	}
+};
+
+struct MinirampFinishedModeMenuItem : MenuItemWithRightArrow {
+	Miniramp *module;
+	Menu *createChildMenu() override {
+		Menu *menu = new Menu();
+		menu->addChild(new MinirampFinishedModeChildMenuItem(module,
+															 Miniramp::RAMP_FINISHED_0,
+															 "0V"));
+		menu->addChild(new MinirampFinishedModeChildMenuItem(module,
+															 Miniramp::RAMP_FINISHED_10,
+															 "10V"));
+		return menu;
+	}
+};
+
 struct MinirampWidget : ModuleWidget {
 	Miniramp *module;
 	MsDisplayWidget *msDisplay;
@@ -265,6 +326,15 @@ struct MinirampWidget : ModuleWidget {
 		cvKnob->display = msDisplay;
 		addParam(cvKnob);
 
+	}
+
+	void appendContextMenu(ui::Menu *menu) override {
+		if(module) {
+			auto *finishModeMenuItem = new MinirampFinishedModeMenuItem();
+			finishModeMenuItem->text = "Ramp value when finished";
+			finishModeMenuItem->module = module;
+			menu->addChild(finishModeMenuItem);
+		}
 	}
 
 };
