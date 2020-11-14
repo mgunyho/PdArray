@@ -4,6 +4,9 @@
 
 - Fix crash when loading a sampe without resizing ([#13](https://github.com/mgunyho/PdArray/issues/13))
 - Add right-click option to set array contents to zero
+- Add "Add fade in/out" option to array to prevent clicks ([#14](https://github.com/mgunyho/PdArray/issues/14))
+- Add option to keep Miniramp value at 10V after the ramp has finished
+- Add section on clicking prevention in manual
 
 ## v1.0.5 (2020-06-19)
 
