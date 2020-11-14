@@ -1,6 +1,6 @@
 # Changelog for PdArray
 
-## v1.0.6 (unreleased)
+## v1.0.6 (2020-11-14)
 
 - Fix crash when loading a sampe without resizing ([#13](https://github.com/mgunyho/PdArray/issues/13))
 - Add right-click option to set array contents to zero
