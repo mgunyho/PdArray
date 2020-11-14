@@ -157,8 +157,7 @@ progress, useful for e.g. the REC input of Array.
 You can right-click on Miniramp to control how it behaves after the ramp has
 finished. By default, the output value will reset to 0V, but if the 10V option
 is selected, the output value will remain at 10V. This may help preventing
-clicks if you're using Miniramp for playing back samples using PdArray.
-
+clicks if you're using Miniramp for playing back samples using Array.
 
 
 ## Ministep
