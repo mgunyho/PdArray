@@ -134,6 +134,7 @@ struct Array : Module {
 	// see https://stackoverflow.com/questions/45508360/quickest-way-to-encode-vector-of-floats-into-hex-or-base64binary
 	// also: rack::string::to/fromBase64
 
+	//TODO: use rack v2 user data serialization instead - https://vcvrack.com/manual/Migrate2#3-4-Store-large-data-in-the-module-s-patch-storage-directory
 	json_t *dataToJson() override {
 		json_t *root = json_object();
 		json_object_set_new(root, "enableEditing", json_boolean(enableEditing));
