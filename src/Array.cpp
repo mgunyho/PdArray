@@ -1,9 +1,5 @@
 #include "plugin.hpp"
-#include "window.hpp" // windowIsModPressed
-#include "osdialog.h"
-#include "settings.hpp" // settings::*
-#include "random.hpp"
-#include <GLFW/glfw3.h> // key codes
+#include "osdialog.h" //TODO: not part of the public Rack v2 API, consider vendoring or something
 #include <algorithm> // std::min, std::swap
 #define DR_WAV_IMPLEMENTATION
 #include "dr_wav.h" // for reading wav files
