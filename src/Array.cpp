@@ -561,7 +561,7 @@ struct ArrayFileSelectItem : MenuItem {
 	bool resizeBuffer;
 
 	void onAction(const event::Action &e) override {
-		std::string dir = module->lastLoadedPath.empty() ? asset::user("") : rack::string::directory(module->lastLoadedPath);
+		std::string dir = module->lastLoadedPath.empty() ? asset::user("") : rack::system::getDirectory(module->lastLoadedPath);
 		osdialog_filters* filters = osdialog_filters_parse(".wav files:wav");
 		char *path = osdialog_file(OSDIALOG_OPEN, dir.c_str(), NULL, filters);
 		if(path) {
