@@ -449,7 +449,7 @@ struct ArrayDisplay : OpaqueWidget {
 		OpaqueWidget::onDragMove(e);
 		if(!module->enableEditing) return;
 		Vec dragPosition_old = dragPosition;
-		float zoom = std::pow(2.f, settings::zoom);
+		float zoom = getAbsoluteZoom();
 		dragPosition = dragPosition.plus(e.mouseDelta.div(zoom)); // take zoom into account
 
 		// int() rounds down, so the upper limit of rescale is buffer.size() without -1.
