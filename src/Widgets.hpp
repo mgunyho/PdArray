@@ -85,7 +85,7 @@ struct NumberTextField : TextField {
 
 		if(ee.action == GLFW_PRESS && ee.button == GLFW_MOUSE_BUTTON_LEFT) {
 			// HACK
-			APP->event->setSelected(this);
+			APP->event->setSelectedWidget(this);
 		}
 
 		if(ee.isConsumed()) {
