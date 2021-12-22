@@ -174,7 +174,6 @@ struct PolyIntDisplayWidget : TextBox {
 	int previousDisplayValue = 1;
 
 	PolyIntDisplayWidget(Ministep *m, int *valueToDisplay) : TextBox() {
-		font = APP->window->uiFont; // default blendish font (same as TextField)
 		module = m;
 		polyValueToDisplay = valueToDisplay;
 		box.size = Vec(30, 21);
@@ -198,6 +197,7 @@ struct PolyIntDisplayWidget : TextBox {
 	virtual void getBarVPos(int i, float *h, float *y) { *h = 0; *y = box.size.y; }
 
 	void draw(const DrawArgs &args) override {
+		//TODO: custom font? used to be APP->window->uiFont (default blendish font, same as TextField)
 		if(!module || module->nChannels == 1) {
 			TextBox::draw(args);
 		} else {

@@ -6,7 +6,6 @@ struct TextBox : TransparentWidget {
 	// numbers look okay.
 	// based on LedDisplayChoice
 	std::string text;
-	std::shared_ptr<Font> font;
 	float font_size;
 	float letter_spacing;
 	Vec textOffset;
@@ -17,7 +16,6 @@ struct TextBox : TransparentWidget {
 
 	//TODO: create<...>() thing with position as argument?
 	TextBox() {
-		font = APP->window->loadFont(asset::plugin(pluginInstance, "res/fonts/RobotoMono-Bold.ttf"));
 		defaultTextColor = nvgRGB(0x23, 0x23, 0x23);
 		textColor = defaultTextColor;
 		backgroundColor = nvgRGB(0xc8, 0xc8, 0xc8);
@@ -40,6 +38,7 @@ struct TextBox : TransparentWidget {
 		nvgFillColor(vg, backgroundColor);
 		nvgFill(vg);
 
+		std::shared_ptr<Font> font = APP->window->loadFont(asset::plugin(pluginInstance, "res/fonts/RobotoMono-Bold.ttf"));
 		if (font->handle >= 0) {
 
 			nvgFillColor(vg, textColor);
