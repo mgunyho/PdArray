@@ -60,7 +60,7 @@ struct NumberTextBox : TextBox, TextField {
 
 	NumberTextBox(): TextBox(), TextField() {
 		defaultColor = backgroundColor;
-		hoverColor = nvgRGB(0x88, 0x88, 0x88);
+		hoverColor = nvgRGB(0x90, 0x90, 0x90);
 		maxTextLength = defaultMaxTextLength;
 
 		// Default alignment and offset. Caret breaks with left-align, so let's
