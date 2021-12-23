@@ -34,7 +34,7 @@ struct TextBox : TransparentWidget {
 };
 
 /*
- * Editable TextBox that only allows inputting numbers. Based on
+ * Editable TextBox that only allows inputting positive numbers. Based on
  * EditableTextbox and HoverableTextbox in LittleUtils.
  * TODO: copy-paste docstring from LittleUtils EditableTextbox here and check that it's valid
  */
