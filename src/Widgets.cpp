@@ -86,7 +86,14 @@ void NumberTextBox::onAction(const event::Action &e) {
 }
 
 void NumberTextBox::onSelectText(const event::SelectText &e) {
-	if(TextField::text.size() < maxTextLength || cursor != selection) {
+	// only accpet numeric input
+
+	// cursor != selection means that something is selected, so we may input
+	// even if the textbox is full.
+	if((TextField::text.size() < maxTextLength || cursor != selection)
+			// assuming GLFW number keys are contiguous
+			&& GLFW_KEY_0 <= e.codepoint
+			&& e.codepoint <= GLFW_KEY_9) {
 		TextField::onSelectText(e);
 	} else {
 		e.consume(NULL);
