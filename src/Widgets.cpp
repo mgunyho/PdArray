@@ -66,3 +66,14 @@ void NumberTextBox::draw(const DrawArgs &args) {
 
 	}
 }
+
+void NumberTextBox::onAction(const event::Action &e) {
+	// this gets fired when the user types 'enter'
+	event::Deselect eDeselect;
+	onDeselect(eDeselect);
+	APP->event->selectedWidget = NULL;
+	e.consume(NULL);
+}
+
+//TODO: onSelectText
+//TODO: onSelectKey

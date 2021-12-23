@@ -88,6 +88,8 @@ struct NumberTextBox : TextBox, TextField {
 		e.consume(NULL);
 	}
 
+	void onAction(const event::Action &e) override;
+
 	void step() override {
 		TextField::step();
 	}
