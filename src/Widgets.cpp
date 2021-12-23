@@ -70,13 +70,25 @@ void NumberTextBox::draw(const DrawArgs &args) {
 }
 
 void NumberTextBox::onAction(const event::Action &e) {
-	// this gets fired when the user types 'enter'
+	// this gets fired when the user confirms the text input
+
+	bool success = false;
 	if(TextField::text.size() > 0) {
-		int n = stoi(TextField::text); // text should always contain only digits
+		// here we assume that the text contains only digits
+		int n = stoi(TextField::text);
 		if(n > 0) {
-			//TextBox::text = string::f("%u", n);
+			// the number was valid, call onNumberSet and update display text
 			onNumberSet(n);
+			TextBox::setText(TextField::text);
+			success = true;
 		}
+	}
+
+	if(!success) {
+		// the input number was invalid, revert TextField to the text we were displaying before
+		cursor = 0;
+		selection = 0;
+		TextField::setText(TextBox::text);
 	}
 
 	event::Deselect eDeselect;

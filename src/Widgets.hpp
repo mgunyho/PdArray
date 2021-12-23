@@ -102,7 +102,6 @@ struct NumberTextBox : TextBox, TextField {
 
 	void onDeselect(const event::Deselect &e) override {
 		isFocused = false;
-		TextBox::setText(TextField::text);
 		e.consume(NULL);
 	}
 
