@@ -127,7 +127,15 @@ void NumberTextBox::onSelectKey(const event::SelectKey &e) {
 		if(pasteLength > 0) {
 			std::string newText(glfwGetClipboardString(APP->window->win));
 			if(newText.size() > pasteLength) newText.erase(pasteLength);
-			insertText(newText);
+
+			// from https://stackoverflow.com/a/4654718/5208725
+			std::string::const_iterator it = newText.begin();
+			while (it != newText.end() && std::isdigit(*it)) ++it;
+			bool is_number = it == newText.end();
+
+			if(is_number) {
+				insertText(newText);
+			}
 		}
 		// e is consumed below
 
