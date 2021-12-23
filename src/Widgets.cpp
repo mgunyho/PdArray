@@ -39,6 +39,7 @@ void NumberTextBox::draw(const DrawArgs &args) {
 	TextBox::setText(originalText);
 
 	if(isFocused) {
+		// This color is used for highlighting the selection and for the caret
 		NVGcolor highlightColor = nvgRGB(0x0, 0x90, 0xd8);
 		highlightColor.a = 0.5;
 
@@ -57,6 +58,7 @@ void NumberTextBox::draw(const DrawArgs &args) {
 		nvgBeginPath(vg);
 		nvgFillColor(vg, highlightColor);
 
+		// draw highlight / caret. note that this assumes that the text is center-aligned.
 		nvgRect(vg,
 				textOffset.x + (begin - 0.5f * TextField::text.size()) * char_width - 1,
 				ymargin,
