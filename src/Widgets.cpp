@@ -69,6 +69,14 @@ void NumberTextBox::draw(const DrawArgs &args) {
 
 void NumberTextBox::onAction(const event::Action &e) {
 	// this gets fired when the user types 'enter'
+	if(TextField::text.size() > 0) {
+		int n = stoi(TextField::text); // text should always contain only digits
+		if(n > 0) {
+			//TextBox::text = string::f("%u", n);
+			onNumberSet(n);
+		}
+	}
+
 	event::Deselect eDeselect;
 	onDeselect(eDeselect);
 	APP->event->selectedWidget = NULL;
