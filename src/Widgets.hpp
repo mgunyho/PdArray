@@ -34,8 +34,16 @@ struct TextBox : TransparentWidget {
 };
 
 /*
- * Editable TextBox that only allows inputting positive numbers. Based on
- * EditableTextbox and HoverableTextbox in LittleUtils.
+ * Editable TextBox that only allows inputting positive numbers.
+ *
+ * Based on EditableTextbox and HoverableTextbox in LittleUtils. TextField is
+ * inherited so that the default behavior of onSelectKey and some click events
+ * can be handled by it. Otherwise everything should come from TextBox. For
+ * example the box size is * determined by TextBox::box.size, so manipulate
+ * that if necessary. TextField::text holds the string being edited and
+ * TextBox::text holds the string being displayed, which should always be a
+ * valid number.
+ *
  * TODO: copy-paste docstring from LittleUtils EditableTextbox here and check that it's valid
  */
 struct NumberTextBox : TextBox, TextField {
