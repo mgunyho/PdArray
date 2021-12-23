@@ -1,4 +1,5 @@
 #include "Widgets.hpp"
+#include <algorithm> // std::replace
 
 void TextBox::draw(const DrawArgs &args) {
 	// based on LedDisplayChoice::draw() in Rack/src/app/LedDisplay.cpp
@@ -35,7 +36,11 @@ void NumberTextBox::draw(const DrawArgs &args) {
 		// if we're editing, display TextField::text
 		TextBox::setText(TextField::text);
 	}
+	std::string s = TextBox::text;
+	std::replace(s.begin(), s.end(), '0', 'O');
+	TextBox::setText(s);
 	TextBox::draw(args);
+
 	TextBox::setText(originalText);
 
 	if(isFocused) {

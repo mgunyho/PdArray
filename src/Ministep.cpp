@@ -3,6 +3,8 @@
 #include "Widgets.hpp"
 #include "Util.hpp"
 
+#include <algorithm> // std::replace
+
 constexpr int DEFAULT_NSTEPS = 10;
 
 struct Ministep : Module {
@@ -226,7 +228,9 @@ struct PolyIntDisplayWidget : TextBox {
 		if(module) {
 			int v = getSingleValue();
 			if(v != previousDisplayValue) {
-				setText(string::f("%i", v));
+				std::string s = string::f("%i", v);
+				std::replace(s.begin(), s.end(), '0', 'O');
+				setText(s);
 			}
 			previousDisplayValue = v;
 		}
