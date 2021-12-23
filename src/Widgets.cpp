@@ -75,5 +75,45 @@ void NumberTextBox::onAction(const event::Action &e) {
 	e.consume(NULL);
 }
 
-//TODO: onSelectText
-//TODO: onSelectKey
+void NumberTextBox::onSelectText(const event::SelectText &e) {
+	if(TextField::text.size() < maxTextLength || cursor != selection) {
+		TextField::onSelectText(e);
+	} else {
+		e.consume(NULL);
+	}
+}
+
+void NumberTextBox::onSelectKey(const event::SelectKey &e) {
+	// handle actual typing
+
+	bool act = e.action == GLFW_PRESS || e.action == GLFW_REPEAT;
+	if(act && e.key == GLFW_KEY_V && (e.mods & RACK_MOD_MASK) == RACK_MOD_CTRL) {
+		// prevent pasting too long text
+		int pasteLength = maxTextLength - TextField::text.size() + abs(selection - cursor);
+		if(pasteLength > 0) {
+			std::string newText(glfwGetClipboardString(APP->window->win));
+			if(newText.size() > pasteLength) newText.erase(pasteLength);
+			insertText(newText);
+		}
+		// e is consumed below
+
+	} else if(act && (e.mods & RACK_MOD_MASK) == GLFW_MOD_SHIFT && e.key == GLFW_KEY_HOME) {
+		// don't move selection
+		cursor = 0;
+	} else if(act && (e.mods & RACK_MOD_MASK) == GLFW_MOD_SHIFT && e.key == GLFW_KEY_END) {
+		cursor = TextField::text.size();
+	} else if(act && e.key == GLFW_KEY_ESCAPE) {
+		// deselect on escape
+		event::Deselect eDeselect;
+		onDeselect(eDeselect);
+		APP->event->selectedWidget = NULL;
+		// e is consumed below
+
+	} else {
+		//TODO: allow only numbers
+		TextField::onSelectKey(e);
+	}
+
+	if(!e.isConsumed())
+		e.consume(static_cast<TextField*>(this));
+}

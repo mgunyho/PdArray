@@ -90,6 +90,9 @@ struct NumberTextBox : TextBox, TextField {
 
 	void onAction(const event::Action &e) override;
 
+	void onSelectText(const event::SelectText &e) override;
+	void onSelectKey(const event::SelectKey &e) override;
+
 	void step() override {
 		TextField::step();
 	}
