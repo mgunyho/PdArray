@@ -152,7 +152,6 @@ void NumberTextBox::onSelectKey(const event::SelectKey &e) {
 		// e is consumed below
 
 	} else {
-		//TODO: allow only numbers
 		TextField::onSelectKey(e);
 	}
 
