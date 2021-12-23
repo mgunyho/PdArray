@@ -286,16 +286,6 @@ struct NStepsSelector : NumberTextBox {
 		}
 	}
 
-	void step() override {
-		TextBox::step();
-		// is this CPU intensive to do on every step?
-		if(module) {
-			if(isFocused) {
-				TextField::text = string::f("%u", module->nSteps);
-				TextBox::text = TextField::text;
-			}
-		}
-	}
 };
 
 template <typename T>
