@@ -55,6 +55,71 @@ struct TextBox : TransparentWidget {
 
 };
 
+/*
+ * Editable TextBox that only allows inputting numbers. Based on
+ * EditableTextbox and HoverableTextbox in LittleUtils.
+ * TODO: copy-paste docstring from LittleUtils EditableTextbox here and check that it's valid
+ */
+struct NumberTextBox : TextBox, TextField {
+
+	// attributes from HoverableTextBox
+	BNDwidgetState state = BND_DEFAULT;
+	NVGcolor defaultColor;
+	NVGcolor hoverColor;
+
+	// attributes from EditableTextBox
+	bool isFocused = false;
+	const static unsigned int defaultMaxTextLength = 6;
+	unsigned int maxTextLength;
+
+	NumberTextBox(): TextBox(), TextField() {
+		defaultColor = backgroundColor;
+		hoverColor = nvgRGB(0x88, 0x88, 0x88);
+		maxTextLength = defaultMaxTextLength;
+	}
+
+	void onHover(const event::Hover &e) override {
+		TextField::onHover(e);
+		e.consume(static_cast<TextBox *>(this)); // to catch onEnter and onLeave
+	}
+
+	void onHoverScroll(const event::HoverScroll &e) override {
+		TextField::onHoverScroll(e);
+	}
+
+	void onEnter(const event::Enter &e) override {
+		state = BND_HOVER;
+	}
+
+	void onLeave(const event::Leave &e) override {
+		state = BND_DEFAULT;
+	}
+
+	void onSelect(const event::Select &e) override {
+		isFocused = true;
+		e.consume(static_cast<TextField*>(this)); //TODO
+	}
+
+	void onDeselect(const event::Deselect &e) override {
+		isFocused = false;
+		TextBox::setText(TextField::text);
+		e.consume(NULL);
+	}
+
+	void step() override {
+		TextField::step();
+	}
+
+	void draw(const DrawArgs &args) override {
+		backgroundColor = state == BND_HOVER ? hoverColor : defaultColor;
+		TextBox::draw(args);
+	}
+
+	// custom event, called from within onAction
+	virtual void onNumberSet(const int n) {};
+
+};
+
 // TextField that only allows inputting numbers
 struct NumberTextField : TextField {
 	int maxCharacters = 6;
