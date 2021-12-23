@@ -181,9 +181,6 @@ struct PolyIntDisplayWidget : TextBox {
 		textAlign = NVG_ALIGN_RIGHT | NVG_ALIGN_TOP;
 		textOffset = Vec(box.size.x - 3, 3.5);
 
-		//backgroundColor = nvgRGB(0xef, 0xe8, 0xd5); // solarized base2
-		backgroundColor = nvgRGB(0x78, 0x78, 0x78);
-
 		if(module) {
 			previousDisplayValue = polyValueToDisplay[0];
 		}

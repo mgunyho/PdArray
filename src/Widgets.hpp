@@ -18,7 +18,7 @@ struct TextBox : TransparentWidget {
 	TextBox() {
 		defaultTextColor = nvgRGB(0x23, 0x23, 0x23);
 		textColor = defaultTextColor;
-		backgroundColor = nvgRGB(0xc8, 0xc8, 0xc8);
+		backgroundColor = nvgRGB(0x78, 0x78, 0x78);
 		box.size = Vec(30, 18);
 		// size 20 with spacing -2 will fit 3 characters on a 30px box with Roboto mono
 		font_size = 20;
