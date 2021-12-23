@@ -271,14 +271,14 @@ struct CurrentStepDisplayWidget : PolyIntDisplayWidget {
 
 
 //TODO: replace with something like EditableTextBox in LittleUtils?
-struct NStepsSelector : NumberTextField {
+struct NStepsSelector : NumberTextBox {
 	Ministep *module;
 
-	NStepsSelector(Ministep *m) : NumberTextField() {
+	NStepsSelector(Ministep *m) : NumberTextBox() {
 		module = m;
-		validText = string::f("%u", module ? module->nSteps : DEFAULT_NSTEPS);
-		text = validText;
-		maxCharacters = 3;
+		TextBox::text = string::f("%u", module ? module->nSteps : DEFAULT_NSTEPS);
+		TextField::text = TextBox::text;
+		maxTextLength = 3;
 	};
 
 	void onNumberSet(const int n) override {
@@ -288,12 +288,12 @@ struct NStepsSelector : NumberTextField {
 	}
 
 	void step() override {
-		NumberTextField::step();
+		TextBox::step();
 		// is this CPU intensive to do on every step?
 		if(module) {
-			if(APP->event->selectedWidget != this) {
-				validText = string::f("%u", module->nSteps);
-				text = validText;
+			if(isFocused) {
+				TextField::text = string::f("%u", module->nSteps);
+				TextBox::text = TextField::text;
 			}
 		}
 	}
@@ -400,9 +400,9 @@ struct MinistepWidget : ModuleWidget {
 
 		nStepsSelector = new NStepsSelector(module);
 		// some extra spacing to prevent text from overflowing to next line on some zoom levels
-		nStepsSelector->box.pos = Vec(7.0, 317);
-		nStepsSelector->box.size.x = 32;
-		addChild(nStepsSelector);
+		nStepsSelector->TextBox::box.pos = Vec(7.0, 317);
+		nStepsSelector->TextBox::box.size.x = 32;
+		addChild(static_cast<TextBox*>(nStepsSelector));
 
 	}
 
