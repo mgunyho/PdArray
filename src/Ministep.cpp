@@ -177,8 +177,9 @@ struct PolyIntDisplayWidget : TextBox {
 		module = m;
 		polyValueToDisplay = valueToDisplay;
 		box.size = Vec(30, 21);
-		textAlign = NVG_ALIGN_RIGHT | NVG_ALIGN_TOP;
-		textOffset = Vec(box.size.x - 3, 3.5);
+		textAlign = NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE;
+		textOffset = Vec(box.size.x / 2 + 0.5f, box.size.y / 2);
+		letter_spacing = -1.5f; // tighten text to fit in three characters at this width
 
 		if(module) {
 			previousDisplayValue = polyValueToDisplay[0];
@@ -278,6 +279,9 @@ struct NStepsSelector : NumberTextBox {
 		TextBox::text = string::f("%u", module ? module->nSteps : DEFAULT_NSTEPS);
 		TextField::text = TextBox::text;
 		maxTextLength = 3;
+		TextBox::box.size = Vec(30, 21);
+		textOffset = Vec(TextBox::box.size.x / 2 + 0.5f, TextBox::box.size.y / 2);
+		letter_spacing = -1.5f; // tighten text to fit in three characters at this width
 	};
 
 	void onNumberSet(const int n) override {

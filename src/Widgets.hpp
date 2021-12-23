@@ -54,6 +54,12 @@ struct NumberTextBox : TextBox, TextField {
 		defaultColor = backgroundColor;
 		hoverColor = nvgRGB(0x88, 0x88, 0x88);
 		maxTextLength = defaultMaxTextLength;
+
+		// Default alignment and offset. Caret breaks with left-align, so let's
+		// go with center for now. textOffset should be overridden by
+		// subclasses if they change the box size.
+		textAlign = NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE;
+		textOffset = Vec(TextBox::box.size.x / 2, TextBox::box.size.y / 2);
 	}
 
 	void onHover(const event::Hover &e) override {
