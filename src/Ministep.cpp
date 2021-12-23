@@ -196,6 +196,11 @@ struct PolyIntDisplayWidget : TextBox {
 	void draw(const DrawArgs &args) override {
 		//TODO: custom font? used to be APP->window->uiFont (default blendish font, same as TextField)
 		if(!module || module->nChannels == 1) {
+			if(previousDisplayValue < -99) {
+				font_size = 16;
+			} else {
+				font_size = 20;
+			}
 			TextBox::draw(args);
 		} else {
 			setText("");
