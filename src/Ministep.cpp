@@ -194,7 +194,6 @@ struct PolyIntDisplayWidget : TextBox {
 	virtual void getBarVPos(int i, float *h, float *y) { *h = 0; *y = box.size.y; }
 
 	void draw(const DrawArgs &args) override {
-		//TODO: custom font? used to be APP->window->uiFont (default blendish font, same as TextField)
 		if(!module || module->nChannels == 1) {
 			if(previousDisplayValue < -99) {
 				font_size = 16;
