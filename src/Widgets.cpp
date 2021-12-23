@@ -111,10 +111,10 @@ void NumberTextBox::onSelectKey(const event::SelectKey &e) {
 	} else if(act && (e.mods & RACK_MOD_MASK) == GLFW_MOD_SHIFT && e.key == GLFW_KEY_END) {
 		cursor = TextField::text.size();
 	} else if(act && e.key == GLFW_KEY_ESCAPE) {
-		// deselect on escape
-		event::Deselect eDeselect;
-		onDeselect(eDeselect);
-		APP->event->selectedWidget = NULL;
+		// escape is the same as pressing enter. onAction calls onDeselect().
+		event::Action eAction;
+		onAction(eAction);
+
 		// e is consumed below
 
 	} else {
