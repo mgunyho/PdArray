@@ -26,6 +26,43 @@ void TextBox::draw(const DrawArgs &args) {
 
 
 void NumberTextBox::draw(const DrawArgs &args) {
+	auto vg = args.vg;
 	backgroundColor = state == BND_HOVER ? hoverColor : defaultColor;
+
+	std::string originalText = TextBox::text;
+
+	if(isFocused) {
+		// if we're editing, display TextField::text
+		TextBox::setText(TextField::text);
+	}
 	TextBox::draw(args);
+	TextBox::setText(originalText);
+
+	if(isFocused) {
+		NVGcolor highlightColor = nvgRGB(0x0, 0x90, 0xd8);
+		highlightColor.a = 0.5;
+
+		int begin = std::min(cursor, selection);
+		int end = std::max(cursor, selection);
+		int len = end - begin;
+
+		// font face, size, alignment etc should be the same as for TextBox after the above draw call
+
+		// hacky way of measuring character width
+		NVGglyphPosition glyphs[4];
+		nvgTextGlyphPositions(vg, 0.f, 0.f, "0", NULL, glyphs, 4);
+		float char_width = -2*glyphs[0].x;
+
+		float ymargin = 2.f;
+		nvgBeginPath(vg);
+		nvgFillColor(vg, highlightColor);
+
+		nvgRect(vg,
+				textOffset.x + (begin - 0.5f * TextField::text.size()) * char_width - 1,
+				ymargin,
+				(len > 0 ? char_width * len : 1) + 1,
+				TextBox::box.size.y - 2.f * ymargin);
+		nvgFill(vg);
+
+	}
 }

@@ -73,6 +73,10 @@ struct NumberTextBox : TextBox, TextField {
 		state = BND_DEFAULT;
 	}
 
+	void onButton(const event::Button &e) override {
+		TextField::onButton(e); // this handles consuming the event
+	}
+
 	void onSelect(const event::Select &e) override {
 		isFocused = true;
 		e.consume(static_cast<TextField*>(this)); //TODO
