@@ -194,33 +194,6 @@ struct NumberTextField : TextField {
 		e.consume(this);
 	}
 
-	/*
-	void draw(const DrawArgs& args) override {
-		const auto vg = args.vg;
-		std::shared_ptr<Font> font = APP->window->loadFont(asset::plugin(pluginInstance, "res/fonts/RobotoMono-Bold.ttf"));
-		if(font && font->handle >= 0) {
-			nvgSave(vg);
-
-			nvgFontSize(vg, 20); // This seems to have no effect
-			//nvgTextLetterSpacing(vg, 0.f);
-			nvgFillColor(vg, nvgRGB(0x23, 0x23, 0x23));
-			nvgFontFaceId(vg, font->handle); // this seems to have no effect
-			//bndSetFont(font->handle); // this works, but also affects the font of the UI / menu...
-
-			nvgTextAlign(vg, NVG_ALIGN_LEFT);
-			nvgText(vg, 0, box.size.y, text.c_str(), NULL);
-
-
-			nvgRestore(vg);
-		}
-
-		//TextField::draw(args);
-
-		//// Have to change font back to not mess up UI (this is how it's done by LedDisplayTextField).
-		//// A bit hacky to not have it in the if condition, but we want to always call TextField::draw();
-		//bndSetFont(APP->window->uiFont->handle);
-	} */
-
 };
 
 // For slight DRY
