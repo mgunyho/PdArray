@@ -75,6 +75,10 @@ struct NumberTextBox : TextBox, TextField {
 		e.consume(static_cast<TextBox *>(this)); // to catch onEnter and onLeave
 	}
 
+	void onDragHover(const event::DragHover &e) override {
+		TextField::onDragHover(e);
+	}
+
 	void onHoverScroll(const event::HoverScroll &e) override {
 		TextField::onHoverScroll(e);
 	}
