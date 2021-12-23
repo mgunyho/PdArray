@@ -1,4 +1,4 @@
-#include "rack.hpp"
+#include "plugin.hpp"
 
 // TODO: same as in LittleUtils, move to common folder?
 struct TextBox : TransparentWidget {
