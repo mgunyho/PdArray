@@ -397,9 +397,7 @@ struct MinistepWidget : ModuleWidget {
 		addChild(currentStepDisplay);
 
 		nStepsSelector = new NStepsSelector(module);
-		// some extra spacing to prevent text from overflowing to next line on some zoom levels
-		nStepsSelector->TextBox::box.pos = Vec(7.0, 317);
-		nStepsSelector->TextBox::box.size.x = 32;
+		nStepsSelector->TextBox::box.pos = Vec(7.5, 317);
 		addChild(static_cast<TextBox*>(nStepsSelector));
 
 	}
