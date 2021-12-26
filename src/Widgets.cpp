@@ -101,7 +101,7 @@ void NumberTextBox::onAction(const event::Action &e) {
 
 	event::Deselect eDeselect;
 	onDeselect(eDeselect);
-	APP->event->selectedWidget = NULL;
+	APP->event->setSelectedWidget(NULL);
 	e.consume(NULL);
 }
 
