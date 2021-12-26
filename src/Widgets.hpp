@@ -68,6 +68,13 @@ struct NumberTextBox : TextBox, TextField {
 		textOffset = Vec(TextBox::box.size.x / 2, TextBox::box.size.y / 2);
 	}
 
+	bool isNumber(const std::string& s) {
+		// shamelessly copypasted from https://stackoverflow.com/questions/4654636/how-to-determine-if-a-string-is-a-number-with-c
+		std::string::const_iterator it = s.begin();
+		while (it != s.end() && std::isdigit(*it)) ++it;
+		return !s.empty() && it == s.end();
+	}
+
 	void onHover(const event::Hover &e) override {
 		TextField::onHover(e);
 		e.consume(static_cast<TextBox *>(this)); // to catch onEnter and onLeave
