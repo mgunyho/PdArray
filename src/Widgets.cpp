@@ -16,8 +16,8 @@ void TextBox::draw(const DrawArgs &args) {
 		nvgFillColor(vg, textColor);
 		nvgFontFaceId(vg, font->handle);
 
-		nvgFontSize(vg, font_size);
-		nvgTextLetterSpacing(vg, letter_spacing);
+		nvgFontSize(vg, fontSize);
+		nvgTextLetterSpacing(vg, letterSpacing);
 		nvgTextAlign(vg, textAlign);
 		nvgText(vg, textOffset.x, textOffset.y, text.c_str(), NULL);
 	}

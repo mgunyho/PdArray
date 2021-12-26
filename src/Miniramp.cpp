@@ -187,7 +187,7 @@ struct MsDisplayWidget : TextBox {
 	MsDisplayWidget(Miniramp *m) : TextBox() {
 		module = m;
 		box.size = Vec(30, 27);
-		letter_spacing = -2.0f;
+		letterSpacing = -2.0f;
 	}
 
 	void updateDisplayValue(float v) {

@@ -6,8 +6,8 @@ struct TextBox : TransparentWidget {
 	// numbers look okay.
 	// based on LedDisplayChoice
 	std::string text;
-	float font_size;
-	float letter_spacing;
+	float fontSize;
+	float letterSpacing;
 	Vec textOffset;
 	NVGcolor defaultTextColor;
 	NVGcolor textColor; // This can be used to temporarily override text color
@@ -21,8 +21,8 @@ struct TextBox : TransparentWidget {
 		backgroundColor = nvgRGB(0x78, 0x78, 0x78);
 		box.size = Vec(30, 18);
 		// size 20 with spacing -2 will fit 3 characters on a 30px box with Roboto mono
-		font_size = 20;
-		letter_spacing = 0.f;
+		fontSize = 20;
+		letterSpacing = 0.f;
 		textOffset = Vec(box.size.x * 0.5f, 0.f);
 		textAlign = NVG_ALIGN_CENTER | NVG_ALIGN_TOP;
 	}

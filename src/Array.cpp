@@ -491,7 +491,7 @@ struct ArraySizeSelector : NumberTextBox {
 		TextField::text = TextBox::text;
 		TextBox::box.size.x = 54;
 		textOffset = Vec(TextBox::box.size.x / 2, TextBox::box.size.y / 2);
-		letter_spacing = -1.5f; // tighten text to fit in six characters at this width
+		letterSpacing = -1.5f; // tighten text to fit in six characters at this width
 	};
 
 	void onNumberSet(const int n) override {
