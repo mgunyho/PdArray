@@ -482,29 +482,22 @@ struct ArrayDisplay : OpaqueWidget {
 };
 
 
-struct ArraySizeSelector : NumberTextField {
+struct ArraySizeSelector : NumberTextBox {
 	Array *module;
 
-	ArraySizeSelector(Array *m) : NumberTextField() {
+	ArraySizeSelector(Array *m) : NumberTextBox() {
 		module = m;
-		validText = string::f("%u", module ? module->buffer.size() : 1);
-		text = validText;
+		TextBox::text = string::f("%u", module ? module->buffer.size() : 1);
+		TextField::text = TextBox::text;
+		//TextBox::box.size.x = 51; // additional pixel, otherwise last digit gets put on next line on some zoom levels
+		TextBox::box.size.x = 54;
+		textOffset = Vec(TextBox::box.size.x / 2, TextBox::box.size.y / 2);
+		letter_spacing = -1.5f; // tighten text to fit in six characters at this width
 	};
 
 	void onNumberSet(const int n) override {
 		if(module) {
 			module->resizeBuffer(n);
-		}
-	}
-
-	void step() override {
-		NumberTextField::step();
-		// eh, kinda hacky - is there any way to do this just once after the module has been initialized? after dataFromJson?
-		if(module) {
-			if(APP->event->selectedWidget != this) {
-				validText = string::f("%u", module->buffer.size());
-				text = validText;
-			}
 		}
 	}
 
@@ -683,9 +676,8 @@ struct ArrayModuleWidget : ModuleWidget {
 		addChild(display);
 
 		sizeSelector = new ArraySizeSelector(module);
-		sizeSelector->box.pos = Vec(174, 295);
-		sizeSelector->box.size.x = 51; // additional pixel, otherwise last digit gets put on next line on some zoom levels
-		addChild(sizeSelector);
+		sizeSelector->TextBox::box.pos = Vec(174, 295);
+		addChild(static_cast<TextBox*>(sizeSelector));
 	}
 
 	void appendContextMenu(ui::Menu *menu) override {
