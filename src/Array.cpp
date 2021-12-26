@@ -1,5 +1,5 @@
 #include "plugin.hpp"
-#include "osdialog.h" //TODO: not part of the public Rack v2 API, consider vendoring or something
+#include <osdialog.h> //NOTE: not officially part of the public Rack v2 API, but other plugins (including Fundamental) do it this way
 #include <algorithm> // std::min, std::swap
 #define DR_WAV_IMPLEMENTATION
 #include "dr_wav.h" // for reading wav files
