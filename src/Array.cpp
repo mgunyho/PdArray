@@ -660,7 +660,7 @@ struct ArrayModuleWidget : ModuleWidget {
 		addParam(createParam<CKSSThree>(Vec(107.5f, 290), module, Array::OUTPUT_RANGE_PARAM));
 		addParam(createParam<CKSSThree>(Vec(27.5f, 290), module, Array::PHASE_RANGE_PARAM));
 
-		addParam(createLightParamCentered<VCVLightButton<MediumSimpleLight<RedLight>>>(Vec(207.5f, 355), module, Array::REC_ENABLE_PARAM, Array::REC_LIGHT));
+		addParam(createLightParamCentered<VCVLightButton<MediumSimpleLight<RedLight>>>(Vec(207.5f, 347.5f), module, Array::REC_ENABLE_PARAM, Array::REC_LIGHT));
 
 		display = new ArrayDisplay(module);
 		display->box.pos = Vec(5, 20);

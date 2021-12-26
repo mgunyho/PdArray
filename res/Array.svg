@@ -15,7 +15,7 @@
    viewBox="0 0 63.500016 100.54167"
    version="1.1"
    id="svg8"
-   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)"
    sodipodi:docname="Array.svg"
    enable-background="new">
   <defs
@@ -383,9 +383,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.4142135"
-     inkscape:cx="119.3191"
-     inkscape:cy="266.95772"
+     inkscape:zoom="31.999999"
+     inkscape:cx="208.74258"
+     inkscape:cy="35.028797"
      inkscape:document-units="px"
      inkscape:current-layer="layer2"
      showgrid="true"
@@ -503,6 +503,16 @@
        orientation="0,1"
        id="guide4690"
        inkscape:locked="false" />
+    <sodipodi:guide
+       position="42.994799,8.7312512"
+       orientation="0,1"
+       id="guide1104"
+       inkscape:locked="false" />
+    <sodipodi:guide
+       position="42.862512,8.4666669"
+       orientation="0,1"
+       id="guide1106"
+       inkscape:locked="false" />
   </sodipodi:namedview>
   <metadata
      id="metadata5">
@@ -520,7 +530,8 @@
      inkscape:groupmode="layer"
      id="layer7"
      inkscape:label="background"
-     style="display:inline">
+     style="display:inline"
+     sodipodi:insensitive="true">
     <path
        style="display:inline;opacity:1;fill:#fdf6e3;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0.48607072;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
        d="M 0,-1e-5 H 63.500014 V 100.54167 H 0 Z"
@@ -908,7 +919,7 @@
          inkscape:connector-curvature="0" />
     </g>
     <g
-       transform="translate(5.2916648,9.2604202)"
+       transform="translate(5.2916648,6.4336385)"
        style="font-style:normal;font-variant:normal;font-weight:900;font-stretch:normal;line-height:0%;font-family:Overpass;-inkscape-font-specification:'Overpass, Heavy';text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;display:inline;opacity:1;fill:#232323;fill-opacity:1;stroke:none;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        id="text5007">
       <path
@@ -1095,13 +1106,19 @@
          id="path1128"
          inkscape:connector-curvature="0" />
     </g>
+    <rect
+       style="display:inline;opacity:1;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.52916676;stroke-linecap:square;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;paint-order:markers fill stroke"
+       id="rect1108"
+       width="8.5989599"
+       height="0.26458427"
+       x="48.286465"
+       y="91.81044" />
   </g>
   <g
      inkscape:groupmode="layer"
      id="layer4"
      inkscape:label="guides+text"
-     style="display:none;opacity:1"
-     sodipodi:insensitive="true">
+     style="display:none;opacity:1">
     <ellipse
        ry="1.9843755"
        rx="1.9843752"
@@ -1359,7 +1376,7 @@
          xml:space="preserve"><tspan
            style="font-size:3.31390691px;line-height:100%;text-align:center;text-anchor:middle"
            y="74.925743"
-           x="19.034758"
+           x="19.035067"
            id="tspan4336"
            sodipodi:role="line">REC </tspan><tspan
            id="tspan4368"
@@ -1371,7 +1388,7 @@
     <g
        style="display:inline"
        id="g4440"
-       transform="translate(3.3072897,9.260406)">
+       transform="translate(3.3072897,9.5297482)">
       <circle
          r="3.3072908"
          cy="82.682304"
@@ -1383,18 +1400,18 @@
          style="display:inline;opacity:1;fill:#ff0000;fill-opacity:0.5313531;stroke:none;stroke-width:0.52916682;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
          id="circle4316"
          cx="51.593761"
-         cy="84.666695"
-         r="1.1906238" />
+         cy="82.550018"
+         r="2.3812542" />
       <text
          xml:space="preserve"
          style="font-style:normal;font-variant:normal;font-weight:900;font-stretch:normal;line-height:0%;font-family:Overpass;-inkscape-font-specification:'Overpass, Heavy';text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#232323;fill-opacity:1;stroke:none;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
          x="51.522125"
-         y="82.201805"
+         y="79.07254"
          id="text4354"><tspan
            sodipodi:role="line"
            id="tspan4356"
            x="51.522125"
-           y="82.201805"
+           y="79.07254"
            style="font-size:3.31390691px;line-height:1.25">REC</tspan></text>
     </g>
     <g
