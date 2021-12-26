@@ -3,6 +3,8 @@
 #include "Widgets.hpp"
 #include "Util.hpp"
 
+#include <algorithm> // std::replace
+
 constexpr int DEFAULT_NSTEPS = 10;
 
 struct Ministep : Module {
@@ -177,12 +179,9 @@ struct PolyIntDisplayWidget : TextBox {
 		module = m;
 		polyValueToDisplay = valueToDisplay;
 		box.size = Vec(30, 21);
-		font_size = 14;
-		textAlign = NVG_ALIGN_RIGHT | NVG_ALIGN_TOP;
-		textOffset = Vec(box.size.x - 3, 3.5);
-
-		//backgroundColor = nvgRGB(0xef, 0xe8, 0xd5); // solarized base2
-		backgroundColor = nvgRGB(0x78, 0x78, 0x78);
+		textAlign = NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE;
+		textOffset = Vec(box.size.x / 2 + 0.5f, box.size.y / 2);
+		letterSpacing = -1.5f; // tighten text to fit in three characters at this width
 
 		if(module) {
 			previousDisplayValue = polyValueToDisplay[0];
@@ -197,8 +196,12 @@ struct PolyIntDisplayWidget : TextBox {
 	virtual void getBarVPos(int i, float *h, float *y) { *h = 0; *y = box.size.y; }
 
 	void draw(const DrawArgs &args) override {
-		//TODO: custom font? used to be APP->window->uiFont (default blendish font, same as TextField)
 		if(!module || module->nChannels == 1) {
+			if(previousDisplayValue < -99) {
+				fontSize = 16;
+			} else {
+				fontSize = 20;
+			}
 			TextBox::draw(args);
 		} else {
 			setText("");
@@ -225,7 +228,9 @@ struct PolyIntDisplayWidget : TextBox {
 		if(module) {
 			int v = getSingleValue();
 			if(v != previousDisplayValue) {
-				setText(string::f("%i", v));
+				std::string s = string::f("%i", v);
+				std::replace(s.begin(), s.end(), '0', 'O');
+				setText(s);
 			}
 			previousDisplayValue = v;
 		}
@@ -274,14 +279,17 @@ struct CurrentStepDisplayWidget : PolyIntDisplayWidget {
 
 
 //TODO: replace with something like EditableTextBox in LittleUtils?
-struct NStepsSelector : NumberTextField {
+struct NStepsSelector : NumberTextBox {
 	Ministep *module;
 
-	NStepsSelector(Ministep *m) : NumberTextField() {
+	NStepsSelector(Ministep *m) : NumberTextBox() {
 		module = m;
-		validText = string::f("%u", module ? module->nSteps : DEFAULT_NSTEPS);
-		text = validText;
-		maxCharacters = 3;
+		TextBox::text = string::f("%u", module ? module->nSteps : DEFAULT_NSTEPS);
+		TextField::text = TextBox::text;
+		maxTextLength = 3;
+		TextBox::box.size = Vec(30, 21);
+		textOffset = Vec(TextBox::box.size.x / 2 + 0.5f, TextBox::box.size.y / 2);
+		letterSpacing = -1.5f; // tighten text to fit in three characters at this width
 	};
 
 	void onNumberSet(const int n) override {
@@ -290,16 +298,6 @@ struct NStepsSelector : NumberTextField {
 		}
 	}
 
-	void step() override {
-		NumberTextField::step();
-		// is this CPU intensive to do on every step?
-		if(module) {
-			if(APP->event->selectedWidget != this) {
-				validText = string::f("%u", module->nSteps);
-				text = validText;
-			}
-		}
-	}
 };
 
 template <typename T>
@@ -402,10 +400,8 @@ struct MinistepWidget : ModuleWidget {
 		addChild(currentStepDisplay);
 
 		nStepsSelector = new NStepsSelector(module);
-		// some extra spacing to prevent text from overflowing to next line on some zoom levels
-		nStepsSelector->box.pos = Vec(7.0, 317);
-		nStepsSelector->box.size.x = 32;
-		addChild(nStepsSelector);
+		nStepsSelector->TextBox::box.pos = Vec(7.5, 317);
+		addChild(static_cast<TextBox*>(nStepsSelector));
 
 	}
 

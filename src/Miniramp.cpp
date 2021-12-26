@@ -187,10 +187,7 @@ struct MsDisplayWidget : TextBox {
 	MsDisplayWidget(Miniramp *m) : TextBox() {
 		module = m;
 		box.size = Vec(30, 27);
-		letter_spacing = -2.0f;
-		//backgroundColor = nvgRGB(0xee, 0xe8, 0xd5); // solarized base2
-		//backgroundColor = nvgRGB(0x93, 0xa1, 0xa1); // solarized base1
-		backgroundColor = nvgRGB(0x78, 0x78, 0x78); // blendish default
+		letterSpacing = -2.0f;
 	}
 
 	void updateDisplayValue(float v) {
