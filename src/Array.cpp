@@ -240,7 +240,6 @@ void Array::loadSample(std::string path, bool resizeBuf) {
 }
 
 void Array::process(const ProcessArgs &args) {
-	float deltaTime = args.sampleTime;
 	sampleRate = args.sampleRate;
 
 	float phaseMin, phaseMax;
@@ -286,7 +285,7 @@ void Array::process(const ProcessArgs &args) {
 	if(isRecording) {
 		buffer[ri] = clamp(rescale(inputs[REC_SIGNAL_INPUT].getVoltage(), inOutMin, inOutMax, 0.f, 1.f), 0.f, 1.f);
 	}
-	lights[REC_LIGHT].setSmoothBrightness(isRecording, deltaTime);
+	lights[REC_LIGHT].setBrightness(isRecording);
 
 	nChannels = inputs[PHASE_INPUT].getChannels();
 	outputs[STEP_OUTPUT].setChannels(nChannels);
