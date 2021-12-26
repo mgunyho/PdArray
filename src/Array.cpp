@@ -489,7 +489,6 @@ struct ArraySizeSelector : NumberTextBox {
 		module = m;
 		TextBox::text = string::f("%u", module ? module->buffer.size() : 1);
 		TextField::text = TextBox::text;
-		//TextBox::box.size.x = 51; // additional pixel, otherwise last digit gets put on next line on some zoom levels
 		TextBox::box.size.x = 54;
 		textOffset = Vec(TextBox::box.size.x / 2, TextBox::box.size.y / 2);
 		letter_spacing = -1.5f; // tighten text to fit in six characters at this width
