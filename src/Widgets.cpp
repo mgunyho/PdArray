@@ -125,7 +125,9 @@ void NumberTextBox::onSelectKey(const event::SelectKey &e) {
 
 	bool act = e.action == GLFW_PRESS || e.action == GLFW_REPEAT;
 	if(act && e.key == GLFW_KEY_V && (e.mods & RACK_MOD_MASK) == RACK_MOD_CTRL) {
-		// prevent pasting too long text
+		// TextField::pasteClipboard() can't be overridden, so we must handle
+		// ctrl+V manually to do validation. Prevent pasting too long text and
+		// text containing non-numeric characters.
 		int pasteLength = maxTextLength - TextField::text.size() + abs(selection - cursor);
 		if(pasteLength > 0) {
 			std::string newText(glfwGetClipboardString(APP->window->win));
