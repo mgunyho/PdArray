@@ -78,13 +78,16 @@ void NumberTextBox::onAction(const event::Action &e) {
 	// this gets fired when the user confirms the text input
 
 	bool success = false;
-	if(TextField::text.size() > 0) {
+	std::string inp = TextField::text;
+	inp.erase(0, inp.find_first_not_of("0")); // trim leading zeros
+	if(inp.size() > 0) {
 		// here we assume that the text contains only digits
-		int n = stoi(TextField::text);
+		int n = stoi(inp);
 		if(n > 0) {
 			// the number was valid, call onNumberSet and update display text
 			onNumberSet(n);
-			TextBox::setText(TextField::text);
+			TextBox::setText(inp);
+			TextField::setText(inp); // update trimmed leading zeros to TextField also
 			success = true;
 		}
 	}
