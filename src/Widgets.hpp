@@ -97,7 +97,30 @@ struct NumberTextBox : TextBox, TextField {
 	}
 
 	void onButton(const event::Button &e) override {
-		TextField::onButton(e); // this handles consuming the event
+		ButtonEvent ee(e);
+
+		// Hacky way to make right-click behave the same as left click. We have
+		// to do this, because TextField::pasteClipboard() is not virtual, so
+		// we can't override it, so this is the only way to prevent pasting
+		// text into the number field.
+		// Note that in the case of a normal left click, setSelectedWidget(),
+		// which calls onSelect() is called by the event loop (?) already
+		// before handling the onButton event, but we can't intercept the
+		// left/right click there. so we have to manually do it again here.
+		if(e.button == GLFW_MOUSE_BUTTON_RIGHT) {
+			ee.button = GLFW_MOUSE_BUTTON_LEFT;
+		}
+
+		if(ee.action == GLFW_PRESS && ee.button == GLFW_MOUSE_BUTTON_LEFT) {
+			// hack, see above
+			APP->event->setSelectedWidget(static_cast<TextField*>(this));
+		}
+
+		TextField::onButton(ee); // this handles consuming the event
+
+		if(ee.isConsumed()) {
+			e.consume(ee.getTarget());
+		}
 	}
 
 	void onSelect(const event::Select &e) override {
