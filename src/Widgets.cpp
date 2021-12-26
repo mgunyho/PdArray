@@ -102,7 +102,7 @@ void NumberTextBox::onAction(const event::Action &e) {
 	event::Deselect eDeselect;
 	onDeselect(eDeselect);
 	APP->event->setSelectedWidget(NULL);
-	e.consume(NULL);
+	e.consume(NULL); // or should we consume it with 'this'?
 }
 
 void NumberTextBox::onSelectText(const event::SelectText &e) {
