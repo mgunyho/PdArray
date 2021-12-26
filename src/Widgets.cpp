@@ -128,7 +128,7 @@ void NumberTextBox::onSelectKey(const event::SelectKey &e) {
 		// TextField::pasteClipboard() can't be overridden, so we must handle
 		// ctrl+V manually to do validation. Prevent pasting too long text and
 		// text containing non-numeric characters.
-		int pasteLength = maxTextLength - TextField::text.size() + abs(selection - cursor);
+		size_t pasteLength = maxTextLength - TextField::text.size() + abs(selection - cursor);
 		if(pasteLength > 0) {
 			std::string newText(glfwGetClipboardString(APP->window->win));
 			if(newText.size() > pasteLength) newText.erase(pasteLength);

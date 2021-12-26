@@ -487,7 +487,7 @@ struct ArraySizeSelector : NumberTextBox {
 
 	ArraySizeSelector(Array *m) : NumberTextBox() {
 		module = m;
-		TextBox::text = string::f("%u", module ? module->buffer.size() : 1);
+		TextBox::text = string::f("%lu", module ? module->buffer.size() : 1);
 		TextField::text = TextBox::text;
 		TextBox::box.size.x = 54;
 		textOffset = Vec(TextBox::box.size.x / 2, TextBox::box.size.y / 2);
@@ -528,7 +528,7 @@ struct ArrayAddFadesMenuItem : MenuItem {
 	Array *module;
 	ArrayAddFadesMenuItem(Array *pModule) {
 		module = pModule;
-		rightText = string::f("%u samples", module->numFadeSamples());
+		rightText = string::f("%lu samples", module->numFadeSamples());
 	}
 
 	void onAction(const event::Action &e) override {
