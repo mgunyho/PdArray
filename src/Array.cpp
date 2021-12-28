@@ -14,20 +14,6 @@
 //TODO: visual representation choice right-click submenu (stairs (current), lines, points, bars)
 //TODO: reinterpolate array on resize (+right-click menu option for that)
 
-struct RangeParamQuantity : ParamQuantity {
-	std::string getDisplayValueString() override {
-		if(!module) return "";
-		float v = getDisplayValue();
-		if(v > 1.5f) {
-			return "0..10";
-		} else if (v > 0.5f) {
-			return "-5..5";
-		} else {
-			return "-10..10";
-		}
-	}
-};
-
 struct Array : Module {
 	enum ParamIds {
 		PHASE_RANGE_PARAM,
