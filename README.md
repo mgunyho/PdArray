@@ -68,6 +68,9 @@ Right-clicking on the module will open up some additional options, like
 initializing or sorting the array, loading an audio file and setting the
 interpolation mode.
 
+If the Array module is bypassed, the signal that is being sent to REC IN is
+directly output to both OUT STEP and OUT SMTH.
+
 ### Drawing sequences or envelopes
 
 ![sequence and envelope](screenshots/sequencer-envelope.png)
