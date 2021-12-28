@@ -1,6 +1,6 @@
 #include "plugin.hpp"
 #include <osdialog.h> //NOTE: not officially part of the public Rack v2 API, but other plugins (including Fundamental) do it this way
-#include <algorithm> // std::min, std::swap
+#include <algorithm> // std::min, std::swap, std::transform
 #define DR_WAV_IMPLEMENTATION
 #include "dr_wav.h" // for reading wav files
 
@@ -86,6 +86,13 @@ struct Array : Module {
 	DataSaveMode saveMode = SAVE_FULL_DATA;
 	InterpBoundaryMode boundaryMode = INTERP_PERIODIC;
 
+	// If the array size is smaller than this, serialize as JSON, otherwise
+	// serialize as wav in the patch storage folder. Floats are serialized in
+	// json as ~20 bytes, so 5k elements will be 100 KB, which is the limit
+	// recommended by the manual.
+	const static unsigned int directSerializationThreshold = 5000;
+	const static std::string arrayDataFileName;
+
 	void initBuffer() {
 		buffer.clear();
 		int default_steps = 10;
@@ -129,6 +136,7 @@ struct Array : Module {
 	}
 
 	void loadSample(std::string path, bool resizeBuf = false);
+	void saveWav(std::string path);
 
 	// TODO: if array is large enough (how large?) encode as base64?
 	// see https://stackoverflow.com/questions/45508360/quickest-way-to-encode-vector-of-floats-into-hex-or-base64binary
@@ -142,12 +150,21 @@ struct Array : Module {
 		json_object_set_new(root, "recMode", json_integer(recMode));
 		json_object_set_new(root, "lastLoadedPath", json_string(lastLoadedPath.c_str()));
 		if(saveMode == SAVE_FULL_DATA) {
-			json_t *arr = json_array();
-			for(float x : buffer) {
-				json_array_append_new(arr, json_real(x));
+			if(buffer.size() <= directSerializationThreshold) {
+
+				json_t *arr = json_array();
+				for(float x : buffer) {
+					json_array_append_new(arr, json_real(x));
+				}
+				json_object_set(root, "arrayData", arr);
+				json_decref(arr);
+
+				std::string path = system::join(createPatchStorageDirectory(), arrayDataFileName);
+				// make sure that the wav file doesn't exist, so we don't read from the file the next time we load the patch
+				if(system::isFile(path)) {
+					system::remove(path);
+				}
 			}
-			json_object_set(root, "arrayData", arr);
-			json_decref(arr);
 		} else if(saveMode == SAVE_PATH_TO_SAMPLE) {
 			json_object_set_new(root, "arrayData", json_string(lastLoadedPath.c_str()));
 		} else if(saveMode == DONT_SAVE_DATA) {
@@ -201,6 +218,23 @@ struct Array : Module {
 		}
 	}
 
+	void onAdd(const AddEvent& e) override {
+		std::string path = system::join(createPatchStorageDirectory(), arrayDataFileName);
+		if(system::isFile(path)) {
+			// if the file exists, we assume that we're supposed to load the
+			// data from there instead of the JSON, i.e., it was above the
+			// directSerializationThreshold.
+			loadSample(path, true);
+		}
+	}
+
+	void onSave(const SaveEvent& e) override {
+		if(buffer.size() > directSerializationThreshold) {
+			std::string path = system::join(createPatchStorageDirectory(), arrayDataFileName);
+			saveWav(path);
+		}
+	}
+
 	void onReset() override {
 		boundaryMode = INTERP_PERIODIC;
 		enableEditing = true;
@@ -214,6 +248,8 @@ struct Array : Module {
 		}
 	}
 };
+
+const std::string Array::arrayDataFileName = "arraydata.wav";
 
 void Array::loadSample(std::string path, bool resizeBuf) {
 	unsigned int channels, sampleRate;
@@ -237,6 +273,34 @@ void Array::loadSample(std::string path, bool resizeBuf) {
 	}
 
 	drwav_free(pSampleData);
+}
+
+void Array::saveWav(std::string path) {
+	// use drwav to save the buffer as a wav file.
+	// based on VCV Fundamental wavetable.save();
+	drwav_data_format format;
+	format.container = drwav_container_riff;
+	format.format = DR_WAVE_FORMAT_PCM;
+	format.channels = 1;
+	format.sampleRate = sampleRate; // note: this doesn't really matter, because we're not using the info when reading the sample back
+	format.bitsPerSample = 16;
+
+	drwav wav;
+	if(!drwav_init_file_write(&wav, path.c_str(), &format))
+		return;
+
+	// Rescale from the range 0..1 to -1..1
+	std::vector<float> buffer_rescaled = buffer;
+	std::transform(buffer_rescaled.begin(), buffer_rescaled.end(), buffer_rescaled.begin(),
+			[](float y) -> float { return (y - 0.5f) * 2.f; });
+
+	size_t len = buffer_rescaled.size();
+	int16_t* buf = new int16_t[len];
+	drwav_f32_to_s16(buf, buffer_rescaled.data(), len);
+	drwav_write_pcm_frames(&wav, len, buf);
+	delete[] buf;
+
+	drwav_uninit(&wav);
 }
 
 void Array::process(const ProcessArgs &args) {
