@@ -103,9 +103,26 @@ struct Array : Module {
 
 	Array() {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
-		configParam<RangeParamQuantity>(Array::OUTPUT_RANGE_PARAM, 0, 2, 0, "Recording and output range", "V");
-		configParam<RangeParamQuantity>(Array::PHASE_RANGE_PARAM, 0, 2, 2, "Position CV range", "V");
-		configParam(Array::REC_ENABLE_PARAM, 0.f, 1.f, 0.f, "Record");
+		configSwitch(Array::OUTPUT_RANGE_PARAM, 0, 2, 0, "Recording and output range", {
+				"-10..10 V",
+				"-5..5 V",
+				"0..10 V",
+		});
+		configSwitch(Array::PHASE_RANGE_PARAM, 0, 2, 2, "Position CV range", {
+				"-10..10 V",
+				"-5..5 V",
+				"0..10 V",
+		});
+		configSwitch(Array::REC_ENABLE_PARAM, 0.f, 1.f, 0.f, "Record", {"Off", "On"});
+
+		configInput(PHASE_INPUT, "Playback position");
+		configInput(REC_SIGNAL_INPUT, "Signal to record");
+		configInput(REC_PHASE_INPUT, "Recording position");
+		configInput(REC_ENABLE_INPUT, "Recording enable");
+
+		configOutput(STEP_OUTPUT, "Direct (step)");
+		configOutput(INTERP_OUTPUT, "Smooth (interpolated)");
+
 		for(int i = 0; i < MAX_POLY_CHANNELS; i++) phases[i] = 0.f;
 		initBuffer();
 	}
