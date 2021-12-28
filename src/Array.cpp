@@ -219,6 +219,7 @@ struct Array : Module {
 		} else if(json_string_value(arrayData_J) != NULL) {
 			lastLoadedPath = std::string(json_string_value(arrayData_J));
 			loadSample(lastLoadedPath, true);
+			enableEditing = false;
 			saveMode = SAVE_PATH_TO_SAMPLE;
 		} else if(json_integer_value(arrayData_J) > 0) {
 			buffer.clear();
@@ -279,7 +280,6 @@ void Array::loadSample(std::string path, bool resizeBuf) {
 			}
 			buffer[i] = (s + 1.f) * 0.5f;
 		}
-		enableEditing = false;
 	}
 
 	drwav_free(pSampleData);
@@ -632,6 +632,7 @@ struct ArrayFileSelectItem : MenuItem {
 		if(path) {
 			module->loadSample(path, resizeBuffer);
 			module->lastLoadedPath = path;
+			module->enableEditing = false; // disable editing for loaded wav files
 			free(path);
 		}
 		osdialog_filters_free(filters);
