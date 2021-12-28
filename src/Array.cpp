@@ -109,6 +109,9 @@ struct Array : Module {
 		configOutput(STEP_OUTPUT, "Direct (step)");
 		configOutput(INTERP_OUTPUT, "Smooth (interpolated)");
 
+		configBypass(REC_SIGNAL_INPUT, STEP_OUTPUT);
+		configBypass(REC_SIGNAL_INPUT, INTERP_OUTPUT);
+
 		for(int i = 0; i < MAX_POLY_CHANNELS; i++) phases[i] = 0.f;
 		initBuffer();
 	}
