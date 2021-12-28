@@ -47,9 +47,15 @@ corresponds to 0V.
 The SIZE screen displays the current number of elements in the array. You can
 click on the screen to type a value up to 999999. If the array has more
 elements than there are pixels on the display, drawing will affect multiple
-array values at once. The array values are saved in the patch file, so be aware
-that patch files may become large if you have a large SIZE. This behavior can
-be changed from the "Data persistence" right-click menu.
+array values at once.
+
+By default, the array values are saved along with the patch file. If the array
+has less than 5000 elements, the array data is serialized directly as a JSON
+array. Otherwise, the array is saved as a wav file in the patch storage folder.
+To reduce disk space, it is also possible to save only the path to a loaded wav
+file, or to not save the array data at all, in which case only the array SIZE
+is saved in the patch. This behavior can be changed from the "Data persistence"
+right-click menu.
 
 The bottom row contains CV inputs related to recording. The REC POS dictates
 the position in the array where a recorded value will be written. Its expected
