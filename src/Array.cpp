@@ -149,6 +149,10 @@ struct Array : Module {
 		json_object_set_new(root, "boundaryMode", json_integer(boundaryMode));
 		json_object_set_new(root, "recMode", json_integer(recMode));
 		json_object_set_new(root, "lastLoadedPath", json_string(lastLoadedPath.c_str()));
+
+		// we want to delete the wav file created by onSave in most cases, see below
+		bool deleteWavFile = true;
+
 		if(saveMode == SAVE_FULL_DATA) {
 			if(buffer.size() <= directSerializationThreshold) {
 
@@ -159,16 +163,21 @@ struct Array : Module {
 				json_object_set(root, "arrayData", arr);
 				json_decref(arr);
 
-				std::string path = system::join(createPatchStorageDirectory(), arrayDataFileName);
-				// make sure that the wav file doesn't exist, so we don't read from the file the next time we load the patch
-				if(system::isFile(path)) {
-					system::remove(path);
-				}
+			} else {
+				deleteWavFile = false;
 			}
 		} else if(saveMode == SAVE_PATH_TO_SAMPLE) {
 			json_object_set_new(root, "arrayData", json_string(lastLoadedPath.c_str()));
 		} else if(saveMode == DONT_SAVE_DATA) {
 			json_object_set_new(root, "arrayData", json_integer(buffer.size()));
+		}
+
+		if(deleteWavFile) {
+			std::string path = system::join(createPatchStorageDirectory(), arrayDataFileName);
+			// make sure that the wav file doesn't exist, so we don't read from the file the next time we load the patch
+			if(system::isFile(path)) {
+				system::remove(path);
+			}
 		}
 		return root;
 	}
@@ -216,6 +225,7 @@ struct Array : Module {
 			resizeBuffer(json_integer_value(arrayData_J));
 			saveMode = DONT_SAVE_DATA;
 		}
+		// else, arrayData was missing from JSON, so we assume it's loaded from wav file in patch storage folder
 	}
 
 	void onAdd(const AddEvent& e) override {
