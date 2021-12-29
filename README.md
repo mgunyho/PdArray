@@ -40,27 +40,36 @@ use +10V for e.g. unipolar LFO's and Miniramp, +-5V for bipolar LFO's and audio
 signals. Similarly, the I/O RANGE switch selects the range of values that you
 wish to record and what the outputs will have. Setting the switch to +10V means
 that the top edge of the visual representation of the array corresponds to +10V
-and the bottom edge to 0V, while for +-5 and 10 the top and bottom edges of the
-array are plus and minus 5 or 10 volts, respectively, and the middle
+and the bottom edge to 0V, while for +-5 and +-10 the top and bottom edges of
+the array are plus and minus 5 or 10 volts, respectively, and the middle
 corresponds to 0V.
 
 The SIZE screen displays the current number of elements in the array. You can
 click on the screen to type a value up to 999999. If the array has more
 elements than there are pixels on the display, drawing will affect multiple
-array values at once. The array values are saved in the patch file, so be aware
-that patch files may become large if you have a large SIZE. This behavior can
-be changed from the "Data persistence" right-click menu.
+array values at once.
+
+By default, the array values are saved along with the patch file. If the array
+has less than 5000 elements, the array data is serialized directly as a JSON
+array. Otherwise, the array is saved as a wav file in the patch storage folder.
+To reduce disk space, it is also possible to save only the path to a loaded wav
+file, or to not save the array data at all, in which case only the array SIZE
+is saved in the patch. This behavior can be changed from the "Data persistence"
+right-click menu.
 
 The bottom row contains CV inputs related to recording. The REC POS dictates
 the position in the array where a recorded value will be written. Its expected
 values are set using POS RANGE, just as for the playback POS. Input the signal
 or values you want to record to the REC IN input, and click and hold the REC
-LED or send a gate voltage to the REC input to record. Recording is only
-monophonic.
+LED or send a gate voltage to the REC input to record. Only monophonic
+recording is supported.
 
 Right-clicking on the module will open up some additional options, like
 initializing or sorting the array, loading an audio file and setting the
 interpolation mode.
+
+If the Array module is bypassed, the signal that is being sent to REC IN is
+directly output to both OUT STEP and OUT SMTH.
 
 ### Drawing sequences or envelopes
 
@@ -115,8 +124,9 @@ it starting from another position.
 Playing back a sample works the same way as reading the array in general: input
 a voltage to POS and connect the outputs to wherever.
 
-After loading a sample, drawing will be locked (but you can unlock it from the
-right-click menu).
+After loading a sample, drawing will be automatically locked to prevent
+accidentally modifying the sample, but it can be unlocked from the right-click
+menu.
 
 If you want to automatically load the audio file the next time you open the
 patch, you can set "Data persistence" to "Save path to loaded sample".
@@ -201,13 +211,16 @@ audio rate and adjusting the step size can create interesting harmonics.
 If you have suggestions or feedback or find a bug or whatever, feel free to open
 an issue or a pull request in this repository!
 
-Building the modules follows the [standard procedure](https://vcvrack.com/manual/PluginDevelopmentTutorial.html#creating-the-template-plugin):
-`RACK_DIR=/path/to/Rack_SDK/ make install`.
+Building the modules follows the [standard procedure](https://vcvrack.com/manual/PluginDevelopmentTutorial.html):
+```
+export RACK_DIR=/path/to/Rack_SDK/
+make install
+```
 
 
 ## Licenses
-The source code and panel artwork are licensed under the MIT license (see
-[LICENSE](LICENSE.txt)). This repo also contains the fonts used for creating
-the panels: Overpass is licensed under the Open Font License (see
-[here](res/fonts/OFL.txt)) and Roboto is licensed under the Apache 2 License
-(see [here](res/fonts/APACHE2.txt)).
+The source code and panel artwork are copyright 2021 Márton Gunyhó. Licensed
+under the EUPL (see [LICENSE](LICENSE.txt)). This repo also contains the fonts
+used for creating the panels: Overpass is licensed under the Open Font License
+(see [here](res/fonts/OFL.txt)) and Roboto is licensed under the Apache 2
+License (see [here](res/fonts/APACHE2.txt)).

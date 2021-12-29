@@ -1,10 +1,6 @@
 #include "plugin.hpp"
-#include "window.hpp" // windowIsModPressed
-#include "osdialog.h"
-#include "settings.hpp" // settings::*
-#include "random.hpp"
-#include <GLFW/glfw3.h> // key codes
-#include <algorithm> // std::min, std::swap
+#include <osdialog.h> //NOTE: not officially part of the public Rack v2 API, but other plugins (including Fundamental) do it this way
+#include <algorithm> // std::min, std::swap, std::transform
 #define DR_WAV_IMPLEMENTATION
 #include "dr_wav.h" // for reading wav files
 
@@ -17,20 +13,6 @@
 //TODO: undo history? hard? memory intensive?
 //TODO: visual representation choice right-click submenu (stairs (current), lines, points, bars)
 //TODO: reinterpolate array on resize (+right-click menu option for that)
-
-struct RangeParamQuantity : ParamQuantity {
-	std::string getDisplayValueString() override {
-		if(!module) return "";
-		float v = getDisplayValue();
-		if(v > 1.5f) {
-			return "0..10";
-		} else if (v > 0.5f) {
-			return "-5..5";
-		} else {
-			return "-10..10";
-		}
-	}
-};
 
 struct Array : Module {
 	enum ParamIds {
@@ -90,6 +72,13 @@ struct Array : Module {
 	DataSaveMode saveMode = SAVE_FULL_DATA;
 	InterpBoundaryMode boundaryMode = INTERP_PERIODIC;
 
+	// If the array size is smaller than this, serialize as JSON, otherwise
+	// serialize as wav in the patch storage folder. Floats are serialized in
+	// json as ~20 bytes, so 5k elements will be 100 KB, which is the limit
+	// recommended by the manual.
+	const static unsigned int directSerializationThreshold = 5000;
+	const static std::string arrayDataFileName;
+
 	void initBuffer() {
 		buffer.clear();
 		int default_steps = 10;
@@ -100,9 +89,29 @@ struct Array : Module {
 
 	Array() {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
-		configParam<RangeParamQuantity>(Array::OUTPUT_RANGE_PARAM, 0, 2, 0, "Recording and output range", "V");
-		configParam<RangeParamQuantity>(Array::PHASE_RANGE_PARAM, 0, 2, 2, "Position CV range", "V");
-		configParam(Array::REC_ENABLE_PARAM, 0.f, 1.f, 0.f, "Record");
+		configSwitch(Array::OUTPUT_RANGE_PARAM, 0, 2, 0, "Recording and output range", {
+				"-10..10 V",
+				"-5..5 V",
+				"0..10 V",
+		});
+		configSwitch(Array::PHASE_RANGE_PARAM, 0, 2, 2, "Position CV range", {
+				"-10..10 V",
+				"-5..5 V",
+				"0..10 V",
+		});
+		configSwitch(Array::REC_ENABLE_PARAM, 0.f, 1.f, 0.f, "Record", {"Off", "On"});
+
+		configInput(PHASE_INPUT, "Playback position");
+		configInput(REC_SIGNAL_INPUT, "Signal to record");
+		configInput(REC_PHASE_INPUT, "Recording position");
+		configInput(REC_ENABLE_INPUT, "Recording enable");
+
+		configOutput(STEP_OUTPUT, "Direct (step)");
+		configOutput(INTERP_OUTPUT, "Smooth (interpolated)");
+
+		configBypass(REC_SIGNAL_INPUT, STEP_OUTPUT);
+		configBypass(REC_SIGNAL_INPUT, INTERP_OUTPUT);
+
 		for(int i = 0; i < MAX_POLY_CHANNELS; i++) phases[i] = 0.f;
 		initBuffer();
 	}
@@ -133,10 +142,7 @@ struct Array : Module {
 	}
 
 	void loadSample(std::string path, bool resizeBuf = false);
-
-	// TODO: if array is large enough (how large?) encode as base64?
-	// see https://stackoverflow.com/questions/45508360/quickest-way-to-encode-vector-of-floats-into-hex-or-base64binary
-	// also: rack::string::to/fromBase64
+	void saveWav(std::string path);
 
 	json_t *dataToJson() override {
 		json_t *root = json_object();
@@ -144,17 +150,35 @@ struct Array : Module {
 		json_object_set_new(root, "boundaryMode", json_integer(boundaryMode));
 		json_object_set_new(root, "recMode", json_integer(recMode));
 		json_object_set_new(root, "lastLoadedPath", json_string(lastLoadedPath.c_str()));
+
+		// we want to delete the wav file created by onSave in most cases, see below
+		bool deleteWavFile = true;
+
 		if(saveMode == SAVE_FULL_DATA) {
-			json_t *arr = json_array();
-			for(float x : buffer) {
-				json_array_append_new(arr, json_real(x));
+			if(buffer.size() <= directSerializationThreshold) {
+
+				json_t *arr = json_array();
+				for(float x : buffer) {
+					json_array_append_new(arr, json_real(x));
+				}
+				json_object_set(root, "arrayData", arr);
+				json_decref(arr);
+
+			} else {
+				deleteWavFile = false;
 			}
-			json_object_set(root, "arrayData", arr);
-			json_decref(arr);
 		} else if(saveMode == SAVE_PATH_TO_SAMPLE) {
 			json_object_set_new(root, "arrayData", json_string(lastLoadedPath.c_str()));
 		} else if(saveMode == DONT_SAVE_DATA) {
 			json_object_set_new(root, "arrayData", json_integer(buffer.size()));
+		}
+
+		if(deleteWavFile) {
+			std::string path = system::join(createPatchStorageDirectory(), arrayDataFileName);
+			// make sure that the wav file doesn't exist, so we don't read from the file the next time we load the patch
+			if(system::isFile(path)) {
+				system::remove(path);
+			}
 		}
 		return root;
 	}
@@ -196,11 +220,30 @@ struct Array : Module {
 		} else if(json_string_value(arrayData_J) != NULL) {
 			lastLoadedPath = std::string(json_string_value(arrayData_J));
 			loadSample(lastLoadedPath, true);
+			enableEditing = false;
 			saveMode = SAVE_PATH_TO_SAMPLE;
 		} else if(json_integer_value(arrayData_J) > 0) {
 			buffer.clear();
 			resizeBuffer(json_integer_value(arrayData_J));
 			saveMode = DONT_SAVE_DATA;
+		}
+		// else, arrayData was missing from JSON, so we assume it's loaded from wav file in patch storage folder
+	}
+
+	void onAdd(const AddEvent& e) override {
+		std::string path = system::join(createPatchStorageDirectory(), arrayDataFileName);
+		if(system::isFile(path)) {
+			// if the file exists, we assume that we're supposed to load the
+			// data from there instead of the JSON, i.e., it was above the
+			// directSerializationThreshold.
+			loadSample(path, true);
+		}
+	}
+
+	void onSave(const SaveEvent& e) override {
+		if(buffer.size() > directSerializationThreshold) {
+			std::string path = system::join(createPatchStorageDirectory(), arrayDataFileName);
+			saveWav(path);
 		}
 	}
 
@@ -217,6 +260,8 @@ struct Array : Module {
 		}
 	}
 };
+
+const std::string Array::arrayDataFileName = "arraydata.wav";
 
 void Array::loadSample(std::string path, bool resizeBuf) {
 	unsigned int channels, sampleRate;
@@ -236,14 +281,40 @@ void Array::loadSample(std::string path, bool resizeBuf) {
 			}
 			buffer[i] = (s + 1.f) * 0.5f;
 		}
-		enableEditing = false;
 	}
 
 	drwav_free(pSampleData);
 }
 
+void Array::saveWav(std::string path) {
+	// use drwav to save the buffer as a wav file.
+	// based on VCV Fundamental wavetable.save();
+	drwav_data_format format;
+	format.container = drwav_container_riff;
+	format.format = DR_WAVE_FORMAT_PCM;
+	format.channels = 1;
+	format.sampleRate = sampleRate; // note: this doesn't really matter, because we're not using the info when reading the sample back
+	format.bitsPerSample = 16;
+
+	drwav wav;
+	if(!drwav_init_file_write(&wav, path.c_str(), &format))
+		return;
+
+	// Rescale from the range 0..1 to -1..1
+	std::vector<float> buffer_rescaled = buffer;
+	std::transform(buffer_rescaled.begin(), buffer_rescaled.end(), buffer_rescaled.begin(),
+			[](float y) -> float { return (y - 0.5f) * 2.f; });
+
+	size_t len = buffer_rescaled.size();
+	int16_t* buf = new int16_t[len];
+	drwav_f32_to_s16(buf, buffer_rescaled.data(), len);
+	drwav_write_pcm_frames(&wav, len, buf);
+	delete[] buf;
+
+	drwav_uninit(&wav);
+}
+
 void Array::process(const ProcessArgs &args) {
-	float deltaTime = args.sampleTime;
 	sampleRate = args.sampleRate;
 
 	float phaseMin, phaseMax;
@@ -289,7 +360,7 @@ void Array::process(const ProcessArgs &args) {
 	if(isRecording) {
 		buffer[ri] = clamp(rescale(inputs[REC_SIGNAL_INPUT].getVoltage(), inOutMin, inOutMax, 0.f, 1.f), 0.f, 1.f);
 	}
-	lights[REC_LIGHT].setSmoothBrightness(isRecording, deltaTime);
+	lights[REC_LIGHT].setBrightness(isRecording);
 
 	nChannels = inputs[PHASE_INPUT].getChannels();
 	outputs[STEP_OUTPUT].setChannels(nChannels);
@@ -395,30 +466,6 @@ struct ArrayDisplay : OpaqueWidget {
 			nvgStrokeColor(vg, nvgRGB(0x0, 0x0, 0x0));
 			nvgStroke(vg);
 
-			// show phase
-			int nc = module->nChannels;
-			int alpha = int(0xff * rescale(1.0f/nc, 0.f, 1.f, 0.5f, 1.0f));
-			for(int c = 0; c < nc; c++) {
-				float px =  module->phases[c] * box.size.x;
-				nvgBeginPath(vg);
-				nvgStrokeWidth(vg, 2.f);
-				nvgStrokeColor(vg, nvgRGBA(0x26, 0x8b, 0xd2, alpha));
-				nvgMoveTo(vg, px, 0);
-				nvgLineTo(vg, px, box.size.y);
-				nvgStroke(vg);
-			}
-
-			// show phase of recording
-			if(module->inputs[Array::REC_PHASE_INPUT].isConnected()) {
-				float rpx = module->recPhase * box.size.x;
-				nvgBeginPath(vg);
-				nvgStrokeWidth(vg, 2.f);
-				nvgStrokeColor(vg, nvgRGB(0xdc, 0x32, 0x2f));
-				nvgMoveTo(vg, rpx, 0);
-				nvgLineTo(vg, rpx, box.size.y);
-				nvgStroke(vg);
-			}
-
 		}
 
 		nvgBeginPath(vg);
@@ -428,6 +475,44 @@ struct ArrayDisplay : OpaqueWidget {
 		nvgStroke(vg);
 
 	}
+
+	void drawLayer(const DrawArgs &args, int layer) override {
+		const auto vg = args.vg;
+
+		if(layer == 1) {
+			// draw playback & recording position
+			if(module) {
+
+				// draw playback position
+				int nc = module->nChannels;
+				int alpha = int(0xff * rescale(1.0f/nc, 0.f, 1.f, 0.5f, 1.0f));
+				for(int c = 0; c < nc; c++) {
+					// Offset by the thickness of the box border so we don't draw over it. Same for y.
+					// (could/should also use nvgScissor, but this is ok)
+					float px =  module->phases[c] * (box.size.x - 4) + 2;
+					nvgBeginPath(vg);
+					nvgStrokeWidth(vg, 2.f);
+					nvgStrokeColor(vg, nvgRGBA(0x26, 0x8b, 0xd2, alpha));
+					nvgMoveTo(vg, px, 1);
+					nvgLineTo(vg, px, box.size.y - 1);
+					nvgStroke(vg);
+				}
+
+				// draw recording position
+				if(module->inputs[Array::REC_PHASE_INPUT].isConnected()) {
+					float rpx = module->recPhase * (box.size.x - 4) + 2;
+					nvgBeginPath(vg);
+					nvgStrokeWidth(vg, 2.f);
+					nvgStrokeColor(vg, nvgRGB(0xdc, 0x32, 0x2f));
+					nvgMoveTo(vg, rpx, 1);
+					nvgLineTo(vg, rpx, box.size.y - 1);
+					nvgStroke(vg);
+				}
+			}
+		}
+		OpaqueWidget::drawLayer(args, layer);
+	}
+
 
 	void onButton(const event::Button &e) override {
 		bool ctrl = (APP->window->getMods() & RACK_MOD_MASK) == RACK_MOD_CTRL;
@@ -452,7 +537,7 @@ struct ArrayDisplay : OpaqueWidget {
 		OpaqueWidget::onDragMove(e);
 		if(!module->enableEditing) return;
 		Vec dragPosition_old = dragPosition;
-		float zoom = std::pow(2.f, settings::zoom);
+		float zoom = getAbsoluteZoom();
 		dragPosition = dragPosition.plus(e.mouseDelta.div(zoom)); // take zoom into account
 
 		// int() rounds down, so the upper limit of rescale is buffer.size() without -1.
@@ -485,29 +570,21 @@ struct ArrayDisplay : OpaqueWidget {
 };
 
 
-struct ArraySizeSelector : NumberTextField {
+struct ArraySizeSelector : NumberTextBox {
 	Array *module;
 
-	ArraySizeSelector(Array *m) : NumberTextField() {
+	ArraySizeSelector(Array *m) : NumberTextBox() {
 		module = m;
-		validText = string::f("%u", module ? module->buffer.size() : 1);
-		text = validText;
+		TextBox::text = string::f("%lu", module ? module->buffer.size() : 1);
+		TextField::text = TextBox::text;
+		TextBox::box.size.x = 54;
+		textOffset = Vec(TextBox::box.size.x / 2, TextBox::box.size.y / 2);
+		letterSpacing = -1.5f; // tighten text to fit in six characters at this width
 	};
 
 	void onNumberSet(const int n) override {
 		if(module) {
 			module->resizeBuffer(n);
-		}
-	}
-
-	void step() override {
-		NumberTextField::step();
-		// eh, kinda hacky - is there any way to do this just once after the module has been initialized? after dataFromJson?
-		if(module) {
-			if(APP->event->selectedWidget != this) {
-				validText = string::f("%u", module->buffer.size());
-				text = validText;
-			}
 		}
 	}
 
@@ -539,7 +616,7 @@ struct ArrayAddFadesMenuItem : MenuItem {
 	Array *module;
 	ArrayAddFadesMenuItem(Array *pModule) {
 		module = pModule;
-		rightText = string::f("%u samples", module->numFadeSamples());
+		rightText = string::f("%lu samples", module->numFadeSamples());
 	}
 
 	void onAction(const event::Action &e) override {
@@ -564,12 +641,13 @@ struct ArrayFileSelectItem : MenuItem {
 	bool resizeBuffer;
 
 	void onAction(const event::Action &e) override {
-		std::string dir = module->lastLoadedPath.empty() ? asset::user("") : rack::string::directory(module->lastLoadedPath);
+		std::string dir = module->lastLoadedPath.empty() ? asset::user("") : rack::system::getDirectory(module->lastLoadedPath);
 		osdialog_filters* filters = osdialog_filters_parse(".wav files:wav");
 		char *path = osdialog_file(OSDIALOG_OPEN, dir.c_str(), NULL, filters);
 		if(path) {
 			module->loadSample(path, resizeBuffer);
 			module->lastLoadedPath = path;
+			module->enableEditing = false; // disable editing for loaded wav files
 			free(path);
 		}
 		osdialog_filters_free(filters);
@@ -672,23 +750,15 @@ struct ArrayModuleWidget : ModuleWidget {
 		addParam(createParam<CKSSThree>(Vec(107.5f, 290), module, Array::OUTPUT_RANGE_PARAM));
 		addParam(createParam<CKSSThree>(Vec(27.5f, 290), module, Array::PHASE_RANGE_PARAM));
 
-		auto recButtonLight = createLightCentered<MediumLight<RedLight>>(Vec(207.5f, 355), module, Array::REC_LIGHT);
-		addChild(recButtonLight);
-
-		auto recButton = createParam<Switch>(Vec(207.5f, 355), module, Array::REC_ENABLE_PARAM);
-		recButton->box.size = recButtonLight->box.size;
-		recButton->box.pos = recButtonLight->box.pos;
-		recButton->momentary = true;
-		addParam(recButton);
+		addParam(createLightParamCentered<VCVLightButton<MediumSimpleLight<RedLight>>>(Vec(207.5f, 347.5f), module, Array::REC_ENABLE_PARAM, Array::REC_LIGHT));
 
 		display = new ArrayDisplay(module);
 		display->box.pos = Vec(5, 20);
 		addChild(display);
 
 		sizeSelector = new ArraySizeSelector(module);
-		sizeSelector->box.pos = Vec(174, 295);
-		sizeSelector->box.size.x = 51; // additional pixel, otherwise last digit gets put on next line on some zoom levels
-		addChild(sizeSelector);
+		sizeSelector->TextBox::box.pos = Vec(174, 295);
+		addChild(static_cast<TextBox*>(sizeSelector));
 	}
 
 	void appendContextMenu(ui::Menu *menu) override {

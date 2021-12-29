@@ -85,8 +85,14 @@ struct Miniramp : Module {
 					//rescale(-0.30103f, MIN_EXPONENT, MAX_EXPONENT, 0.f,10.f)
 					5.f, // 0.1s in log mode, 5s in lin mode
 					"Ramp duration");
-		configParam(Miniramp::CV_AMT_PARAM, -1.f, 1.f, 0.f, "CV amount");
-		configParam(Miniramp::LIN_LOG_MODE_PARAM, 0.f, 1.f, 1.f, "Linear/Logarithmic mode");
+
+		configParam(Miniramp::CV_AMT_PARAM, -1.f, 1.f, 0.f, "Ramp duration CV mod amount");
+		configSwitch(Miniramp::LIN_LOG_MODE_PARAM, 0.f, 1.f, 1.f, "Ramp duration adjust mode", { "Linear", "Logarithmic" });
+		configInput(TRIG_INPUT, "Trigger");
+		configInput(RAMP_LENGTH_INPUT, "Ramp duration CV modulation");
+		configOutput(RAMP_OUTPUT, "Ramp");
+		configOutput(GATE_OUTPUT, "Gate");
+
 		ramp_duration = ramp_base_duration;
 	}
 
@@ -187,10 +193,7 @@ struct MsDisplayWidget : TextBox {
 	MsDisplayWidget(Miniramp *m) : TextBox() {
 		module = m;
 		box.size = Vec(30, 27);
-		letter_spacing = -2.0f;
-		//backgroundColor = nvgRGB(0xee, 0xe8, 0xd5); // solarized base2
-		//backgroundColor = nvgRGB(0x93, 0xa1, 0xa1); // solarized base1
-		backgroundColor = nvgRGB(0x78, 0x78, 0x78); // blendish default
+		letterSpacing = -2.0f;
 	}
 
 	void updateDisplayValue(float v) {
@@ -218,7 +221,8 @@ struct MsDisplayWidget : TextBox {
 		const auto vg = args.vg;
 		nvgScissor(vg, 0, 0, box.size.x, box.size.y);
 
-		if(font->handle >= 0) {
+		std::shared_ptr<Font> font = APP->window->loadFont(asset::plugin(pluginInstance, "res/fonts/RobotoMono-Bold.ttf"));
+		if(font) {
 			nvgFillColor(vg, textColor);
 			nvgFontFaceId(vg, font->handle);
 

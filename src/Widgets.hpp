@@ -1,4 +1,4 @@
-#include "rack.hpp"
+#include "plugin.hpp"
 
 // TODO: same as in LittleUtils, move to common folder?
 struct TextBox : TransparentWidget {
@@ -6,9 +6,8 @@ struct TextBox : TransparentWidget {
 	// numbers look okay.
 	// based on LedDisplayChoice
 	std::string text;
-	std::shared_ptr<Font> font;
-	float font_size;
-	float letter_spacing;
+	float fontSize;
+	float letterSpacing;
 	Vec textOffset;
 	NVGcolor defaultTextColor;
 	NVGcolor textColor; // This can be used to temporarily override text color
@@ -17,53 +16,57 @@ struct TextBox : TransparentWidget {
 
 	//TODO: create<...>() thing with position as argument?
 	TextBox() {
-		font = APP->window->loadFont(asset::plugin(pluginInstance, "res/fonts/RobotoMono-Bold.ttf"));
 		defaultTextColor = nvgRGB(0x23, 0x23, 0x23);
 		textColor = defaultTextColor;
-		backgroundColor = nvgRGB(0xc8, 0xc8, 0xc8);
+		backgroundColor = nvgRGB(0x78, 0x78, 0x78);
 		box.size = Vec(30, 18);
 		// size 20 with spacing -2 will fit 3 characters on a 30px box with Roboto mono
-		font_size = 20;
-		letter_spacing = 0.f;
+		fontSize = 20;
+		letterSpacing = 0.f;
 		textOffset = Vec(box.size.x * 0.5f, 0.f);
 		textAlign = NVG_ALIGN_CENTER | NVG_ALIGN_TOP;
 	}
 
 	virtual void setText(std::string s) { text = s; }
 
-	virtual void draw(const DrawArgs &args) override {
-		// based on LedDisplayChoice::draw() in Rack/src/app/LedDisplay.cpp
-		const auto vg = args.vg;
-		nvgScissor(vg, 0, 0, box.size.x, box.size.y);
-		nvgBeginPath(vg);
-		nvgRoundedRect(vg, 0, 0, box.size.x, box.size.y, 3.0);
-		nvgFillColor(vg, backgroundColor);
-		nvgFill(vg);
-
-		if (font->handle >= 0) {
-
-			nvgFillColor(vg, textColor);
-			nvgFontFaceId(vg, font->handle);
-
-			nvgFontSize(vg, font_size);
-			nvgTextLetterSpacing(vg, letter_spacing);
-			nvgTextAlign(vg, textAlign);
-			nvgText(vg, textOffset.x, textOffset.y, text.c_str(), NULL);
-		}
-
-		nvgResetScissor(vg);
-	};
+	virtual void draw(const DrawArgs &args) override;
 
 };
 
-// TextField that only allows inputting numbers
-struct NumberTextField : TextField {
-	int maxCharacters = 6;
-	std::string validText = "1";
+/*
+ * Editable TextBox that only allows inputting positive numbers.
+ *
+ * Based on EditableTextbox and HoverableTextbox in LittleUtils. TextField is
+ * inherited so that the default behavior of onSelectKey and some click events
+ * can be handled by it. Otherwise everything should come from TextBox. For
+ * example the box size is determined by TextBox::box.size, so that should be
+ * the box to manipulate if necessary. TextField::text holds the string that is
+ * being edited and TextBox::text holds the string being displayed, which
+ * should always be a valid number.
+ */
+struct NumberTextBox : TextBox, TextField {
 
-	NumberTextField() : TextField() {
-		text = validText;
-	};
+	// attributes from HoverableTextBox
+	BNDwidgetState state = BND_DEFAULT;
+	NVGcolor defaultColor;
+	NVGcolor hoverColor;
+
+	// attributes from EditableTextBox
+	bool isFocused = false;
+	const static unsigned int defaultMaxTextLength = 6;
+	unsigned int maxTextLength;
+
+	NumberTextBox(): TextBox(), TextField() {
+		defaultColor = backgroundColor;
+		hoverColor = nvgRGB(0x90, 0x90, 0x90);
+		maxTextLength = defaultMaxTextLength;
+
+		// Default alignment and offset. Caret breaks with left-align, so let's
+		// go with center for now. textOffset should be overridden by
+		// subclasses if they change the box size.
+		textAlign = NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE;
+		textOffset = Vec(TextBox::box.size.x / 2, TextBox::box.size.y / 2);
+	}
 
 	bool isNumber(const std::string& s) {
 		// shamelessly copypasted from https://stackoverflow.com/questions/4654636/how-to-determine-if-a-string-is-a-number-with-c
@@ -72,79 +75,77 @@ struct NumberTextField : TextField {
 		return !s.empty() && it == s.end();
 	}
 
-	void onButton(const event::Button& e) override {
+	void onHover(const event::Hover &e) override {
+		TextField::onHover(e);
+		e.consume(static_cast<TextBox *>(this)); // to catch onEnter and onLeave
+	}
 
-		event::Button ee = e;
+	void onDragHover(const event::DragHover &e) override {
+		TextField::onDragHover(e);
+	}
 
-		// make right-click behave the same as left click
+	void onHoverScroll(const event::HoverScroll &e) override {
+		TextField::onHoverScroll(e);
+	}
+
+	void onEnter(const event::Enter &e) override {
+		state = BND_HOVER;
+	}
+
+	void onLeave(const event::Leave &e) override {
+		state = BND_DEFAULT;
+	}
+
+	void onButton(const event::Button &e) override {
+		ButtonEvent ee(e);
+
+		// Hacky way to make right-click behave the same as left click. We have
+		// to do this, because TextField::pasteClipboard() is not virtual, so
+		// we can't override it, so this is the only way to prevent pasting
+		// text into the number field.
+		// Note that in the case of a normal left click, setSelectedWidget(),
+		// which calls onSelect() is called by the event loop (?) already
+		// before handling the onButton event, but we can't intercept the
+		// left/right click there. so we have to manually do it again here.
 		if(e.button == GLFW_MOUSE_BUTTON_RIGHT) {
 			ee.button = GLFW_MOUSE_BUTTON_LEFT;
 		}
 
-		TextField::onButton(ee);
-
 		if(ee.action == GLFW_PRESS && ee.button == GLFW_MOUSE_BUTTON_LEFT) {
-			// HACK
-			APP->event->setSelected(this);
+			// hack, see above
+			APP->event->setSelectedWidget(static_cast<TextField*>(this));
 		}
+
+		TextField::onButton(ee); // this handles consuming the event
 
 		if(ee.isConsumed()) {
 			e.consume(ee.getTarget());
 		}
-
 	}
 
-	void onSelectKey(const event::SelectKey &e) override {
-		//TODO: compare this to onSelectKey in Little-Utils/src/Widgets.cpp
-		if(e.key == GLFW_KEY_V && (e.mods & RACK_MOD_MASK) == RACK_MOD_CTRL) {
-			// prevent pasting too long text
-			int pasteLength = maxCharacters - TextField::text.size();
-			if(pasteLength > 0) {
-				std::string newText(glfwGetClipboardString(APP->window->win));
-				if(newText.size() > pasteLength) newText.erase(pasteLength);
-				if(isNumber(newText)) insertText(newText);
-			}
-			e.consume(this);
-
-		} else if(e.key == GLFW_KEY_ESCAPE) {
-			// same as pressing enter
-			event::Action eAction;
-			onAction(eAction);
-			event::Deselect eDeselect;
-			onDeselect(eDeselect);
-			APP->event->selectedWidget = NULL;
-			e.consume(this);
-
-		} else {
-			TextField::onSelectKey(e);
-		}
+	void onSelect(const event::Select &e) override {
+		isFocused = true;
+		e.consume(static_cast<TextField*>(this)); //TODO
 	}
 
-	void onSelectText(const event::SelectText &e) override {
-		// assuming GLFW number keys are contiguous
-		if(text.size() < maxCharacters
-				&& GLFW_KEY_0  <= e.codepoint
-				&& e.codepoint <= GLFW_KEY_9) {
-			TextField::onSelectText(e);
-		}
+	void onDeselect(const event::Deselect &e) override {
+		isFocused = false;
+		e.consume(NULL);
 	}
+
+	void onAction(const event::Action &e) override;
+
+	void onSelectText(const event::SelectText &e) override;
+	void onSelectKey(const event::SelectKey &e) override;
+
+	void step() override {
+		TextField::step();
+	}
+
+	void draw(const DrawArgs &args) override;
 
 	// custom event, called from within onAction
 	virtual void onNumberSet(const int n) {};
-
-	void onAction(const event::Action &e) override {
-		if(text.size() > 0) {
-			int n = stoi(text); // text should always contain only digits
-			if(n > 0) {
-				validText = string::f("%u", n);
-				onNumberSet(n);
-			}
-		}
-		text = validText;
-		//if(gFocusedWidget == this) gFocusedWidget = NULL;
-		if(APP->event->selectedWidget == this) APP->event->selectedWidget = NULL; //TODO: replace with onSelect / onDeselect (?) -- at least emit onDeselect, compare to TextField (?)
-		e.consume(this);
-	}
 
 };
 
