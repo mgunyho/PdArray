@@ -285,7 +285,6 @@ struct CurrentStepDisplayWidget : PolyIntDisplayWidget {
 
 
 
-//TODO: replace with something like EditableTextBox in LittleUtils?
 struct NStepsSelector : NumberTextBox {
 	Ministep *module;
 

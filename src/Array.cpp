@@ -144,11 +144,6 @@ struct Array : Module {
 	void loadSample(std::string path, bool resizeBuf = false);
 	void saveWav(std::string path);
 
-	// TODO: if array is large enough (how large?) encode as base64?
-	// see https://stackoverflow.com/questions/45508360/quickest-way-to-encode-vector-of-floats-into-hex-or-base64binary
-	// also: rack::string::to/fromBase64
-
-	//TODO: use rack v2 user data serialization instead - https://vcvrack.com/manual/Migrate2#3-4-Store-large-data-in-the-module-s-patch-storage-directory
 	json_t *dataToJson() override {
 		json_t *root = json_object();
 		json_object_set_new(root, "enableEditing", json_boolean(enableEditing));
@@ -488,13 +483,12 @@ struct ArrayDisplay : OpaqueWidget {
 			// draw playback & recording position
 			if(module) {
 
-				//TODO: the lines overlap with the border of the display, should use nvgscissor or something
-
 				// draw playback position
 				int nc = module->nChannels;
 				int alpha = int(0xff * rescale(1.0f/nc, 0.f, 1.f, 0.5f, 1.0f));
 				for(int c = 0; c < nc; c++) {
 					// Offset by the thickness of the box border so we don't draw over it. Same for y.
+					// (could/should also use nvgScissor, but this is ok)
 					float px =  module->phases[c] * (box.size.x - 4) + 2;
 					nvgBeginPath(vg);
 					nvgStrokeWidth(vg, 2.f);
