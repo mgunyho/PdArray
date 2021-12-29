@@ -1,5 +1,15 @@
 # Changelog for PdArray
 
+## v2.0.6 (2021-12-29)
+
+Ported to Rack v2.
+
+- Implement v2 API features, such as input/output labels, and improved labels for switches. Also, glow-in-the-dark array cursors.
+- If the array contains more than 5000 elements, the array data is saved as a wav file in the patch storage directory
+- Improvements to the array size and Ministep step count text boxes
+
+As part of the v2 update, PdArray is now licensed under the EUPL.
+
 ## v1.0.6 (2020-11-14)
 
 - Fix crash when loading a sampe without resizing ([#13](https://github.com/mgunyho/PdArray/issues/13))
