@@ -471,30 +471,6 @@ struct ArrayDisplay : OpaqueWidget {
 			nvgStrokeColor(vg, nvgRGB(0x0, 0x0, 0x0));
 			nvgStroke(vg);
 
-			// show phase
-			int nc = module->nChannels;
-			int alpha = int(0xff * rescale(1.0f/nc, 0.f, 1.f, 0.5f, 1.0f));
-			for(int c = 0; c < nc; c++) {
-				float px =  module->phases[c] * box.size.x;
-				nvgBeginPath(vg);
-				nvgStrokeWidth(vg, 2.f);
-				nvgStrokeColor(vg, nvgRGBA(0x26, 0x8b, 0xd2, alpha));
-				nvgMoveTo(vg, px, 0);
-				nvgLineTo(vg, px, box.size.y);
-				nvgStroke(vg);
-			}
-
-			// show phase of recording
-			if(module->inputs[Array::REC_PHASE_INPUT].isConnected()) {
-				float rpx = module->recPhase * box.size.x;
-				nvgBeginPath(vg);
-				nvgStrokeWidth(vg, 2.f);
-				nvgStrokeColor(vg, nvgRGB(0xdc, 0x32, 0x2f));
-				nvgMoveTo(vg, rpx, 0);
-				nvgLineTo(vg, rpx, box.size.y);
-				nvgStroke(vg);
-			}
-
 		}
 
 		nvgBeginPath(vg);
@@ -504,6 +480,45 @@ struct ArrayDisplay : OpaqueWidget {
 		nvgStroke(vg);
 
 	}
+
+	void drawLayer(const DrawArgs &args, int layer) override {
+		const auto vg = args.vg;
+
+		if(layer == 1) {
+			// draw playback & recording position
+			if(module) {
+
+				//TODO: the lines overlap with the border of the display, should use nvgscissor or something
+
+				// draw playback position
+				int nc = module->nChannels;
+				int alpha = int(0xff * rescale(1.0f/nc, 0.f, 1.f, 0.5f, 1.0f));
+				for(int c = 0; c < nc; c++) {
+					// Offset by the thickness of the box border so we don't draw over it. Same for y.
+					float px =  module->phases[c] * (box.size.x - 4) + 2;
+					nvgBeginPath(vg);
+					nvgStrokeWidth(vg, 2.f);
+					nvgStrokeColor(vg, nvgRGBA(0x26, 0x8b, 0xd2, alpha));
+					nvgMoveTo(vg, px, 1);
+					nvgLineTo(vg, px, box.size.y - 1);
+					nvgStroke(vg);
+				}
+
+				// draw recording position
+				if(module->inputs[Array::REC_PHASE_INPUT].isConnected()) {
+					float rpx = module->recPhase * (box.size.x - 4) + 2;
+					nvgBeginPath(vg);
+					nvgStrokeWidth(vg, 2.f);
+					nvgStrokeColor(vg, nvgRGB(0xdc, 0x32, 0x2f));
+					nvgMoveTo(vg, rpx, 1);
+					nvgLineTo(vg, rpx, box.size.y - 1);
+					nvgStroke(vg);
+				}
+			}
+		}
+		OpaqueWidget::drawLayer(args, layer);
+	}
+
 
 	void onButton(const event::Button &e) override {
 		bool ctrl = (APP->window->getMods() & RACK_MOD_MASK) == RACK_MOD_CTRL;
