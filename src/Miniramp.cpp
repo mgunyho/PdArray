@@ -85,8 +85,14 @@ struct Miniramp : Module {
 					//rescale(-0.30103f, MIN_EXPONENT, MAX_EXPONENT, 0.f,10.f)
 					5.f, // 0.1s in log mode, 5s in lin mode
 					"Ramp duration");
-		configParam(Miniramp::CV_AMT_PARAM, -1.f, 1.f, 0.f, "CV amount");
-		configParam(Miniramp::LIN_LOG_MODE_PARAM, 0.f, 1.f, 1.f, "Linear/Logarithmic mode");
+
+		configParam(Miniramp::CV_AMT_PARAM, -1.f, 1.f, 0.f, "Ramp duration CV mod amount");
+		configSwitch(Miniramp::LIN_LOG_MODE_PARAM, 0.f, 1.f, 1.f, "Ramp duration adjust mode", { "Linear", "Logarithmic" });
+		configInput(TRIG_INPUT, "Trigger");
+		configInput(RAMP_LENGTH_INPUT, "Ramp duration CV modulation");
+		configOutput(RAMP_OUTPUT, "Ramp");
+		configOutput(GATE_OUTPUT, "Gate");
+
 		ramp_duration = ramp_base_duration;
 	}
 
