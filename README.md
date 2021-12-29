@@ -219,8 +219,8 @@ make install
 
 
 ## Licenses
-The source code and panel artwork are licensed under the MIT license (see
-[LICENSE](LICENSE.txt)). This repo also contains the fonts used for creating
-the panels: Overpass is licensed under the Open Font License (see
-[here](res/fonts/OFL.txt)) and Roboto is licensed under the Apache 2 License
-(see [here](res/fonts/APACHE2.txt)).
+The source code and panel artwork are copyright 2021 Márton Gunyhó. Licensed
+under the EUPL (see [LICENSE](LICENSE.txt)). This repo also contains the fonts
+used for creating the panels: Overpass is licensed under the Open Font License
+(see [here](res/fonts/OFL.txt)) and Roboto is licensed under the Apache 2
+License (see [here](res/fonts/APACHE2.txt)).
