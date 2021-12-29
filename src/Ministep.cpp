@@ -49,6 +49,13 @@ struct Ministep : Module {
 
 	Ministep() {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
+
+		configInput(RESET_INPUT, "Reset");
+		configInput(INCREMENT_INPUT, "Increment");
+		configInput(DECREMENT_INPUT, "Decrement");
+		configInput(SCALE_INPUT, "Increment/decrement scale");
+		configOutput(STEP_OUTPUT, "Step");
+
 		nSteps = DEFAULT_NSTEPS;
 		for(int i = 0; i < MAX_POLY_CHANNELS; i++) currentStep[i] = 0;
 	}
