@@ -222,7 +222,7 @@ struct MsDisplayWidget : TextBox {
 		nvgScissor(vg, 0, 0, box.size.x, box.size.y);
 
 		std::shared_ptr<Font> font = APP->window->loadFont(asset::plugin(pluginInstance, "res/fonts/RobotoMono-Bold.ttf"));
-		if(font->handle >= 0) {
+		if(font) {
 			nvgFillColor(vg, textColor);
 			nvgFontFaceId(vg, font->handle);
 
