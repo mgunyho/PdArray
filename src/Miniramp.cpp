@@ -265,21 +265,39 @@ struct CustomTrimpot : Trimpot {
 	}
 };
 
-struct MinirampFinishedModeChildMenuItem : MenuItem {
+template <typename T>
+struct MinirampEnumChildMenuItem : MenuItem {
 	Miniramp *module;
-	Miniramp::RampFinishedMode mode;
+	// Miniramp::RampFinishedMode or Miniramp::GateEOCMode
+	T mode;
+	// Miniramp->rampFinishedMode or Miniramp->gateEOCMode
+	T *modeParam;
+
+	MinirampEnumChildMenuItem(
+		Miniramp *m,
+		T pMode,
+		T *pModeParam,
+		std::string label
+	) : MenuItem() {
+		module = m;
+		mode = pMode;
+		modeParam = pModeParam;
+		text = label;
+		rightText = CHECKMARK(*modeParam == mode);
+	}
+
+	void onAction(const event::Action &e) override {
+		*modeParam = mode;
+	}
+};
+
+
+struct MinirampFinishedModeChildMenuItem : MinirampEnumChildMenuItem<Miniramp::RampFinishedMode> {
 	MinirampFinishedModeChildMenuItem(
 			Miniramp *m,
 			Miniramp::RampFinishedMode pMode,
-			std::string label) : MenuItem() {
-		module = m;
-		mode = pMode;
-		text = label;
-		rightText = CHECKMARK(module->rampFinishedMode == mode);
-	}
-	void onAction(const event::Action &e) override {
-		module->rampFinishedMode = mode;
-	}
+			std::string label
+	) : MinirampEnumChildMenuItem(m, pMode, &m->rampFinishedMode, label) {};
 };
 
 struct MinirampFinishedModeMenuItem : MenuItemWithRightArrow {
