@@ -294,9 +294,9 @@ struct MinirampEnumChildMenuItem : MenuItem {
 
 struct MinirampFinishedModeChildMenuItem : MinirampEnumChildMenuItem<Miniramp::RampFinishedMode> {
 	MinirampFinishedModeChildMenuItem(
-			Miniramp *m,
-			Miniramp::RampFinishedMode pMode,
-			std::string label
+		Miniramp *m,
+		Miniramp::RampFinishedMode pMode,
+		std::string label
 	) : MinirampEnumChildMenuItem(m, pMode, &m->rampFinishedMode, label) {};
 };
 
@@ -304,12 +304,16 @@ struct MinirampFinishedModeMenuItem : MenuItemWithRightArrow {
 	Miniramp *module;
 	Menu *createChildMenu() override {
 		Menu *menu = new Menu();
-		menu->addChild(new MinirampFinishedModeChildMenuItem(module,
-															 Miniramp::RAMP_FINISHED_0,
-															 "0V"));
-		menu->addChild(new MinirampFinishedModeChildMenuItem(module,
-															 Miniramp::RAMP_FINISHED_10,
-															 "10V"));
+		menu->addChild(new MinirampFinishedModeChildMenuItem(
+			module,
+			Miniramp::RAMP_FINISHED_0,
+			"0V"
+		));
+		menu->addChild(new MinirampFinishedModeChildMenuItem(
+			module,
+			Miniramp::RAMP_FINISHED_10,
+			"10V"
+		));
 		return menu;
 	}
 };
