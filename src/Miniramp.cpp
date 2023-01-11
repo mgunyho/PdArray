@@ -354,7 +354,7 @@ struct MinirampWidget : ModuleWidget {
 		msDisplay->box.pos = Vec(5, 318);
 		addChild(msDisplay);
 
-		auto cvKnob = createParamCentered<CustomTrimpot>(Vec(22.5, 110), module,
+		auto cvKnob = createParamCentered<CustomTrimpot>(Vec(55, 155), module,
 				Miniramp::CV_AMT_PARAM);
 		cvKnob->display = msDisplay;
 		addParam(cvKnob);
