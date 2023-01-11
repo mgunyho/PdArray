@@ -192,7 +192,7 @@ struct MsDisplayWidget : TextBox {
 
 	MsDisplayWidget(Miniramp *m) : TextBox() {
 		module = m;
-		box.size = Vec(30, 27);
+		box.size = Vec(65, 20);
 		letterSpacing = -2.0f;
 	}
 
@@ -348,7 +348,7 @@ struct MinirampWidget : ModuleWidget {
 		//addChild(createTinyLightForPort<GreenLight>(Vec(55, 288), module, Miniramp::FINISH_LIGHT));
 
 		msDisplay = new MsDisplayWidget(module);
-		msDisplay->box.pos = Vec(7.5, 308);
+		msDisplay->box.pos = Vec(5, 318);
 		addChild(msDisplay);
 
 		auto cvKnob = createParamCentered<CustomTrimpot>(Vec(22.5, 110), module,
