@@ -372,7 +372,7 @@ struct MinirampWidget : ModuleWidget {
 
 		addParam(createParam<CKSS>(Vec(20, 100), module, Miniramp::LIN_LOG_MODE_PARAM));
 
-		addInput(createInputCentered<PJ301MPort>(Vec(20, 151), module, Miniramp::RAMP_LENGTH_INPUT));
+		addInput(createInputCentered<PJ301MPort>(Vec(20, 147), module, Miniramp::RAMP_LENGTH_INPUT));
 		addInput(createInputCentered<PJ301MPort>(Vec(20, 192), module, Miniramp::TRIG_INPUT));
 		addInput(createInputCentered<PJ301MPort>(Vec(55, 192), module, Miniramp::RESET_INPUT));
 		addOutput(createOutputCentered<PJ301MPort>(Vec(20, 240), module, Miniramp::RAMP_OUTPUT));
@@ -389,7 +389,7 @@ struct MinirampWidget : ModuleWidget {
 		msDisplay->box.pos = Vec(5, 318);
 		addChild(msDisplay);
 
-		auto cvKnob = createParamCentered<CustomTrimpot>(Vec(55, 155), module,
+		auto cvKnob = createParamCentered<CustomTrimpot>(Vec(55, 147), module,
 				Miniramp::CV_AMT_PARAM);
 		cvKnob->display = msDisplay;
 		addParam(cvKnob);
