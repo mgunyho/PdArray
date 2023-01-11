@@ -103,6 +103,10 @@ struct Miniramp : Module {
 		configOutput(FINISH_OUTPUT, "Ramp finished");
 
 		ramp_duration = ramp_base_duration;
+		for(int c = 0; c < MAX_POLY_CHANNELS; c++) {
+			gateGen[c].reset();
+			eocGen[c].reset();
+		}
 	}
 
 	json_t *dataToJson() override {
