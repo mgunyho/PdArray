@@ -218,7 +218,6 @@ void Miniramp::process(const ProcessArgs &args) {
 
 struct MsDisplayWidget : TextBox {
 	Miniramp *module;
-	bool msLabelStatus = false; // 0 = 'ms', 1 = 's'
 	bool cvLabelStatus = false; // whether to show 'cv'
 	float previous_displayed_value = 0.f;
 	float cvDisplayTime = 2.f;
@@ -229,24 +228,19 @@ struct MsDisplayWidget : TextBox {
 		module = m;
 		box.size = Vec(65, 20);
 		letterSpacing = -2.0f;
+		textAlign = NVG_ALIGN_LEFT | NVG_ALIGN_TOP;
 	}
 
 	void updateDisplayValue(float v) {
-		std::string s;
 		// only update/do stringf if value is changed
 		if(v != previous_displayed_value) {
+			std::string s;
 			previous_displayed_value = v;
-			if(v <= 0.0995) {
-				v *= 1e3f;
-				s = string::f("%#.2g", v < 1.f ? 0.f : v);
-				msLabelStatus = false;
-			} else {
-				s = string::f("%#.2g", v);
-				msLabelStatus = true;
-				if(s.at(0) == '0') s.erase(0, 1);
-			}
+			s = string::f("%#.4f", v);
 			// hacky way to make monospace fonts prettier
 			std::replace(s.begin(), s.end(), '0', 'O');
+			// if the length is 10.0, we will have too many decimal digits, truncate
+			s = s.substr(0, 6);
 			setText(s);
 		}
 	}
@@ -261,12 +255,10 @@ struct MsDisplayWidget : TextBox {
 			nvgFillColor(vg, textColor);
 			nvgFontFaceId(vg, font->handle);
 
-			// draw 'ms' or 's' on bottom, depending on msLabelStatus
 			nvgFontSize(vg, 12);
 			nvgTextLetterSpacing(vg, 0.f);
 			nvgTextAlign(vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
-			nvgText(vg, textOffset.x + 2, textOffset.y + 14,
-					msLabelStatus ? " s" : "ms", NULL);
+			nvgText(vg, textOffset.x + 2, textOffset.y + 14, " s", NULL);
 
 			if(cvLabelStatus) {
 				nvgText(vg, 3, textOffset.y + 14, "cv", NULL);
