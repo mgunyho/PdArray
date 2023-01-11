@@ -339,6 +339,7 @@ struct MinirampWidget : ModuleWidget {
 
 		addInput(createInputCentered<PJ301MPort>(Vec(20, 151), module, Miniramp::RAMP_LENGTH_INPUT));
 		addInput(createInputCentered<PJ301MPort>(Vec(20, 192), module, Miniramp::TRIG_INPUT));
+		//addInput(createInputCentered<PJ301MPort>(Vec(55, 192), module, Miniramp::RESET_INPUT));
 		addOutput(createOutputCentered<PJ301MPort>(Vec(20, 240), module, Miniramp::RAMP_OUTPUT));
 		addOutput(createOutputCentered<PJ301MPort>(Vec(55, 240), module, Miniramp::GATE_OUTPUT));
 		//addOutput(createOutputCentered<PJ301MPort>(Vec(20, 288), module, Miniramp::EOC_OUTPUT));
