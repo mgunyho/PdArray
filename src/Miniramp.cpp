@@ -76,6 +76,7 @@ struct Miniramp : Module {
 	};
 
 	dsp::SchmittTrigger inputTrigger[MAX_POLY_CHANNELS];
+	dsp::SchmittTrigger resetTrigger[MAX_POLY_CHANNELS];
 	CustomPulseGenerator gateGen[MAX_POLY_CHANNELS];
 	CustomPulseGenerator eocGen[MAX_POLY_CHANNELS];
 	float ramp_base_duration = 0.5f; // ramp duration without CV
@@ -162,7 +163,16 @@ void Miniramp::process(const ProcessArgs &args) {
 		bool triggered = inputTrigger[c].process(rescale(
 					inputs[TRIG_INPUT].getVoltage(c), 0.1f, 2.f, 0.f, 1.f));
 
-		if(triggered && ramp_duration > 0.f) {
+		//TODO: polyphony: if there's only one channel, reset all ramps
+		if (resetTrigger[c].process(rescale(
+			inputs[RESET_INPUT].getVoltage(c),
+			0.1f, 2.0f,
+			0.0f, 1.0f
+		))) {
+			// reset everything
+			gateGen[c].reset();
+			eocGen[c].reset();
+		} else if(triggered && ramp_duration > 0.f) {
 			gateGen[c].trigger(ramp_duration);
 		}
 
