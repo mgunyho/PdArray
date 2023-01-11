@@ -335,13 +335,17 @@ struct MinirampWidget : ModuleWidget {
 
 		addParam(createParam<CKSS>(Vec(7.5, 60), module, Miniramp::LIN_LOG_MODE_PARAM));
 
-		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 151), module, Miniramp::RAMP_LENGTH_INPUT));
-		addInput(createInputCentered<PJ301MPort>(Vec(22.5, 192), module, Miniramp::TRIG_INPUT));
-		addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 240), module, Miniramp::RAMP_OUTPUT));
-		addOutput(createOutputCentered<PJ301MPort>(Vec(22.5, 288), module, Miniramp::GATE_OUTPUT));
+		addInput(createInputCentered<PJ301MPort>(Vec(20, 151), module, Miniramp::RAMP_LENGTH_INPUT));
+		addInput(createInputCentered<PJ301MPort>(Vec(20, 192), module, Miniramp::TRIG_INPUT));
+		addOutput(createOutputCentered<PJ301MPort>(Vec(20, 240), module, Miniramp::RAMP_OUTPUT));
+		addOutput(createOutputCentered<PJ301MPort>(Vec(55, 240), module, Miniramp::GATE_OUTPUT));
+		//addOutput(createOutputCentered<PJ301MPort>(Vec(20, 288), module, Miniramp::EOC_OUTPUT));
+		//addOutput(createOutputCentered<PJ301MPort>(Vec(55, 288), module, Miniramp::FINISH_OUTPUT));
 
-		addChild(createTinyLightForPort<GreenLight>(Vec(22.5, 240), module, Miniramp::RAMP_LIGHT));
-		addChild(createTinyLightForPort<GreenLight>(Vec(22.5, 288), module, Miniramp::GATE_LIGHT));
+		addChild(createTinyLightForPort<GreenLight>(Vec(20, 240), module, Miniramp::RAMP_LIGHT));
+		addChild(createTinyLightForPort<GreenLight>(Vec(55, 240), module, Miniramp::GATE_LIGHT));
+		//addChild(createTinyLightForPort<GreenLight>(Vec(20, 288), module, Miniramp::EOC_LIGHT));
+		//addChild(createTinyLightForPort<GreenLight>(Vec(55, 288), module, Miniramp::FINISH_LIGHT));
 
 		msDisplay = new MsDisplayWidget(module);
 		msDisplay->box.pos = Vec(7.5, 308);
