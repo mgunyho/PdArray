@@ -150,7 +150,7 @@ void Miniramp::process(const ProcessArgs &args) {
 	}
 	ramp_duration = clamp(ramp_base_duration + cv_voltage * cv_scale, 0.f, 10.f);
 
-	for(int c = 0; c < channels; c++) {
+	for(int c = 0; c < std::max(channels, 1); c++) {
 		bool triggered = inputTrigger[c].process(rescale(
 					inputs[TRIG_INPUT].getVoltage(c), 0.1f, 2.f, 0.f, 1.f));
 
