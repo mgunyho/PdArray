@@ -360,8 +360,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="7.9999996"
-     inkscape:cx="49.000002"
-     inkscape:cy="132.06251"
+     inkscape:cx="42.625002"
+     inkscape:cy="217.68751"
      inkscape:document-units="px"
      inkscape:current-layer="layer2"
      showgrid="true"
@@ -372,8 +372,8 @@
      inkscape:snap-bbox-edge-midpoints="true"
      inkscape:window-width="1258"
      inkscape:window-height="1043"
-     inkscape:window-x="446"
-     inkscape:window-y="425"
+     inkscape:window-x="321"
+     inkscape:window-y="518"
      inkscape:window-maximized="0"
      inkscape:snap-text-baseline="true"
      showguides="true"
@@ -401,11 +401,6 @@
        originx="0"
        originy="0"
        spacingx="0.13229169" />
-    <sodipodi:guide
-       position="5.953126,77.787503"
-       orientation="1,0"
-       id="guide922"
-       inkscape:locked="false" />
     <inkscape:grid
        type="xygrid"
        id="grid926"
@@ -413,17 +408,12 @@
        originx="0.1322917"
        originy="8.9999994e-06" />
     <sodipodi:guide
-       position="9.1281097,79.375003"
+       position="9.2604183,32.543755"
        orientation="1,0"
        id="guide928"
        inkscape:locked="false" />
     <sodipodi:guide
-       position="2.7781255,35.718755"
-       orientation="1,0"
-       id="guide948"
-       inkscape:locked="false" />
-    <sodipodi:guide
-       position="8.0697931,79.044273"
+       position="10.583335,33.072921"
        orientation="1,0"
        id="guide4333"
        inkscape:locked="false" />
@@ -448,7 +438,7 @@
        id="guide4817"
        inkscape:locked="false" />
     <sodipodi:guide
-       position="1.9843754,80.697919"
+       position="1.3229169,33.072921"
        orientation="1,0"
        id="guide4819"
        inkscape:locked="false" />
@@ -458,29 +448,9 @@
        id="guide4907"
        inkscape:locked="false" />
     <sodipodi:guide
-       position="9.9218768,11.90625"
-       orientation="0.70710678,0.70710678"
-       id="guide4909"
-       inkscape:locked="false" />
-    <sodipodi:guide
-       position="1.9843754,11.90625"
-       orientation="-0.70710678,0.70710678"
-       id="guide4911"
-       inkscape:locked="false" />
-    <sodipodi:guide
-       position="9.9218768,36.247918"
-       orientation="0.70710678,0.70710678"
-       id="guide4913"
-       inkscape:locked="false" />
-    <sodipodi:guide
        position="6.6145845,84.931253"
        orientation="0,1"
        id="guide4918"
-       inkscape:locked="false" />
-    <sodipodi:guide
-       position="15.875003,100.54167"
-       orientation="1,0"
-       id="guide8815"
        inkscape:locked="false" />
     <sodipodi:guide
        position="0,96.57292"
@@ -493,14 +463,9 @@
        id="guide5009"
        inkscape:locked="false" />
     <sodipodi:guide
-       position="9.9218768,23.018751"
+       position="1.3229169,31.750005"
        orientation="0.70710678,0.70710678"
        id="guide5011"
-       inkscape:locked="false" />
-    <sodipodi:guide
-       position="11.906252,84.931253"
-       orientation="1,0"
-       id="guide5033"
        inkscape:locked="false" />
     <sodipodi:guide
        position="5.953126,74.877086"
@@ -508,14 +473,24 @@
        id="guide4414"
        inkscape:locked="false" />
     <sodipodi:guide
-       position="9.9218768,49.477085"
-       orientation="0.70710678,0.70710678"
-       id="guide4416"
-       inkscape:locked="false" />
-    <sodipodi:guide
-       position="5.2916682,42.068751"
+       position="5.2916676,18.520836"
        orientation="1,0"
        id="guide1463"
+       inkscape:locked="false" />
+    <sodipodi:guide
+       position="14.552087,30.427084"
+       orientation="1,0"
+       id="guide2517"
+       inkscape:locked="false" />
+    <sodipodi:guide
+       position="18.520839,31.750001"
+       orientation="1,0"
+       id="guide2519"
+       inkscape:locked="false" />
+    <sodipodi:guide
+       position="9.2604183,31.750005"
+       orientation="0.70710678,-0.70710678"
+       id="guide2521"
        inkscape:locked="false" />
   </sodipodi:namedview>
   <metadata
