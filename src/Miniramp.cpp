@@ -77,6 +77,7 @@ struct Miniramp : Module {
 
 	dsp::SchmittTrigger inputTrigger[MAX_POLY_CHANNELS];
 	CustomPulseGenerator gateGen[MAX_POLY_CHANNELS];
+	CustomPulseGenerator eocGen[MAX_POLY_CHANNELS];
 	float ramp_base_duration = 0.5f; // ramp duration without CV
 	float ramp_duration;
 	float cv_scale = 0.f; // cv_scale = +- 1 -> 10V CV changes duration by +-10s
@@ -164,7 +165,15 @@ void Miniramp::process(const ProcessArgs &args) {
 		// update trigger duration even in the middle of a trigger
 		gateGen[c].triggerDuration = ramp_duration;
 
+		bool gate_prev = !gateGen[c].finished;
 		bool gate = gateGen[c].process(deltaTime);
+
+		// gate was finished, start EOC
+		if(gate_prev && !gate) {
+			eocGen[c].trigger(1e-3f);
+		}
+
+		bool eoc_pulse = eocGen[c].process(deltaTime);
 
 		float ramp_v;
 		if(gate) {
@@ -179,10 +188,14 @@ void Miniramp::process(const ProcessArgs &args) {
 
 		outputs[RAMP_OUTPUT].setVoltage(ramp_v, c);
 		outputs[GATE_OUTPUT].setVoltage(gate ? 10.0f : 0.0f, c);
+		outputs[EOC_OUTPUT].setVoltage(eoc_pulse ? 10.0f : 0.0f, c);
+		outputs[FINISH_OUTPUT].setVoltage(gate ? 0.0f : 10.0f, c);
 
 		//TODO: figure out lights for polyphonic mode
 		lights[RAMP_LIGHT].setSmoothBrightness(outputs[RAMP_OUTPUT].value * 1e-1f, deltaTime);
 		lights[GATE_LIGHT].setSmoothBrightness(outputs[GATE_OUTPUT].value, deltaTime);
+		lights[EOC_LIGHT].setSmoothBrightness(outputs[EOC_OUTPUT].value, deltaTime);
+		lights[FINISH_LIGHT].setSmoothBrightness(outputs[FINISH_OUTPUT].value, deltaTime);
 
 	}
 	outputs[RAMP_OUTPUT].setChannels(channels);
