@@ -52,16 +52,21 @@ struct Miniramp : Module {
 	enum InputIds {
 		TRIG_INPUT,
 		RAMP_LENGTH_INPUT,
+		RESET_INPUT,
 		NUM_INPUTS
 	};
 	enum OutputIds {
 		RAMP_OUTPUT,
 		GATE_OUTPUT,
+		EOC_OUTPUT,
+		FINISH_OUTPUT,
 		NUM_OUTPUTS
 	};
 	enum LightIds {
 		RAMP_LIGHT,
 		GATE_LIGHT,
+		EOC_LIGHT,
+		FINISH_LIGHT,
 		NUM_LIGHTS
 	};
 	enum RampFinishedMode {
@@ -335,20 +340,20 @@ struct MinirampWidget : ModuleWidget {
 		addParam(createParamCentered<RoundBlackKnob>(Vec(22.5, 37.5), module,
 					Miniramp::RAMP_LENGTH_PARAM));
 
-		addParam(createParam<CKSS>(Vec(7.5, 60), module, Miniramp::LIN_LOG_MODE_PARAM));
+		addParam(createParam<CKSS>(Vec(20, 100), module, Miniramp::LIN_LOG_MODE_PARAM));
 
 		addInput(createInputCentered<PJ301MPort>(Vec(20, 151), module, Miniramp::RAMP_LENGTH_INPUT));
 		addInput(createInputCentered<PJ301MPort>(Vec(20, 192), module, Miniramp::TRIG_INPUT));
-		//addInput(createInputCentered<PJ301MPort>(Vec(55, 192), module, Miniramp::RESET_INPUT));
+		addInput(createInputCentered<PJ301MPort>(Vec(55, 192), module, Miniramp::RESET_INPUT));
 		addOutput(createOutputCentered<PJ301MPort>(Vec(20, 240), module, Miniramp::RAMP_OUTPUT));
 		addOutput(createOutputCentered<PJ301MPort>(Vec(55, 240), module, Miniramp::GATE_OUTPUT));
-		//addOutput(createOutputCentered<PJ301MPort>(Vec(20, 288), module, Miniramp::EOC_OUTPUT));
-		//addOutput(createOutputCentered<PJ301MPort>(Vec(55, 288), module, Miniramp::FINISH_OUTPUT));
+		addOutput(createOutputCentered<PJ301MPort>(Vec(20, 288), module, Miniramp::EOC_OUTPUT));
+		addOutput(createOutputCentered<PJ301MPort>(Vec(55, 288), module, Miniramp::FINISH_OUTPUT));
 
 		addChild(createTinyLightForPort<GreenLight>(Vec(20, 240), module, Miniramp::RAMP_LIGHT));
 		addChild(createTinyLightForPort<GreenLight>(Vec(55, 240), module, Miniramp::GATE_LIGHT));
-		//addChild(createTinyLightForPort<GreenLight>(Vec(20, 288), module, Miniramp::EOC_LIGHT));
-		//addChild(createTinyLightForPort<GreenLight>(Vec(55, 288), module, Miniramp::FINISH_LIGHT));
+		addChild(createTinyLightForPort<GreenLight>(Vec(20, 288), module, Miniramp::EOC_LIGHT));
+		addChild(createTinyLightForPort<GreenLight>(Vec(55, 288), module, Miniramp::FINISH_LIGHT));
 
 		msDisplay = new MsDisplayWidget(module);
 		msDisplay->box.pos = Vec(5, 318);
