@@ -359,9 +359,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="7.9999996"
-     inkscape:cx="48.875002"
-     inkscape:cy="273.68751"
+     inkscape:zoom="31.999999"
+     inkscape:cx="63.906253"
+     inkscape:cy="266.29689"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -917,31 +917,31 @@
     <g
        aria-label="FINISH"
        id="text4308"
-       style="display:inline;font-weight:900;font-size:7.10656px;line-height:0%;font-family:Overpass;-inkscape-font-specification:'Overpass, Heavy';text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#e1e1e1;stroke-width:0.264583px"
-       transform="translate(0,196.45833)">
+       style="font-weight:900;font-size:7.10656px;line-height:0%;font-family:Overpass;-inkscape-font-specification:'Overpass, Heavy';text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;display:inline;fill:#e1e1e1;stroke-width:0.275612px"
+       transform="matrix(0.9599848,0,0,0.9599848,0.66175532,199.19325)">
       <path
          d="M 13.231443,71.115852 V 69.63706 h 1.03093 v 0.304209 h -0.709821 v 0.259845 h 0.445751 v 0.304209 h -0.445751 v 0.610529 z"
-         style="font-size:2.11256px;line-height:1.25"
+         style="font-size:2.11256px;line-height:1.25;stroke-width:0.275612px"
          id="path4310" />
       <path
          d="M 14.469402,71.115852 V 69.63706 h 0.321109 v 1.478792 z"
-         style="font-size:2.11256px;line-height:1.25"
+         style="font-size:2.11256px;line-height:1.25;stroke-width:0.275612px"
          id="path4312" />
       <path
          d="M 16.328457,71.115852 H 16.047486 L 15.48977,70.332093 q -0.02112,-0.02746 -0.06338,-0.111966 0.0063,0.03591 0.0063,0.111966 v 0.783759 H 15.115847 V 69.63706 h 0.293646 l 0.542928,0.77531 q 0.04014,0.05704 0.06126,0.109853 -0.0063,-0.04436 -0.0063,-0.111966 V 69.63706 h 0.321109 z"
-         style="font-size:2.11256px;line-height:1.25"
+         style="font-size:2.11256px;line-height:1.25;stroke-width:0.275612px"
          id="path4314" />
       <path
          d="M 16.65379,71.115852 V 69.63706 h 0.321109 v 1.478792 z"
-         style="font-size:2.11256px;line-height:1.25"
+         style="font-size:2.11256px;line-height:1.25;stroke-width:0.275612px"
          id="path4316" />
       <path
          d="m 17.809362,71.141203 q -0.215481,0 -0.37181,-0.114078 -0.154217,-0.116191 -0.221819,-0.318997 l 0.287308,-0.10774 q 0.0507,0.10774 0.133091,0.17323 0.08239,0.06338 0.18168,0.06338 0.103516,0 0.162668,-0.03803 0.05915,-0.04014 0.05915,-0.114078 0,-0.04859 -0.04436,-0.08661 -0.04225,-0.03803 -0.09084,-0.05493 -0.04648,-0.01901 -0.145766,-0.0507 -0.06549,-0.02113 -0.09929,-0.03169 -0.03169,-0.01268 -0.09295,-0.03803 -0.06126,-0.02535 -0.09295,-0.04648 -0.03169,-0.02112 -0.07605,-0.05704 -0.04436,-0.03591 -0.0676,-0.07394 -0.02113,-0.04014 -0.03803,-0.09507 -0.0169,-0.05704 -0.0169,-0.120416 0,-0.177455 0.139429,-0.29787 0.139429,-0.120416 0.378149,-0.120416 0.19858,0 0.333784,0.103515 0.135204,0.103515 0.179568,0.266183 l -0.287308,0.09295 q -0.06971,-0.158442 -0.242945,-0.158442 -0.179567,0 -0.179567,0.120416 0,0.02746 0.0169,0.04859 0.0169,0.02113 0.06126,0.04225 0.04436,0.02113 0.07183,0.03169 0.02958,0.01056 0.101403,0.03591 0.07605,0.02535 0.116191,0.04014 0.04225,0.01479 0.114078,0.04648 0.07183,0.02958 0.111966,0.06549 0.04225,0.0338 0.08661,0.08239 0.04436,0.04859 0.06338,0.114079 0.02113,0.06549 0.02113,0.143654 0,0.209143 -0.156329,0.331672 -0.15633,0.122528 -0.395049,0.122528 z"
-         style="font-size:2.11256px;line-height:1.25"
+         style="font-size:2.11256px;line-height:1.25;stroke-width:0.275612px"
          id="path4318" />
       <path
          d="m 19.520537,71.115852 v -0.606304 h -0.587292 v 0.606304 H 18.612136 V 69.63706 h 0.321109 v 0.566166 h 0.587292 V 69.63706 h 0.323221 v 1.478792 z"
-         style="font-size:2.11256px;line-height:1.25"
+         style="font-size:2.11256px;line-height:1.25;stroke-width:0.275612px"
          id="path4320" />
     </g>
   </g>
