@@ -360,11 +360,22 @@ struct MinirampFinishedModeMenuItem : MenuItemWithRightArrow {
 	}
 };
 
-struct SendEOCOnStopMenuItem : MenuItem {
-	Miniramp *module;
-	bool valueToSet;
+/*
+ * Wrap a boolean parameter and toggle it when this menu item is clicked.
+ */
+struct BoolToggleMenuItem : MenuItem {
+	bool *boolParam;
+
+	BoolToggleMenuItem (
+		std::string label,
+		bool *pBoolParam
+	) : MenuItem() {
+		text = label;
+		boolParam = pBoolParam;
+		rightText = CHECKMARK(*pBoolParam);
+	}
 	void onAction(const event::Action &e) override {
-		module->sendEOConStop = valueToSet;
+		*boolParam = !*boolParam;
 	}
 };
 
@@ -418,12 +429,10 @@ struct MinirampWidget : ModuleWidget {
 			finishModeMenuItem->module = module;
 			menu->addChild(finishModeMenuItem);
 
-			auto *sendEOConStopMenuItem = new SendEOCOnStopMenuItem();
-			sendEOConStopMenuItem->text = "Send EOC on STOP";
-			sendEOConStopMenuItem->module = module;
-			sendEOConStopMenuItem->rightText = CHECKMARK(module->sendEOConStop);
-			sendEOConStopMenuItem->valueToSet = !module->sendEOConStop;
-			menu->addChild(sendEOConStopMenuItem);
+			menu->addChild(new BoolToggleMenuItem(
+				"Send EOC on STOP",
+				&module->sendEOConStop
+			));
 
 		}
 	}
