@@ -280,6 +280,7 @@ struct MsDisplayWidget : TextBox {
 		TextBox::step();
 		cvLabelStatus = cvDisplayTimer.process();
 		if(module) {
+			//TODO: don't show cv-modulated value if turning main knob
 			updateDisplayValue(cvLabelStatus ? fabs(module->cv_scale) * 10.f : module->ramp_duration);
 		}
 	}
