@@ -364,7 +364,7 @@ struct MinirampWidget : ModuleWidget {
 		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH * 3, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-		addParam(createParamCentered<RoundBlackKnob>(Vec(22.5, 37.5), module,
+		addParam(createParamCentered<RoundLargeBlackKnob>(Vec(37.5, 37.5), module,
 					Miniramp::RAMP_LENGTH_PARAM));
 
 		addParam(createParam<CKSS>(Vec(20, 100), module, Miniramp::LIN_LOG_MODE_PARAM));
