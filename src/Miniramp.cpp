@@ -227,8 +227,10 @@ struct MsDisplayWidget : TextBox {
 	MsDisplayWidget(Miniramp *m) : TextBox() {
 		module = m;
 		box.size = Vec(65, 20);
-		letterSpacing = -2.0f;
+		letterSpacing = -1.5f;
 		textAlign = NVG_ALIGN_LEFT | NVG_ALIGN_TOP;
+		textOffset.x = 3;
+		fontSize = 19;
 	}
 
 	void updateDisplayValue(float v) {
@@ -255,13 +257,15 @@ struct MsDisplayWidget : TextBox {
 			nvgFillColor(vg, textColor);
 			nvgFontFaceId(vg, font->handle);
 
-			nvgFontSize(vg, 12);
+			nvgFontSize(vg, 14);
 			nvgTextLetterSpacing(vg, 0.f);
-			nvgTextAlign(vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
-			nvgText(vg, textOffset.x + 2, textOffset.y + 14, " s", NULL);
+			nvgTextAlign(vg, NVG_ALIGN_RIGHT | NVG_ALIGN_BOTTOM);
+			nvgText(vg, box.size.x - 5, box.size.y - 1.5, "s", NULL);
 
 			if(cvLabelStatus) {
-				nvgText(vg, 3, textOffset.y + 14, "cv", NULL);
+				nvgFontSize(vg, 11);
+				nvgTextAlign(vg, NVG_ALIGN_RIGHT | NVG_ALIGN_TOP);
+				nvgText(vg, box.size.x - 3, -1, "cv", NULL);
 			}
 		}
 
