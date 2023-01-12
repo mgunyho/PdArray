@@ -97,7 +97,7 @@ struct Miniramp : Module {
 		configSwitch(Miniramp::LIN_LOG_MODE_PARAM, 0.f, 1.f, 1.f, "Ramp duration adjust mode", { "Linear", "Logarithmic" });
 		configInput(TRIG_INPUT, "Trigger");
 		configInput(RAMP_LENGTH_INPUT, "Ramp duration CV modulation");
-		configInput(RESET_INPUT, "Reset/stop ramp");
+		configInput(RESET_INPUT, "Stop ramp");
 		configOutput(RAMP_OUTPUT, "Ramp");
 		configOutput(GATE_OUTPUT, "Gate");
 		configOutput(EOC_OUTPUT, "End of cycle");
