@@ -265,7 +265,7 @@ struct MsDisplayWidget : TextBox {
 			if(cvLabelStatus) {
 				nvgFontSize(vg, 11);
 				nvgTextAlign(vg, NVG_ALIGN_RIGHT | NVG_ALIGN_TOP);
-				nvgText(vg, box.size.x - 3, -1, "cv", NULL);
+				nvgText(vg, box.size.x - 3, 0, "cv", NULL);
 			}
 		}
 
