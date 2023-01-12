@@ -82,6 +82,7 @@ struct Miniramp : Module {
 	float ramp_base_duration = 0.5f; // ramp duration without CV
 	float ramp_duration;
 	float cv_scale = 0.f; // cv_scale = +- 1 -> 10V CV changes duration by +-10s
+	bool sendEOConStop = false; // if the stop port is triggered, should we send an EOC?
 	RampFinishedMode rampFinishedMode = RAMP_FINISHED_0;
 
 	Miniramp() {
@@ -113,6 +114,7 @@ struct Miniramp : Module {
 	json_t *dataToJson() override {
 		json_t *root = json_object();
 		json_object_set_new(root, "rampFinishedMode", json_integer(rampFinishedMode));
+		json_object_set_new(root, "sendEOConStop", json_boolean(sendEOConStop));
 
 		return root;
 	}
@@ -124,6 +126,11 @@ struct Miniramp : Module {
 			if(rfm < NUM_RAMP_FINISHED_MODES) {
 				rampFinishedMode = static_cast<RampFinishedMode>(rfm);
 			}
+		}
+
+		json_t *sendEOConStop_J = json_object_get(root, "sendEOConStop");
+		if(sendEOConStop_J) {
+			sendEOConStop = json_boolean_value(sendEOConStop_J);
 		}
 	}
 
@@ -174,6 +181,7 @@ void Miniramp::process(const ProcessArgs &args) {
 			// reset everything
 			gateGen[c].reset();
 			eocGen[c].reset();
+			eoc_triggered = sendEOConStop;
 		} else if(triggered && ramp_duration > 0.f) {
 			gateGen[c].trigger(ramp_duration);
 		}
@@ -183,9 +191,9 @@ void Miniramp::process(const ProcessArgs &args) {
 
 		bool gate_prev = !gateGen[c].finished;
 		bool gate = gateGen[c].process(deltaTime);
+		eoc_triggered |= gate_prev && !gate; // gate was finished, start EOC
 
-		// gate was finished, start EOC
-		if(gate_prev && !gate) {
+		if(eoc_triggered) {
 			eocGen[c].trigger(1e-3f);
 		}
 
@@ -352,6 +360,14 @@ struct MinirampFinishedModeMenuItem : MenuItemWithRightArrow {
 	}
 };
 
+struct SendEOCOnStopMenuItem : MenuItem {
+	Miniramp *module;
+	bool valueToSet;
+	void onAction(const event::Action &e) override {
+		module->sendEOConStop = valueToSet;
+	}
+};
+
 struct MinirampWidget : ModuleWidget {
 	Miniramp *module;
 	MsDisplayWidget *msDisplay;
@@ -401,6 +417,14 @@ struct MinirampWidget : ModuleWidget {
 			finishModeMenuItem->text = "Ramp value when finished";
 			finishModeMenuItem->module = module;
 			menu->addChild(finishModeMenuItem);
+
+			auto *sendEOConStopMenuItem = new SendEOCOnStopMenuItem();
+			sendEOConStopMenuItem->text = "Send EOC on STOP";
+			sendEOConStopMenuItem->module = module;
+			sendEOConStopMenuItem->rightText = CHECKMARK(module->sendEOConStop);
+			sendEOConStopMenuItem->valueToSet = !module->sendEOConStop;
+			menu->addChild(sendEOConStopMenuItem);
+
 		}
 	}
 
