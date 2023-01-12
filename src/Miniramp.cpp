@@ -367,26 +367,26 @@ struct MinirampWidget : ModuleWidget {
 		addParam(createParamCentered<RoundLargeBlackKnob>(Vec(37.5, 40), module,
 					Miniramp::RAMP_LENGTH_PARAM));
 
-		addParam(createParam<CKSS>(Vec(20, 100), module, Miniramp::LIN_LOG_MODE_PARAM));
+		addParam(createParam<CKSS>(Vec(20, 105), module, Miniramp::LIN_LOG_MODE_PARAM));
 
-		addInput(createInputCentered<PJ301MPort>(Vec(20, 147), module, Miniramp::RAMP_LENGTH_INPUT));
-		addInput(createInputCentered<PJ301MPort>(Vec(20, 192), module, Miniramp::TRIG_INPUT));
-		addInput(createInputCentered<PJ301MPort>(Vec(55, 192), module, Miniramp::RESET_INPUT));
-		addOutput(createOutputCentered<PJ301MPort>(Vec(20, 240), module, Miniramp::RAMP_OUTPUT));
-		addOutput(createOutputCentered<PJ301MPort>(Vec(55, 240), module, Miniramp::GATE_OUTPUT));
-		addOutput(createOutputCentered<PJ301MPort>(Vec(20, 288), module, Miniramp::EOC_OUTPUT));
-		addOutput(createOutputCentered<PJ301MPort>(Vec(55, 288), module, Miniramp::FINISH_OUTPUT));
+		addInput(createInputCentered<PJ301MPort>(Vec(20, 157), module, Miniramp::RAMP_LENGTH_INPUT));
+		addInput(createInputCentered<PJ301MPort>(Vec(20, 202), module, Miniramp::TRIG_INPUT));
+		addInput(createInputCentered<PJ301MPort>(Vec(55, 202), module, Miniramp::RESET_INPUT));
+		addOutput(createOutputCentered<PJ301MPort>(Vec(20, 250), module, Miniramp::RAMP_OUTPUT));
+		addOutput(createOutputCentered<PJ301MPort>(Vec(55, 250), module, Miniramp::GATE_OUTPUT));
+		addOutput(createOutputCentered<PJ301MPort>(Vec(20, 298), module, Miniramp::EOC_OUTPUT));
+		addOutput(createOutputCentered<PJ301MPort>(Vec(55, 298), module, Miniramp::FINISH_OUTPUT));
 
-		addChild(createTinyLightForPort<GreenLight>(Vec(20, 240), module, Miniramp::RAMP_LIGHT));
-		addChild(createTinyLightForPort<GreenLight>(Vec(55, 240), module, Miniramp::GATE_LIGHT));
-		addChild(createTinyLightForPort<GreenLight>(Vec(20, 288), module, Miniramp::EOC_LIGHT));
-		addChild(createTinyLightForPort<GreenLight>(Vec(55, 288), module, Miniramp::FINISH_LIGHT));
+		addChild(createTinyLightForPort<GreenLight>(Vec(20, 250), module, Miniramp::RAMP_LIGHT));
+		addChild(createTinyLightForPort<GreenLight>(Vec(55, 250), module, Miniramp::GATE_LIGHT));
+		addChild(createTinyLightForPort<GreenLight>(Vec(20, 298), module, Miniramp::EOC_LIGHT));
+		addChild(createTinyLightForPort<GreenLight>(Vec(55, 298), module, Miniramp::FINISH_LIGHT));
 
 		msDisplay = new MsDisplayWidget(module);
 		msDisplay->box.pos = Vec(5, 318);
 		addChild(msDisplay);
 
-		auto cvKnob = createParamCentered<CustomTrimpot>(Vec(55, 147), module,
+		auto cvKnob = createParamCentered<CustomTrimpot>(Vec(55, 157), module,
 				Miniramp::CV_AMT_PARAM);
 		cvKnob->display = msDisplay;
 		addParam(cvKnob);
