@@ -52,7 +52,7 @@ struct Miniramp : Module {
 	enum InputIds {
 		TRIG_INPUT,
 		RAMP_LENGTH_INPUT,
-		RESET_INPUT,
+		STOP_INPUT,
 		NUM_INPUTS
 	};
 	enum OutputIds {
@@ -97,7 +97,7 @@ struct Miniramp : Module {
 		configSwitch(Miniramp::LIN_LOG_MODE_PARAM, 0.f, 1.f, 1.f, "Ramp duration adjust mode", { "Linear", "Logarithmic" });
 		configInput(TRIG_INPUT, "Trigger");
 		configInput(RAMP_LENGTH_INPUT, "Ramp duration CV modulation");
-		configInput(RESET_INPUT, "Stop ramp");
+		configInput(STOP_INPUT, "Stop ramp");
 		configOutput(RAMP_OUTPUT, "Ramp");
 		configOutput(GATE_OUTPUT, "Gate");
 		configOutput(EOC_OUTPUT, "End of cycle");
@@ -165,7 +165,7 @@ void Miniramp::process(const ProcessArgs &args) {
 
 		//TODO: polyphony: if there's only one channel, reset all ramps
 		if (resetTrigger[c].process(rescale(
-			inputs[RESET_INPUT].getVoltage(c),
+			inputs[STOP_INPUT].getVoltage(c),
 			0.1f, 2.0f,
 			0.0f, 1.0f
 		))) {
@@ -371,7 +371,7 @@ struct MinirampWidget : ModuleWidget {
 
 		addInput(createInputCentered<PJ301MPort>(Vec(20, 157), module, Miniramp::RAMP_LENGTH_INPUT));
 		addInput(createInputCentered<PJ301MPort>(Vec(20, 202), module, Miniramp::TRIG_INPUT));
-		addInput(createInputCentered<PJ301MPort>(Vec(55, 202), module, Miniramp::RESET_INPUT));
+		addInput(createInputCentered<PJ301MPort>(Vec(55, 202), module, Miniramp::STOP_INPUT));
 		addOutput(createOutputCentered<PJ301MPort>(Vec(20, 250), module, Miniramp::RAMP_OUTPUT));
 		addOutput(createOutputCentered<PJ301MPort>(Vec(55, 250), module, Miniramp::GATE_OUTPUT));
 		addOutput(createOutputCentered<PJ301MPort>(Vec(20, 298), module, Miniramp::EOC_OUTPUT));
