@@ -1,5 +1,13 @@
 # Changelog for PdArray
 
+## v2.1.0 (unreleased)
+
+Fairly large update to Miniramp.
+
+- Duration and CV amount knob tooltips now show the duration / CV amount correctly in seconds
+
+Additional changes:
+
 ## v2.0.6 (2021-12-29)
 
 Ported to Rack v2.
