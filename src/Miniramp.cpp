@@ -77,10 +77,10 @@ struct Miniramp : Module {
 
 	dsp::SchmittTrigger inputTrigger[MAX_POLY_CHANNELS];
 	dsp::SchmittTrigger stopTrigger[MAX_POLY_CHANNELS];
+	// Main pulse generator. The duration of these determinse the ramp duration.
 	CustomPulseGenerator gateGen[MAX_POLY_CHANNELS];
 	CustomPulseGenerator eocGen[MAX_POLY_CHANNELS];
 	float ramp_base_duration = 0.5f; // ramp duration without CV, in seconds
-	float ramp_duration[MAX_POLY_CHANNELS];
 	float cv_scale = 0.f; // cv_scale = +- 1 -> 10V CV changes duration by +-10s
 	bool sendEOConStop = false; // if the stop port is triggered, should we send an EOC?
 	bool updateDurationOnlyOnTrigger = false;
@@ -131,7 +131,6 @@ struct Miniramp : Module {
 		configOutput(FINISH_OUTPUT, "Ramp finished");
 
 		for(int c = 0; c < MAX_POLY_CHANNELS; c++) {
-			ramp_duration[c] = ramp_base_duration;
 			gateGen[c].reset();
 			eocGen[c].reset();
 		}
@@ -199,8 +198,7 @@ void Miniramp::process(const ProcessArgs &args) {
 
 	for(int c = 0; c < std::max(channels, 1); c++) {
 		float cv_voltage = inputs[RAMP_LENGTH_INPUT].getVoltage(c);
-		//TODO: we now have ramp_duration and gateGen.triggerDuration referring to the same thing ...
-		ramp_duration[c] = clamp(ramp_base_duration + cv_voltage * cv_scale, 0.f, 10.f);
+		float ramp_duration = clamp(ramp_base_duration + cv_voltage * cv_scale, 0.f, 10.f);
 
 		bool triggered = inputTrigger[c].process(rescale(
 					inputs[TRIG_INPUT].getVoltage(c), 0.1f, 2.f, 0.f, 1.f));
@@ -217,13 +215,13 @@ void Miniramp::process(const ProcessArgs &args) {
 			gateGen[c].reset();
 			eocGen[c].reset();
 			eoc_triggered = sendEOConStop;
-		} else if(triggered && ramp_duration[c] > 0.f) {
-			gateGen[c].trigger(ramp_duration[c]);
+		} else if(triggered) {
+			gateGen[c].trigger(ramp_duration);
 		}
 
 		// update trigger duration even in the middle of a trigger if applicable
 		if(!updateDurationOnlyOnTrigger) {
-			gateGen[c].triggerDuration = ramp_duration[c];
+			gateGen[c].triggerDuration = ramp_duration;
 		}
 
 		bool gate_prev = !gateGen[c].finished;
@@ -328,7 +326,7 @@ struct MsDisplayWidget : TextBox {
 		cvLabelStatus = cvDisplayTimer.process();
 		if(module) {
 			//TODO: don't show cv-modulated value if turning main knob
-			updateDisplayValue(cvLabelStatus ? fabs(module->cv_scale) * 10.f : module->ramp_duration[0]);
+			updateDisplayValue(cvLabelStatus ? fabs(module->cv_scale) * 10.f : module->gateGen[0].triggerDuration);
 		}
 	}
 
