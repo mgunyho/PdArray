@@ -83,6 +83,7 @@ struct Miniramp : Module {
 	float ramp_duration;
 	float cv_scale = 0.f; // cv_scale = +- 1 -> 10V CV changes duration by +-10s
 	bool sendEOConStop = false; // if the stop port is triggered, should we send an EOC?
+	bool updateDurationOnlyOnTrigger = false;
 	RampFinishedMode rampFinishedMode = RAMP_FINISHED_0;
 
 	Miniramp() {
@@ -140,6 +141,7 @@ struct Miniramp : Module {
 		json_t *root = json_object();
 		json_object_set_new(root, "rampFinishedMode", json_integer(rampFinishedMode));
 		json_object_set_new(root, "sendEOConStop", json_boolean(sendEOConStop));
+		json_object_set_new(root, "updateDurationOnlyOnTrigger", json_boolean(updateDurationOnlyOnTrigger));
 
 		return root;
 	}
@@ -156,6 +158,11 @@ struct Miniramp : Module {
 		json_t *sendEOConStop_J = json_object_get(root, "sendEOConStop");
 		if(sendEOConStop_J) {
 			sendEOConStop = json_boolean_value(sendEOConStop_J);
+		}
+
+		json_t *updateDurationOnlyOnTrigger_J = json_object_get(root, "updateDurationOnlyOnTrigger");
+		if(updateDurationOnlyOnTrigger_J) {
+			updateDurationOnlyOnTrigger = json_boolean_value(updateDurationOnlyOnTrigger_J);
 		}
 	}
 
@@ -211,8 +218,10 @@ void Miniramp::process(const ProcessArgs &args) {
 			gateGen[c].trigger(ramp_duration);
 		}
 
-		// update trigger duration even in the middle of a trigger
-		gateGen[c].triggerDuration = ramp_duration;
+		// update trigger duration even in the middle of a trigger if applicable
+		if(!updateDurationOnlyOnTrigger) {
+			gateGen[c].triggerDuration = ramp_duration;
+		}
 
 		bool gate_prev = !gateGen[c].finished;
 		bool gate = gateGen[c].process(deltaTime);
@@ -457,6 +466,11 @@ struct MinirampWidget : ModuleWidget {
 			menu->addChild(new BoolToggleMenuItem(
 				"Send EOC on STOP",
 				&module->sendEOConStop
+			));
+
+			menu->addChild(new BoolToggleMenuItem(
+				"Update duration only on trigger",
+				&module->updateDurationOnlyOnTrigger
 			));
 
 		}
