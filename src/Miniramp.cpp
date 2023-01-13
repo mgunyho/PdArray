@@ -88,13 +88,38 @@ struct Miniramp : Module {
 	Miniramp() {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 
-		configParam(Miniramp::RAMP_LENGTH_PARAM, 0.f, 10.f,
-					// 0.5s in log scale
-					//rescale(-0.30103f, MIN_EXPONENT, MAX_EXPONENT, 0.f,10.f)
-					5.f, // 0.1s in log mode, 5s in lin mode
-					"Ramp duration");
+		struct RampLengthParamQuantity : ParamQuantity {
+			float getDisplayValue() override {
+				auto *module = reinterpret_cast<Miniramp*>(this->module);
+				return module->ramp_base_duration;
+			}
+		};
 
-		configParam(Miniramp::CV_AMT_PARAM, -1.f, 1.f, 0.f, "Ramp duration CV mod amount");
+		struct RampLengthCVParamQuantity : ParamQuantity {
+			float getDisplayValue() override {
+				auto *module = reinterpret_cast<Miniramp*>(this->module);
+				// have to multiply by 10 to get seconds (cv_scale is seconds per volt)
+				return module->cv_scale * 10;
+			}
+		};
+
+
+		configParam<RampLengthParamQuantity>(
+			Miniramp::RAMP_LENGTH_PARAM,
+			0.f, 10.f,  // minvalue, maxvalue
+			5.f, // default value, 0.1s in log mode, 5s in lin mode
+			"Ramp duration", // name
+			" s" // unit
+		);
+
+		configParam<RampLengthCVParamQuantity>(
+			Miniramp::CV_AMT_PARAM,
+			-1.f, 1.f,
+			0.f,
+			"Ramp duration CV mod amount",
+			" s"
+		);
+
 		configSwitch(Miniramp::LIN_LOG_MODE_PARAM, 0.f, 1.f, 1.f, "Ramp duration adjust mode", { "Linear", "Logarithmic" });
 		configInput(TRIG_INPUT, "Trigger");
 		configInput(RAMP_LENGTH_INPUT, "Ramp duration CV modulation");
