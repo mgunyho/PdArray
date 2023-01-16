@@ -234,11 +234,11 @@ However, from the "output mode" right-click menu, you can also configure
 Ministep to output the step number directly as a voltage. In this mode, step 1
 outputs 0V, step 2 outputs 1V and so on.
 
-For polyphonic signals, there will be one counter per channel. Sending a
-monophonic trigger to the reset input resets all channels, while a polyphonic
-trigger can be used to reset individual channels. Similarly, a monophonic CV
-connected to SCL scales the step size of all channels, while a polyphonic
-signal affects each channel separately.
+If any of the INC, DEC or RST inputs are polyphonic, there will be one counter
+per channel. Sending a monophonic trigger to the reset input resets all
+channels, while a polyphonic trigger can be used to reset individual channels.
+Similarly, a monophonic CV connected to SCL scales the step size of all
+channels, while a polyphonic signal affects each channel separately.
 
 By detecting the falling edge of the output or applying a threshold to the
 output value near zero, you can use Ministep as a clock divider! Fiddling with
