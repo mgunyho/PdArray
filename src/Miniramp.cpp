@@ -107,7 +107,7 @@ struct Miniramp : Module {
 			Miniramp::RAMP_LENGTH_PARAM,
 			0.f, 10.f,  // minvalue, maxvalue
 			5.f, // default value, 0.1s in log mode, 5s in lin mode
-			"Ramp duration", // name
+			"Ramp duration without CV", // name
 			" s" // unit
 		);
 
