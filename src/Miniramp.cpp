@@ -205,7 +205,6 @@ struct Miniramp : Module {
 
 };
 
-
 void Miniramp::process(const ProcessArgs &args) {
 	float deltaTime = args.sampleTime;
 	const int channels = std::max(
@@ -226,7 +225,6 @@ void Miniramp::process(const ProcessArgs &args) {
 
 		bool eoc_triggered = false;
 
-		//TODO: polyphony: if there's only one channel, reset all ramps
 		if (stopTrigger[c].process(rescale(
 			inputs[STOP_INPUT].getPolyVoltage(c),
 			0.1f, 2.0f,
@@ -310,7 +308,7 @@ struct MsDisplayWidget : TextBox {
 			s = string::f("%#.4f", v);
 			// hacky way to make monospace fonts prettier
 			std::replace(s.begin(), s.end(), '0', 'O');
-			// if the length is 10.0, we will have too many decimal digits, truncate
+			// if the displayed value is 10.0, we will have too many decimal digits, truncate
 			s = s.substr(0, 6);
 			setText(s);
 		}
@@ -369,9 +367,9 @@ struct CustomTrimpot : Trimpot {
 template <typename T>
 struct MinirampEnumChildMenuItem : MenuItem {
 	Miniramp *module;
-	// Miniramp::RampFinishedMode or Miniramp::GateEOCMode
+	// Miniramp::RampFinishedMode
 	T mode;
-	// Miniramp->rampFinishedMode or Miniramp->gateEOCMode
+	// Miniramp->rampFinishedMode
 	T *modeParam;
 
 	MinirampEnumChildMenuItem(
