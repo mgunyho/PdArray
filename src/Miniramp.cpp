@@ -77,11 +77,9 @@ struct Miniramp : Module {
 
 	dsp::SchmittTrigger inputTrigger[MAX_POLY_CHANNELS];
 	dsp::SchmittTrigger stopTrigger[MAX_POLY_CHANNELS];
+	// Main pulse generator. The duration of these determinse the ramp duration.
 	CustomPulseGenerator gateGen[MAX_POLY_CHANNELS];
 	CustomPulseGenerator eocGen[MAX_POLY_CHANNELS];
-	float ramp_base_duration = 0.5f; // ramp duration without CV
-	float ramp_duration;
-	float cv_scale = 0.f; // cv_scale = +- 1 -> 10V CV changes duration by +-10s
 	bool sendEOConStop = false; // if the stop port is triggered, should we send an EOC?
 	bool updateDurationOnlyOnTrigger = false;
 	RampFinishedMode rampFinishedMode = RAMP_FINISHED_0;
@@ -92,15 +90,15 @@ struct Miniramp : Module {
 		struct RampLengthParamQuantity : ParamQuantity {
 			float getDisplayValue() override {
 				auto *module = reinterpret_cast<Miniramp*>(this->module);
-				return module->ramp_base_duration;
+				return module->get_ramp_base_duration();
 			}
 		};
 
 		struct RampLengthCVParamQuantity : ParamQuantity {
 			float getDisplayValue() override {
 				auto *module = reinterpret_cast<Miniramp*>(this->module);
-				// have to multiply by 10 to get seconds (cv_scale is seconds per volt)
-				return module->cv_scale * 10;
+				// have to multiply by 10 to get seconds (CV scale is seconds per 10V)
+				return module->get_cv_scale() * 10;
 			}
 		};
 
@@ -130,7 +128,6 @@ struct Miniramp : Module {
 		configOutput(EOC_OUTPUT, "End of cycle");
 		configOutput(FINISH_OUTPUT, "Ramp finished");
 
-		ramp_duration = ramp_base_duration;
 		for(int c = 0; c < MAX_POLY_CHANNELS; c++) {
 			gateGen[c].reset();
 			eocGen[c].reset();
@@ -164,49 +161,74 @@ struct Miniramp : Module {
 		if(updateDurationOnlyOnTrigger_J) {
 			updateDurationOnlyOnTrigger = json_boolean_value(updateDurationOnlyOnTrigger_J);
 		}
+
+		// Set initial ramp durations, otherwise they are not updated if
+		// updateDurationOnlyOnTrigger is enabled, and the display looks wrong.
+		float ramp_duration = get_ramp_base_duration();
+		for(int c = 0; c < MAX_POLY_CHANNELS; c++) {
+			gateGen[c].triggerDuration = ramp_duration;
+		}
+	}
+
+	// Calculate the ramp base duration from the value of the main knob and
+	// based on the lin/log mode switch.
+	float get_ramp_base_duration() {
+		float knob_value = params[RAMP_LENGTH_PARAM].getValue();
+		if(params[LIN_LOG_MODE_PARAM].getValue() < 0.5f) {
+			// linear mode
+			return knob_value;
+		} else {
+			// logarithmic mode
+			float exponent = rescale(knob_value,
+					0.f, 10.f, MIN_EXPONENT, MAX_EXPONENT);
+			return powf(10.0f, exponent);
+		}
+	}
+
+	// Calculate the CV modulation scale factor (in units of 1/(10V))
+	float get_cv_scale() {
+		float cv_amt = params[CV_AMT_PARAM].getValue();
+		if(params[LIN_LOG_MODE_PARAM].getValue() < 0.5f) {
+			// linear mode
+			return cv_amt;
+		} else {
+			// logarithmic mode
+			float exponent = rescale(fabs(cv_amt), 0.f, 1.f,
+					MIN_EXPONENT, MAX_EXPONENT);
+
+			// decrease exponent by one so that 10V maps to 1.0 (100%) CV.
+			return powf(10.0f, exponent - 1.f) * signum(cv_amt); // take sign into account
+		}
 	}
 
 	void process(const ProcessArgs &args) override;
 
 };
 
+
 void Miniramp::process(const ProcessArgs &args) {
 	float deltaTime = args.sampleTime;
-	const int channels = inputs[TRIG_INPUT].getChannels();
+	const int channels = std::max(
+		inputs[TRIG_INPUT].getChannels(),
+		inputs[CV_AMT_PARAM].getChannels()
+	);
 
 	// handle duration knob and CV
-	float knob_value = params[RAMP_LENGTH_PARAM].getValue();
-	float cv_amt = params[CV_AMT_PARAM].getValue();
-	float cv_voltage = inputs[RAMP_LENGTH_INPUT].getVoltage();
-
-	if(params[LIN_LOG_MODE_PARAM].getValue() < 0.5f) {
-		// linear mode
-		cv_scale = cv_amt;
-		ramp_base_duration = knob_value;
-	} else {
-		// logarithmic mode
-		float exponent = rescale(knob_value,
-				0.f, 10.f, MIN_EXPONENT, MAX_EXPONENT);
-
-		float cv_exponent = rescale(fabs(cv_amt), 0.f, 1.f,
-				MIN_EXPONENT, MAX_EXPONENT);
-
-		// decrease exponent by one so that 10V maps to 1.0 (100%) CV.
-		cv_scale = powf(10.0f, cv_exponent - 1.f) * signum(cv_amt); // take sign into account
-
-		ramp_base_duration = powf(10.0f, exponent);
-	}
-	ramp_duration = clamp(ramp_base_duration + cv_voltage * cv_scale, 0.f, 10.f);
+	float ramp_base_duration = get_ramp_base_duration();
+	float cv_scale = get_cv_scale();
 
 	for(int c = 0; c < std::max(channels, 1); c++) {
+		float cv_voltage = inputs[RAMP_LENGTH_INPUT].getPolyVoltage(c);
+		float ramp_duration = clamp(ramp_base_duration + cv_voltage * cv_scale, 0.f, 10.f);
+
 		bool triggered = inputTrigger[c].process(rescale(
-					inputs[TRIG_INPUT].getVoltage(c), 0.1f, 2.f, 0.f, 1.f));
+					inputs[TRIG_INPUT].getPolyVoltage(c), 0.1f, 2.f, 0.f, 1.f));
 
 		bool eoc_triggered = false;
 
 		//TODO: polyphony: if there's only one channel, reset all ramps
 		if (stopTrigger[c].process(rescale(
-			inputs[STOP_INPUT].getVoltage(c),
+			inputs[STOP_INPUT].getPolyVoltage(c),
 			0.1f, 2.0f,
 			0.0f, 1.0f
 		))) {
@@ -214,7 +236,7 @@ void Miniramp::process(const ProcessArgs &args) {
 			gateGen[c].reset();
 			eocGen[c].reset();
 			eoc_triggered = sendEOConStop;
-		} else if(triggered && ramp_duration > 0.f) {
+		} else if(triggered) {
 			gateGen[c].trigger(ramp_duration);
 		}
 
@@ -258,6 +280,8 @@ void Miniramp::process(const ProcessArgs &args) {
 	}
 	outputs[RAMP_OUTPUT].setChannels(channels);
 	outputs[GATE_OUTPUT].setChannels(channels);
+	outputs[EOC_OUTPUT].setChannels(channels);
+	outputs[FINISH_OUTPUT].setChannels(channels);
 }
 
 struct MsDisplayWidget : TextBox {
@@ -325,7 +349,7 @@ struct MsDisplayWidget : TextBox {
 		cvLabelStatus = cvDisplayTimer.process();
 		if(module) {
 			//TODO: don't show cv-modulated value if turning main knob
-			updateDisplayValue(cvLabelStatus ? fabs(module->cv_scale) * 10.f : module->ramp_duration);
+			updateDisplayValue(cvLabelStatus ? fabs(module->get_cv_scale()) * 10.f : module->gateGen[0].triggerDuration);
 		}
 	}
 
