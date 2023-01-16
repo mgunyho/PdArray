@@ -299,6 +299,7 @@ struct MsDisplayWidget : TextBox {
 		textAlign = NVG_ALIGN_LEFT | NVG_ALIGN_TOP;
 		textOffset.x = 3;
 		fontSize = 19;
+		updateDisplayValue(1.23456f);
 	}
 
 	void updateDisplayValue(float v) {
