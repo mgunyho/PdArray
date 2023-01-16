@@ -1,6 +1,6 @@
 # Changelog for PdArray
 
-## v2.1.0 (unreleased)
+## v2.1.0 (2023-01-16)
 
 Fairly large update to Miniramp.
 
