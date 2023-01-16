@@ -157,17 +157,57 @@ setting from the right-click menu.
 ![miniramp](screenshots/miniramp.png)
 
 Miniramp is a small envelope generator that outputs a linear ramp from 0 to 10V
-in a certain time. The duration of the ramp is shown on the bottom. The large
-knob controls the base duration, either with linear or logarithmic scaling as
-selected by the LIN/LOG switch. You can control the ramp duration / speed with
-the CV input and CV amount knob. When you send a trigger to TRG IN, RAMP will
-output the ramp, and the GATE output will output 10V while the ramp is in
-progress, useful for e.g. the REC input of Array.
+in a given time. The duration of the ramp is shown on a display at the bottom.
+The large knob controls the base duration, either with linear or logarithmic
+scaling as selected by the LIN/LOG switch. You can control the ramp duration /
+speed with the CV input and CV amount knob.
 
-You can right-click on Miniramp to control how it behaves after the ramp has
-finished. By default, the output value will reset to 0V, but if the 10V option
-is selected, the output value will remain at 10V. This may help preventing
-clicks if you're using Miniramp for playing back samples using Array.
+When you send a trigger to TRG IN, the RAMP output will output the ramp and the
+GATE output will output 10V while the ramp is in progress (useful for e.g. the
+REC input of Array). The EOC output outputs a pulse when the ramp ends, and the
+FINISH output indicates whether the ramp is finished: it outputs 0V when GATE
+outputs 10V and 10V when GATE outputs 0V. You can interrupt (i.e. reset) the
+ramp by sending a pulse to the STOP input.
+
+If the CV modulation or TRIG IN input of Miniramp is polyphonic, all of the
+outputs will be polyphonic, with individual ramp, gate, EOC and finish
+indicators for each channel. If any of the CV, TRG IN or STOP inputs are
+monophonic, they affect all channels; if they are polyphonic, they affect each
+channel individually. For example, if you have a polyphonic signal going to the
+CV input (with the CV AMT knob set to a nonzero value), and you send a
+monophonic trigger to TRIG IN, you can trigger multiple ramps with different
+lengths simultaneously.
+
+You can right-click on Miniramp to change its behavior. By default, the ramp
+output value is 0V when the ramp output is finished, but with the "ramp value
+when finished" option set to 10V, the output value will remain at 10V. This may
+help preventing clicks if you're using Miniramp for playing back samples from
+an Array. If the "Send EOC on STOP" option is enabled, Miniramp will output a
+trigger from the EOC port even if the ramp is interrupted by a trigger input to
+the STOP port. If the "Update duration only on trigger" option is enabled, the
+duration knob and CV modulation will only affect the ramp duration when
+Miniramp receives a trigger from the TRG IN input. By default, the ramp
+duration is updated continuously. Enabling this option is equivalent to having
+a sample and hold on the ramp duration. With this option enabled, the display
+shows the ramp duration that was in effect when the last trigger was received.
+
+### Chaining Arrays using Miniramp
+
+Using the EOC output, it is possible to chain several Arrays one after another,
+for example to create an envelope with several stages or to play samples that
+exceed the maximum size of Array.
+
+![envelope-chaining](screenshots/envelope-chaining.png)
+
+Note how in the above screenshot, the segments parts have different lengths
+because of the different duration settings of the ramps. The VCAs modulated by
+the GATE outputs mute the arrays while they are not playing. To avoid clicks
+between the envelope segments, make sure that you join up the start and end
+values of the segments and set the "interpolation at boundary" mode of the
+Arrays to "mirror" or "constant". Despite this, you may get some some
+single-sample spikes (zero values) at the segment boundaries, as you can see on
+the oscilloscope display in the screenshot above. These can be removed with
+e.g. the VCV Process module with a 1-ms slew.
 
 
 ## Ministep
@@ -194,11 +234,11 @@ However, from the "output mode" right-click menu, you can also configure
 Ministep to output the step number directly as a voltage. In this mode, step 1
 outputs 0V, step 2 outputs 1V and so on.
 
-For polyphonic signals, there will be one counter per channel. Sending a
-monophonic trigger to the reset input resets all channels, while a polyphonic
-trigger can be used to reset individual channels. Similarly, a monophonic CV
-connected to SCL scales the step size of all channels, while a polyphonic
-signal affects each channel separately.
+If any of the INC, DEC or RST inputs are polyphonic, there will be one counter
+per channel. Sending a monophonic trigger to the reset input resets all
+channels, while a polyphonic trigger can be used to reset individual channels.
+Similarly, a monophonic CV connected to SCL scales the step size of all
+channels, while a polyphonic signal affects each channel separately.
 
 By detecting the falling edge of the output or applying a threshold to the
 output value near zero, you can use Ministep as a clock divider! Fiddling with
@@ -219,7 +259,7 @@ make install
 
 
 ## Licenses
-The source code and panel artwork are copyright 2021 Márton Gunyhó. Licensed
+The source code and panel artwork are copyright 2023 Márton Gunyhó. Licensed
 under the EUPL (see [LICENSE](LICENSE.txt)). This repo also contains the fonts
 used for creating the panels: Overpass is licensed under the Open Font License
 (see [here](res/fonts/OFL.txt)) and Roboto is licensed under the Apache 2
