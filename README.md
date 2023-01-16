@@ -159,8 +159,8 @@ setting from the right-click menu.
 Miniramp is a small envelope generator that outputs a linear ramp from 0 to 10V
 in a given time. The duration of the ramp is shown on a display at the bottom.
 The large knob controls the base duration, either with linear or logarithmic
-scaling as selected by the LIN/LOG switch. You can control the ramp duration /
-speed with the CV input and CV amount knob.
+scaling as selected by the LIN/LOG switch. You can also control the ramp
+duration / speed with the CV input and CV amount knob.
 
 When you send a trigger to TRG IN, the RAMP output will output the ramp and the
 GATE output will output 10V while the ramp is in progress (useful for e.g. the
@@ -170,44 +170,44 @@ outputs 10V and 10V when GATE outputs 0V. You can interrupt (i.e. reset) the
 ramp by sending a pulse to the STOP input.
 
 If the CV modulation or TRIG IN input of Miniramp is polyphonic, all of the
-outputs will be polyphonic, with individual ramp, gate, EOC and finish
+outputs will be polyphonic, with individual ramp, gate, EOC, and finish
 indicators for each channel. If any of the CV, TRG IN or STOP inputs are
 monophonic, they affect all channels; if they are polyphonic, they affect each
 channel individually. For example, if you have a polyphonic signal going to the
 CV input (with the CV AMT knob set to a nonzero value), and you send a
-monophonic trigger to TRIG IN, you can trigger multiple ramps with different
-lengths simultaneously.
+monophonic trigger to TRIG IN, you can simultaneously trigger multiple ramps
+with different lengths.
 
 You can right-click on Miniramp to change its behavior. By default, the ramp
 output value is 0V when the ramp output is finished, but with the "ramp value
-when finished" option set to 10V, the output value will remain at 10V. This may
-help preventing clicks if you're using Miniramp for playing back samples from
-an Array. If the "Send EOC on STOP" option is enabled, Miniramp will output a
-trigger from the EOC port even if the ramp is interrupted by a trigger input to
-the STOP port. If the "Update duration only on trigger" option is enabled, the
-duration knob and CV modulation will only affect the ramp duration when
-Miniramp receives a trigger from the TRG IN input. By default, the ramp
-duration is updated continuously. Enabling this option is equivalent to having
-a sample and hold on the ramp duration. With this option enabled, the display
-shows the ramp duration that was in effect when the last trigger was received.
+when finished" option set to 10V, the output value will remain at 10V. This can
+prevent clicks if you're using Miniramp to play back samples from an Array. If
+the "Send EOC on STOP" option is enabled, Miniramp will output a trigger from
+the EOC port even if the ramp is interrupted by a trigger input to the STOP
+port. If the "Update duration only on trigger" option is enabled, the duration
+knob and CV modulation will only affect the ramp duration when Miniramp
+receives a trigger from the TRG IN input. By default, the ramp duration is
+updated continuously. Enabling this option is equivalent to having a sample and
+hold on the ramp duration. With this option enabled, the display shows the ramp
+duration that was in effect when the last trigger was received.
 
 ### Chaining Arrays using Miniramp
 
 Using the EOC output, it is possible to chain several Arrays one after another,
-for example to create an envelope with several stages or to play samples that
+for example to create an envelope with several stages, or to play samples that
 exceed the maximum size of Array.
 
 ![envelope-chaining](screenshots/envelope-chaining.png)
 
-Note how in the above screenshot, the segments parts have different lengths
-because of the different duration settings of the ramps. The VCAs modulated by
-the GATE outputs mute the arrays while they are not playing. To avoid clicks
-between the envelope segments, make sure that you join up the start and end
-values of the segments and set the "interpolation at boundary" mode of the
-Arrays to "mirror" or "constant". Despite this, you may get some some
-single-sample spikes (zero values) at the segment boundaries, as you can see on
-the oscilloscope display in the screenshot above. These can be removed with
-e.g. the VCV Process module with a 1-ms slew.
+Note how in the above screenshot, the segments have different lengths because
+of the different duration settings of the ramps. The CV on the VCA mixer is
+modulated by the GATE outputs to mute the arrays while they are not playing. To
+avoid clicks between the envelope segments, make sure that you join up the
+start and end values of the segments, and set the "interpolation at boundary"
+mode of the Arrays to "mirror" or "constant". Despite this, you may get some
+single-sample spikes (zero values) at the segment boundaries, as you can see in
+the screenshot above. These can be removed with e.g. the Process module from
+VCV Fundamental with a 1-ms slew.
 
 
 ## Ministep
