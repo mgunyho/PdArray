@@ -208,24 +208,27 @@ struct Miniramp : Module {
 
 void Miniramp::process(const ProcessArgs &args) {
 	float deltaTime = args.sampleTime;
-	const int channels = inputs[TRIG_INPUT].getChannels();
+	const int channels = std::max(
+		inputs[TRIG_INPUT].getChannels(),
+		inputs[CV_AMT_PARAM].getChannels()
+	);
 
 	// handle duration knob and CV
 	float ramp_base_duration = get_ramp_base_duration();
 	float cv_scale = get_cv_scale();
 
 	for(int c = 0; c < std::max(channels, 1); c++) {
-		float cv_voltage = inputs[RAMP_LENGTH_INPUT].getVoltage(c);
+		float cv_voltage = inputs[RAMP_LENGTH_INPUT].getPolyVoltage(c);
 		float ramp_duration = clamp(ramp_base_duration + cv_voltage * cv_scale, 0.f, 10.f);
 
 		bool triggered = inputTrigger[c].process(rescale(
-					inputs[TRIG_INPUT].getVoltage(c), 0.1f, 2.f, 0.f, 1.f));
+					inputs[TRIG_INPUT].getPolyVoltage(c), 0.1f, 2.f, 0.f, 1.f));
 
 		bool eoc_triggered = false;
 
 		//TODO: polyphony: if there's only one channel, reset all ramps
 		if (stopTrigger[c].process(rescale(
-			inputs[STOP_INPUT].getVoltage(c),
+			inputs[STOP_INPUT].getPolyVoltage(c),
 			0.1f, 2.0f,
 			0.0f, 1.0f
 		))) {
@@ -277,6 +280,8 @@ void Miniramp::process(const ProcessArgs &args) {
 	}
 	outputs[RAMP_OUTPUT].setChannels(channels);
 	outputs[GATE_OUTPUT].setChannels(channels);
+	outputs[EOC_OUTPUT].setChannels(channels);
+	outputs[FINISH_OUTPUT].setChannels(channels);
 }
 
 struct MsDisplayWidget : TextBox {
