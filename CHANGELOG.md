@@ -4,9 +4,17 @@
 
 Fairly large update to Miniramp.
 
+- New outputs: EOC (End of Cycle) and FINISH (inverse of GATE). This makes chaining Arrays easier (thanks @davephillips for the feature suggestion).
+- New input: STOP / reset
+- Miniramp is now wider, to fit the new input and outputs
+- Polyphonic behavior of Miniramp is now consistent with that of Ministep: if either the trigger or CV input are polyphonic, the output is polyphonic as well, and if the trigger, CV or STOP inputs are monophonic, they affect all channels
+- New right click menu option to update trigger duration only when a trigger is received
 - Duration and CV amount knob tooltips now show the duration / CV amount correctly in seconds
+- Extended Miniramp manual to explain polyphony
 
 Additional changes:
+
+- Updated screenshots in manual to Rack V2
 
 ## v2.0.6 (2021-12-29)
 
