@@ -57,7 +57,10 @@ struct Ministep : Module {
 		configOutput(STEP_OUTPUT, "Step");
 
 		nSteps = DEFAULT_NSTEPS;
-		for(int i = 0; i < MAX_POLY_CHANNELS; i++) currentStep[i] = 0;
+		for(int i = 0; i < MAX_POLY_CHANNELS; i++) {
+			currentStep[i] = 0;
+			currentScale[i] = 1;
+		}
 	}
 
 	void onReset() override {
