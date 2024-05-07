@@ -1,5 +1,9 @@
 # Changelog for PdArray
 
+## v2.1.1 (2024-05-07)
+
+Fixed used of undefined values in Ministep when module is added while plugin is bypassed (thanks @FalkTX)
+
 ## v2.1.0 (2023-01-16)
 
 Fairly large update to Miniramp.
