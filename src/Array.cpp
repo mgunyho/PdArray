@@ -642,15 +642,27 @@ struct ArrayFileSelectItem : MenuItem {
 
 	void onAction(const event::Action &e) override {
 		std::string dir = module->lastLoadedPath.empty() ? asset::user("") : rack::system::getDirectory(module->lastLoadedPath);
+#ifdef USING_CARDINAL_NOT_RACK
+		Array *module = this->module;
+		bool resizeBuffer = this->resizeBuffer;
+		async_dialog_filebrowser(false, nullptr, dir.c_str(), "Load Wav file", [module, resizeBuffer](char* path) {
+			pathSelected(module, resizeBuffer, path);
+		});
+#else
 		osdialog_filters* filters = osdialog_filters_parse(".wav files:wav");
 		char *path = osdialog_file(OSDIALOG_OPEN, dir.c_str(), NULL, filters);
+		osdialog_filters_free(filters);
+		pathSelected(module, resizeBuffer, path);
+#endif
+	}
+
+	static void pathSelected(Array *module, bool resizeBuffer, char *path) {
 		if(path) {
 			module->loadSample(path, resizeBuffer);
 			module->lastLoadedPath = path;
 			module->enableEditing = false; // disable editing for loaded wav files
 			free(path);
 		}
-		osdialog_filters_free(filters);
 	}
 };
 
